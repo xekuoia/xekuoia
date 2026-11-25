@@ -485,6 +485,12 @@ body.moving #out{cursor:grabbing}
 @media (max-width:1799px){.top #donateBtn{width:34px;padding:0;justify-content:center;gap:0}.top #donateBtn .cap{display:none}}
 @media (max-width:1366px){.top .spacer{min-width:0;flex-basis:0;width:auto}}
 @media (max-width:1366px){.top #scene{max-width:136px}.top #fmt button{padding-left:9px;padding-right:9px}}
+
+.compat{position:fixed;left:50%;bottom:20px;z-index:40;width:min(560px,calc(100vw - 24px));display:flex;align-items:center;gap:14px;padding:14px 14px 14px 18px;border-radius:18px;
+  background:rgba(24,25,30,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 50px -12px rgba(0,0,0,.7);
+  transform:translate(-50%,12px);opacity:0;transition:opacity .25s ease,transform .3s cubic-bezier(.23,1,.32,1)}
+.compat.show{opacity:1;transform:translate(-50%,0)}.compat p{margin:0;font-size:13.5px;line-height:1.45;color:var(--ink)}.compat .btn{flex:none}
+@media (prefers-reduced-motion:reduce){.compat{transition:opacity .2s ease;transform:translate(-50%,0)}}
 </style>
 </head>
 <body data-layout="side">
@@ -2617,6 +2623,20 @@ if(!OUT){
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#help').classList.contains('open'))closeHelp();});
 }
 
+
+/* ================= gentle notice for phones and browsers without full support ================= */
+if(!OUT){(()=>{let seen=false;try{seen=localStorage.getItem('xekuoia-compat')==='1';}catch(e){}if(seen)return;
+  const mobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<820);
+  const miss=[];if(!navigator.requestMIDIAccess)miss.push('midi');if(!('VideoEncoder' in window))miss.push('export');if(!gl)miss.push('gl');
+  if(!mobile&&!miss.length)return;
+  const msg=mobile?'xekuoia está pensada para la compu: en el celular la pantalla queda chica y no hay MIDI. Para usarla de verdad, abrila en Chrome o Edge desde una computadora.'
+    :miss.includes('gl')?'Este navegador no puede dibujar los efectos. Abrí xekuoia en Chrome o Edge desde la compu.'
+    :miss.length===2?'xekuoia funciona mejor en Chrome o Edge. En este navegador no van a andar el MIDI ni la exportación a video.'
+    :miss[0]==='midi'?'xekuoia funciona mejor en Chrome o Edge. En este navegador no va a andar el controlador MIDI.':'xekuoia funciona mejor en Chrome o Edge. En este navegador puede fallar la exportación a video.';
+  const el=document.createElement('div');el.className='compat';el.setAttribute('role','status');el.innerHTML=`<p>${esc(msg)}</p><button class="btn solid" type="button">Entendido</button>`;
+  document.body.append(el);requestAnimationFrame(()=>el.classList.add('show'));
+  el.querySelector('button').onclick=()=>{try{localStorage.setItem('xekuoia-compat','1');}catch(e){}el.classList.remove('show');setTimeout(()=>el.remove(),300);};})();}
+
 /* ================= exporter library, checked against a fixed fingerprint before it runs ================= */
 const MB_URL='https://cdn.jsdelivr.net/npm/mediabunny@1.65.2/dist/bundles/mediabunny.min.mjs',MB_SRI='sha384-T8lmpVp710kO8OFEAS/UhBhlhU102lbCXVAGQN/ctafcLzmcPchyQNH1AAqJntUX';
 let MBP=null;
@@ -2765,6 +2785,11 @@ async function restoreSession(){const man=readBin();if(!man)return;const missing
 
 /* ================= i18n: Spanish source → English ================= */
 const DICT={
+'Entendido':'Got it','xekuoia está pensada para la compu: en el celular la pantalla queda chica y no hay MIDI. Para usarla de verdad, abrila en Chrome o Edge desde una computadora.':'xekuoia is made for computers: on a phone the screen is too small and there’s no MIDI. To really use it, open it in Chrome or Edge on a computer.',
+'Este navegador no puede dibujar los efectos. Abrí xekuoia en Chrome o Edge desde la compu.':'This browser can’t draw the effects. Open xekuoia in Chrome or Edge on a computer.',
+'xekuoia funciona mejor en Chrome o Edge. En este navegador no van a andar el MIDI ni la exportación a video.':'xekuoia works best in Chrome or Edge. In this browser MIDI and video export won’t work.',
+'xekuoia funciona mejor en Chrome o Edge. En este navegador no va a andar el controlador MIDI.':'xekuoia works best in Chrome or Edge. In this browser the MIDI controller won’t work.',
+'xekuoia funciona mejor en Chrome o Edge. En este navegador puede fallar la exportación a video.':'xekuoia works best in Chrome or Edge. In this browser video export may fail.',
 'Apoyar':'Support','Apoyar xekuoia en GitHub Sponsors':'Support xekuoia on GitHub Sponsors',
 'Cómo usar':'How to use','Cómo usar xekuoia':'How to use xekuoia','Cerrar ayuda':'Close help','Secciones de la ayuda':'Help sections',
 'Rotación automática':'Auto rotation','Gira':'Spins','Quieto':'Still','Pos Z':'Pos Z','Audio de la compu':'Computer audio','Sonando':'Playing','Usar audio de la compu':'Use computer audio','Usando el audio de la compu.':'Using the computer audio.',

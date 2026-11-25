@@ -3,10 +3,176 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>xekuoia</title>
-<meta http-equiv="refresh" content="0; url=app/">
-<link rel="canonical" href="https://xekuoia.com/app/">
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#111;color:#eee;font:16px/1.5 system-ui,sans-serif}a{color:#fff}</style>
+<title>xekuoia: un instrumento visual en tu navegador</title>
+<meta name="description" content="Creá reels, motion graphics y visuales en vivo desde el navegador. Gratis, libre y sin instalar nada.">
+<meta property="og:title" content="xekuoia">
+<meta property="og:description" content="Un instrumento visual para crear motion graphics y visuales en vivo desde el navegador.">
+<meta property="og:image" content="https://xekuoia.com/assets/og.jpg">
+<meta property="og:url" content="https://xekuoia.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#141416">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20132%20132%22%3E%3Crect%20width%3D%22132%22%20height%3D%22132%22%20rx%3D%2228%22%20fill%3D%22%23111%22/%3E%3Cg%20transform%3D%22translate%2819.5%2019.5%29%20scale%28.7%29%22%20fill%3D%22%23fff%22%3E%3Cpath%20d%3D%22M75%20131.25V112.5V93.75H93.75V112.5V131.25H75ZM0%20131.25V112.5V93.75H18.75V112.5V131.25H0ZM75%2093.75H56.25V75H75V93.75ZM18.75%2093.75V75H37.5V93.75H18.75ZM37.5%2075V56.25H56.25V75H37.5ZM56.25%2056.25V37.5H75V56.25H56.25ZM37.5%2056.25H18.75V37.5H37.5V56.25ZM75%2037.5V18.75V0H93.75V18.75V37.5H75ZM18.75%2037.5H0V18.75V0H18.75V18.75V37.5Z%22%20/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#141416;--surface:#1c1c20;--ink:#f2f1ee;--ink2:#a4a3a8;--edge:rgba(255,255,255,.1);
+  --c-tiempo:#4fd6ff;--c-mov:#b9f23f;--c-dist:#a68bff;--c-color:#ff5fae;--c-tex:#ff9a4a;--c-src:#ffc65c;--max:1180px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
+.wrap{width:min(var(--max),calc(100% - 48px));margin:0 auto}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:16px;z-index:9;background:var(--ink);color:var(--bg);padding:8px 12px;border-radius:8px}
+/* header */
+header.top{position:sticky;top:0;z-index:5;background:rgba(20,20,22,.78);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--edge)}
+.bar{display:flex;align-items:center;gap:28px;height:64px}
+.brand{display:flex;color:var(--ink)}.brand svg{height:17px;width:auto}
+nav.links{display:flex;gap:22px;margin-left:8px}nav.links a{text-decoration:none;color:var(--ink2);font-size:14.5px}nav.links a:hover{color:var(--ink)}
+.grow{flex:1}
+.lang{display:flex;border:1px solid var(--edge);border-radius:999px;padding:3px}
+.lang button{border:0;background:none;color:var(--ink2);font:600 12.5px Inter,system-ui,sans-serif;padding:5px 10px;border-radius:999px;cursor:pointer}
+.lang button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;font-weight:600;font-size:15.5px;text-decoration:none;border:1px solid var(--edge);color:var(--ink);transition:background-color .15s ease,border-color .15s ease}
+.btn:hover{border-color:rgba(255,255,255,.32)}.btn.solid{background:var(--ink);color:var(--bg);border-color:var(--ink)}.btn.solid:hover{background:#fff}
+.btn.small{height:36px;padding:0 15px;font-size:14px}
+.btn svg{width:16px;height:16px}
+/* hero */
+.hero{padding:96px 0 56px}
+.hero h1{margin:0;font-weight:750;font-size:clamp(2.6rem,6.4vw,5.4rem);line-height:1;letter-spacing:-.045em;max-width:14ch}
+.hero .lede{margin:26px 0 0;font-size:clamp(1.1rem,1.6vw,1.3rem);line-height:1.5;color:var(--ink2);max-width:46ch}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.fine{margin:18px 0 0;font-size:14px;color:var(--ink2)}
+.dots{display:inline-flex;gap:6px;margin-right:10px;vertical-align:1px}.dots i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+/* product shot */
+.shot{margin:0 auto 120px}
+.shot figure{margin:0;border-radius:22px;overflow:hidden;border:1px solid var(--edge);background:#0f0f11;box-shadow:0 40px 120px -40px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.4)}
+.shot img{display:block;width:100%;height:auto}
+.shot .cap{margin:14px 0 0;font-size:14px;color:var(--ink2)}
+/* sections */
+section.block{padding:0 0 120px}
+h2{margin:0 0 14px;font-weight:720;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.035em;max-width:22ch}
+.intro{margin:0 0 44px;color:var(--ink2);max-width:58ch}
+.feats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 56px;border-top:1px solid var(--edge)}
+.feat{display:grid;grid-template-columns:14px minmax(0,1fr);gap:14px;padding:26px 0;border-bottom:1px solid var(--edge)}
+.feat i{width:10px;height:10px;border-radius:50%;background:var(--c);margin-top:9px;box-shadow:0 0 12px -1px var(--c)}
+.feat h3{margin:0 0 6px;font-size:18px;font-weight:650;letter-spacing:-.01em}.feat p{margin:0;color:var(--ink2);font-size:16px}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;counter-reset:s}
+ol.steps li{counter-increment:s;padding:26px 24px 28px;border-radius:18px;background:var(--surface);border:1px solid var(--edge)}
+ol.steps li::before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:700;font-size:15px;margin-bottom:18px}
+ol.steps h3{margin:0 0 6px;font-size:18px;font-weight:650}ol.steps p{margin:0;color:var(--ink2);font-size:16px}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:start}
+.split p{margin:0 0 14px;color:var(--ink2)}.split strong{color:var(--ink);font-weight:600}
+.support{padding:56px;border-radius:26px;background:var(--surface);border:1px solid var(--edge);display:grid;grid-template-columns:minmax(0,1.4fr) auto;gap:40px;align-items:center}
+.support p{margin:0;color:var(--ink2);max-width:52ch}.support h2{margin-bottom:12px}
+.heart{color:#ff7aa8}
+footer{border-top:1px solid var(--edge);padding:48px 0 64px;color:var(--ink2);font-size:15px}
+.foot{display:grid;grid-template-columns:minmax(0,1.2fr) repeat(2,minmax(0,1fr));gap:40px}
+.foot .brand svg{height:15px;margin-bottom:16px}.foot p{margin:0 0 6px}.foot h4{margin:0 0 10px;color:var(--ink);font-size:14.5px;font-weight:600}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}.foot a{text-decoration:none}.foot a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.legal{margin-top:40px;font-size:13.5px}
+@media (max-width:900px){nav.links{display:none}.feats,.split,.foot{grid-template-columns:1fr}ol.steps{grid-template-columns:1fr}.support{grid-template-columns:1fr;padding:32px}.hero{padding-top:64px}}
+@media (max-width:520px){.bar{gap:12px}.bar .btn.small{display:none}.wrap{width:calc(100% - 32px)}}
+</style>
 </head>
-<body><p>Abriendo xekuoia… <a href="app/">Entrar</a></p></body>
+<body>
+<a class="skip" href="#main" data-i="skip">Saltar al contenido</a>
+<header class="top"><div class="wrap bar">
+  <a class="brand" href="#" aria-label="xekuoia"><svg class="" viewBox="0 0 769 132" fill="currentColor" role="img" aria-label="xekuoia"><path d="M750 131.25V112.5V93.75H731.25H712.5H693.75V112.5V131.25H675V112.5V93.75V75V56.25V37.5V18.75H693.75V37.5V56.25V75H712.5H731.25H750V56.25V37.5V18.75H768.75V37.5V56.25V75V93.75V112.5V131.25H750ZM750 18.75H731.25H712.5H693.75V0H712.5H731.25H750V18.75Z"/><path d="M637.5 112.5H656.25V131.25H637.5H618.75H600H581.25H562.5V112.5H581.25H600V93.75V75V56.25V37.5V18.75H581.25H562.5V0H581.25H600H618.75H637.5H656.25V18.75H637.5H618.75V37.5V56.25V75V93.75V112.5H637.5Z"/><path d="M506.25 112.5H525V131.25H506.25H487.5H468.75V112.5H487.5H506.25ZM525 112.5V93.75V75V56.25V37.5V18.75H543.75V37.5V56.25V75V93.75V112.5H525ZM468.75 112.5H450V93.75V75V56.25V37.5V18.75H468.75V37.5V56.25V75V93.75V112.5ZM525 18.75H506.25H487.5H468.75V0H487.5H506.25H525V18.75Z"/><path d="M393.75 112.5H412.5V131.25H393.75H375H356.25V112.5H375H393.75ZM412.5 112.5V93.75V75V56.25V37.5V18.75V0H431.25V18.75V37.5V56.25V75V93.75V112.5H412.5ZM356.25 112.5H337.5V93.75V75V56.25V37.5V18.75V0H356.25V18.75V37.5V56.25V75V93.75V112.5Z"/><path d="M300 131.25V112.5H318.75V131.25H300ZM225 131.25V112.5V93.75V75V56.25V37.5V18.75V0H243.75V18.75V37.5V56.25H262.5V75H281.25V93.75H300V112.5H281.25V93.75H262.5V75H243.75V93.75V112.5V131.25H225ZM262.5 56.25V37.5H281.25V56.25H262.5ZM281.25 37.5V18.75H300V37.5H281.25ZM300 18.75V0H318.75V18.75H300Z"/><path d="M187.5 112.5H206.25V131.25H187.5H168.75H150H131.25H112.5V112.5V93.75V75V56.25V37.5V18.75V0H131.25H150H168.75H187.5H206.25V18.75H187.5H168.75H150H131.25V37.5V56.25H150H168.75H187.5V75H168.75H150H131.25V93.75V112.5H150H168.75H187.5Z"/><path d="M75 131.25V112.5V93.75H93.75V112.5V131.25H75ZM0 131.25V112.5V93.75H18.75V112.5V131.25H0ZM75 93.75H56.25V75H75V93.75ZM18.75 93.75V75H37.5V93.75H18.75ZM37.5 75V56.25H56.25V75H37.5ZM56.25 56.25V37.5H75V56.25H56.25ZM37.5 56.25H18.75V37.5H37.5V56.25ZM75 37.5V18.75V0H93.75V18.75V37.5H75ZM18.75 37.5H0V18.75V0H18.75V18.75V37.5Z"/></svg></a>
+  <nav class="links" aria-label="Secciones"><a href="#que-hace" data-i="nav1">Qué hace</a><a href="#empezar" data-i="nav2">Cómo empezar</a><a href="#apoyar" data-i="nav3">Apoyar</a><a href="https://github.com/xekuoia/xekuoia" target="_blank" rel="noopener noreferrer">GitHub</a></nav>
+  <span class="grow"></span>
+  <div class="lang" role="group" aria-label="Idioma / Language"><button data-lang="es" aria-pressed="true">ES</button><button data-lang="en" aria-pressed="false">EN</button></div>
+  <a class="btn solid small" href="app/" data-i="open">Abrir xekuoia</a>
+</div></header>
+
+<main id="main">
+<section class="hero wrap">
+  <h1 data-i="h1">Tocá imágenes como se toca música.</h1>
+  <p class="lede" data-i="lede">xekuoia es un instrumento visual para crear reels, motion graphics y visuales en vivo desde el navegador. Capas, efectos, 3D y sonido, todo en un loop que podés exportar o proyectar.</p>
+  <div class="ctas"><a class="btn solid" href="app/" data-i="open2">Abrir xekuoia</a><a class="btn" href="https://github.com/xekuoia/xekuoia" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0a8 8 0 0 0-2.5 15.6c.4 0 .5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7 0-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.6 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 0z"/></svg><span data-i="gh">Ver en GitHub</span></a></div>
+  <p class="fine"><span class="dots" aria-hidden="true"><i style="--c:var(--c-tiempo)"></i><i style="--c:var(--c-mov)"></i><i style="--c:var(--c-dist)"></i><i style="--c:var(--c-color)"></i><i style="--c:var(--c-tex)"></i></span><span data-i="fine">Gratis, libre y sin instalar nada. Funciona en Chrome o Edge desde la compu.</span></p>
+</section>
+
+<div class="shot wrap"><figure>
+  <img src="assets/app.webp" srcset="assets/app.webp 1600w, assets/app@2x.webp 2400w" sizes="(max-width:1228px) calc(100vw - 48px), 1180px" width="1600" height="960" alt="La app xekuoia: el logo en 3D cromado sobre un fondo de manchas de color, con el panel de capas y el inspector del objeto 3D abajo." data-i-alt="alt">
+</figure><p class="cap" data-i="cap">Tu logo en SVG, extruido en 3D y con material cromo, en un minuto.</p></div>
+
+<section class="block wrap" id="que-hace">
+  <h2 data-i="fh">Todo lo que necesitás para un loop, sin After Effects.</h2>
+  <p class="intro" data-i="fi">Apilás capas, les sumás efectos y movés las perillas. Cada perilla se puede animar con el tempo o hacer reaccionar al sonido.</p>
+  <div class="feats">
+    <div class="feat" style="--c:var(--c-src)"><i></i><div><h3 data-i="f1h">Capas</h3><p data-i="f1">Fondos, imágenes, videos, GIFs de Giphy, texto cinético, tramas, visualizadores de audio y dibujo a mano alzada con tableta.</p></div></div>
+    <div class="feat" style="--c:var(--c-dist)"><i></i><div><h3 data-i="f2h">Objetos 3D</h3><p data-i="f2">Modelos OBJ, GLB o STL, y logos SVG que se extruyen solos. Materiales cromo, alambre, puntos o sus colores originales.</p></div></div>
+    <div class="feat" style="--c:var(--c-color)"><i></i><div><h3 data-i="f3h">Más de 20 efectos</h3><p data-i="f3">Ecos, datamosh, pixel sort, RGB split, glow, grano fílmico, semitono, VHS y fugas de luz, por capa o sobre todo.</p></div></div>
+    <div class="feat" style="--c:var(--c-tiempo)"><i></i><div><h3 data-i="f4h">Audio-reactivo</h3><p data-i="f4">Un track, tu micrófono, tu placa de audio o lo que esté sonando en la compu. Graves, medios y agudos mueven lo que elijas.</p></div></div>
+    <div class="feat" style="--c:var(--c-mov)"><i></i><div><h3 data-i="f5h">Para tocar en vivo</h3><p data-i="f5">Cualquier controlador MIDI, pads que prenden efectos y una salida a pantalla completa para el proyector.</p></div></div>
+    <div class="feat" style="--c:var(--c-tex)"><i></i><div><h3 data-i="f6h">Exportá y guardá</h3><p data-i="f6">Videos MP4 en Full HD para reels (9:16), YouTube (16:9) o feed (1:1), y proyectos que retomás cuando quieras.</p></div></div>
+  </div>
+</section>
+
+<section class="block wrap" id="empezar">
+  <h2 data-i="sh">Empezá en tres pasos.</h2>
+  <p class="intro" data-i="si">Adentro de la app hay una guía completa, en el botón con el signo de pregunta.</p>
+  <ol class="steps">
+    <li><h3 data-i="s1h">Abrí xekuoia</h3><p data-i="s1">En Chrome o Edge desde tu compu. Elegí un estilo para arrancar o Personalizado para un lienzo vacío.</p></li>
+    <li><h3 data-i="s2h">Soltá tus archivos</h3><p data-i="s2">Arrastrá imágenes, videos, música o tu logo sobre el monitor. Sumá texto y efectos, y animá las perillas.</p></li>
+    <li><h3 data-i="s3h">Exportá o proyectá</h3><p data-i="s3">Guardá un MP4 listo para publicar, o abrí la salida en una segunda pantalla y tocalo en vivo.</p></li>
+  </ol>
+</section>
+
+<section class="block wrap split">
+  <div><h2 data-i="ph">Tus archivos no salen de tu compu.</h2></div>
+  <div>
+    <p data-i="p1"><strong>Todo pasa en tu navegador.</strong> Nada se sube a un servidor: no hay cuentas, analíticas ni rastreo. Cada sesión empieza de cero, y tu trabajo queda en los proyectos que guardás.</p>
+    <p data-i="p2"><strong>Es software libre.</strong> El código está abierto en GitHub bajo la licencia GPL-3.0: podés usarlo, estudiarlo y mejorarlo, y cualquier versión modificada tiene que seguir siendo libre.</p>
+  </div>
+</section>
+
+<section class="block wrap" id="apoyar">
+  <div class="support">
+    <div><h2 data-i="dh">xekuoia es gratis. Ayudanos a que siga creciendo.</h2>
+    <p data-i="dp">Como Blender y otras herramientas libres, xekuoia se sostiene con aportes de quienes la usan. Un aporte único o mensual en GitHub Sponsors paga horas de desarrollo y nuevas funciones.</p></div>
+    <a class="btn solid" href="https://github.com/sponsors/xekuoia" target="_blank" rel="noopener noreferrer"><svg class="heart" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13.6S2.2 10.2 2.2 6.1A2.9 2.9 0 0 1 8 4.7a2.9 2.9 0 0 1 5.8 1.4c0 4.1-5.8 7.5-5.8 7.5z" fill="currentColor"/></svg><span data-i="dbtn">Apoyar en GitHub Sponsors</span></a>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <div class="foot">
+    <div><a class="brand" href="#" aria-label="xekuoia"><svg class="" viewBox="0 0 769 132" fill="currentColor" role="img" aria-label="xekuoia"><path d="M750 131.25V112.5V93.75H731.25H712.5H693.75V112.5V131.25H675V112.5V93.75V75V56.25V37.5V18.75H693.75V37.5V56.25V75H712.5H731.25H750V56.25V37.5V18.75H768.75V37.5V56.25V75V93.75V112.5V131.25H750ZM750 18.75H731.25H712.5H693.75V0H712.5H731.25H750V18.75Z"/><path d="M637.5 112.5H656.25V131.25H637.5H618.75H600H581.25H562.5V112.5H581.25H600V93.75V75V56.25V37.5V18.75H581.25H562.5V0H581.25H600H618.75H637.5H656.25V18.75H637.5H618.75V37.5V56.25V75V93.75V112.5H637.5Z"/><path d="M506.25 112.5H525V131.25H506.25H487.5H468.75V112.5H487.5H506.25ZM525 112.5V93.75V75V56.25V37.5V18.75H543.75V37.5V56.25V75V93.75V112.5H525ZM468.75 112.5H450V93.75V75V56.25V37.5V18.75H468.75V37.5V56.25V75V93.75V112.5ZM525 18.75H506.25H487.5H468.75V0H487.5H506.25H525V18.75Z"/><path d="M393.75 112.5H412.5V131.25H393.75H375H356.25V112.5H375H393.75ZM412.5 112.5V93.75V75V56.25V37.5V18.75V0H431.25V18.75V37.5V56.25V75V93.75V112.5H412.5ZM356.25 112.5H337.5V93.75V75V56.25V37.5V18.75V0H356.25V18.75V37.5V56.25V75V93.75V112.5Z"/><path d="M300 131.25V112.5H318.75V131.25H300ZM225 131.25V112.5V93.75V75V56.25V37.5V18.75V0H243.75V18.75V37.5V56.25H262.5V75H281.25V93.75H300V112.5H281.25V93.75H262.5V75H243.75V93.75V112.5V131.25H225ZM262.5 56.25V37.5H281.25V56.25H262.5ZM281.25 37.5V18.75H300V37.5H281.25ZM300 18.75V0H318.75V18.75H300Z"/><path d="M187.5 112.5H206.25V131.25H187.5H168.75H150H131.25H112.5V112.5V93.75V75V56.25V37.5V18.75V0H131.25H150H168.75H187.5H206.25V18.75H187.5H168.75H150H131.25V37.5V56.25H150H168.75H187.5V75H168.75H150H131.25V93.75V112.5H150H168.75H187.5Z"/><path d="M75 131.25V112.5V93.75H93.75V112.5V131.25H75ZM0 131.25V112.5V93.75H18.75V112.5V131.25H0ZM75 93.75H56.25V75H75V93.75ZM18.75 93.75V75H37.5V93.75H18.75ZM37.5 75V56.25H56.25V75H37.5ZM56.25 56.25V37.5H75V56.25H56.25ZM37.5 56.25H18.75V37.5H37.5V56.25ZM75 37.5V18.75V0H93.75V18.75V37.5H75ZM18.75 37.5H0V18.75V0H18.75V18.75V37.5Z"/></svg></a>
+      <p data-i="made">Creado por <a href="https://www.instagram.com/giocasabona/" target="_blank" rel="noopener noreferrer">Gio Casabona</a>, fundador y desarrollador principal.</p>
+      <p data-i="mail">¿Un problema o una idea para próximas versiones? Escribinos a <a href="mailto:info@xekuoia.com">info@xekuoia.com</a>.</p></div>
+    <div><h4 data-i="fx">xekuoia</h4><ul><li><a href="app/" data-i="open3">Abrir la app</a></li><li><a href="app/index.html" download="xekuoia.html" data-i="dl">Descargar para usar sin conexión</a></li><li><a href="https://github.com/sponsors/xekuoia" target="_blank" rel="noopener noreferrer" data-i="nav3b">Apoyar</a></li></ul></div>
+    <div><h4 data-i="fs">Seguinos</h4><ul><li><a href="https://www.instagram.com/xekuoia/" target="_blank" rel="noopener noreferrer">Instagram @xekuoia</a></li><li><a href="https://github.com/xekuoia/xekuoia" target="_blank" rel="noopener noreferrer">GitHub</a></li></ul></div>
+  </div>
+  <p class="legal" data-i="legal">© 2026 Gio Casabona. Software libre bajo la licencia GPL-3.0. El nombre y el logo de xekuoia no están incluidos en la licencia.</p>
+</div></footer>
+
+<script>
+const EN={skip:'Skip to content',nav1:'What it does',nav2:'Get started',nav3:'Support',open:'Open xekuoia',open2:'Open xekuoia',gh:'View on GitHub',
+h1:'Play images like you play music.',lede:'xekuoia is a visual instrument for making reels, motion graphics and live visuals in your browser. Layers, effects, 3D and sound, all in a loop you can export or project.',
+fine:'Free, open source, nothing to install. Works in Chrome or Edge on a computer.',cap:'Your SVG logo, extruded in 3D with a chrome material, in a minute.',
+alt:'The xekuoia app: the logo in chrome 3D over a background of color blobs, with the layers panel and the 3D object inspector below.',
+fh:'Everything you need for a loop, no After Effects.',fi:'Stack layers, add effects and turn the knobs. Every knob can move with the tempo or react to sound.',
+f1h:'Layers',f1:'Backgrounds, images, videos, Giphy GIFs, kinetic type, patterns, audio visualizers and freehand drawing with a tablet.',
+f2h:'3D objects',f2:'OBJ, GLB or STL models, and SVG logos that extrude on their own. Chrome, wireframe and point materials, or their original colors.',
+f3h:'20+ effects',f3:'Echo, datamosh, pixel sort, RGB split, glow, film grain, halftone, VHS and light leaks, per layer or over everything.',
+f4h:'Audio-reactive',f4:'A track, your microphone, your audio interface or whatever is playing on the computer. Lows, mids and highs move what you choose.',
+f5h:'Made to play live',f5:'Any MIDI controller, pads that turn effects on and a full-screen output for the projector.',
+f6h:'Export and save',f6:'Full HD MP4 videos for reels (9:16), YouTube (16:9) or feed (1:1), and projects you can pick up any time.',
+sh:'Get started in three steps.',si:'Inside the app there’s a full guide, behind the question-mark button.',
+s1h:'Open xekuoia',s1:'In Chrome or Edge on your computer. Pick a style to start, or Custom for an empty canvas.',
+s2h:'Drop your files',s2:'Drag images, videos, music or your logo onto the monitor. Add text and effects, and animate the knobs.',
+s3h:'Export or project',s3:'Save an MP4 ready to post, or open the output on a second screen and play it live.',
+ph:'Your files never leave your computer.',p1:'<strong>Everything happens in your browser.</strong> Nothing is uploaded to a server: no accounts, analytics or tracking. Every session starts fresh, and your work lives in the projects you save.',
+p2:'<strong>It’s free software.</strong> The code is open on GitHub under the GPL-3.0 license: you can use it, study it and improve it, and any modified version must stay free.',
+dh:'xekuoia is free. Help it keep growing.',dp:'Like Blender and other free tools, xekuoia is sustained by the people who use it. A one-time or monthly contribution on GitHub Sponsors pays for development time and new features.',dbtn:'Support on GitHub Sponsors',
+made:'Created by <a href="https://www.instagram.com/giocasabona/" target="_blank" rel="noopener noreferrer">Gio Casabona</a>, founder and lead developer.',mail:'A problem or an idea for future versions? Write to <a href="mailto:info@xekuoia.com">info@xekuoia.com</a>.',
+fx:'xekuoia',open3:'Open the app',dl:'Download to use offline',nav3b:'Support',fs:'Follow us',legal:'© 2026 Gio Casabona. Free software under the GPL-3.0 license. The xekuoia name and logo are not covered by the license.'};
+const ES={};document.querySelectorAll('[data-i]').forEach(e=>ES[e.dataset.i]=e.innerHTML);const img=document.querySelector('[data-i-alt]');ES.alt=img.alt;
+const metaES=document.title;
+function setLang(l){const D=l==='en'?EN:ES;document.documentElement.lang=l;document.querySelectorAll('[data-i]').forEach(e=>{if(D[e.dataset.i]!==undefined)e.innerHTML=D[e.dataset.i];});img.alt=D.alt;
+  document.title=l==='en'?'xekuoia: a visual instrument in your browser':metaES;document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===l));try{localStorage.setItem('xekuoia-site-lang',l);}catch(e){}}
+document.querySelector('.lang').addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(b)setLang(b.dataset.lang);});
+let start='es';try{start=localStorage.getItem('xekuoia-site-lang')||(/^es/i.test(navigator.language||'')?'es':'en');}catch(e){}if(start==='en')setLang('en');
+</script>
+</body>
 </html>
