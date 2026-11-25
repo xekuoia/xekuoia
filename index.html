@@ -45,7 +45,10 @@ nav.links{display:flex;gap:22px;margin-left:8px}nav.links a{text-decoration:none
 /* product shot */
 .shot{margin:0 auto 120px}
 .shot figure{margin:0;border-radius:22px;overflow:hidden;border:1px solid var(--edge);background:#0f0f11;box-shadow:0 40px 120px -40px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.4)}
-.shot img{display:block;width:100%;height:auto}
+.shot video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#0f0f11}
+.reel{position:relative}
+.rbtn{position:absolute;right:16px;bottom:16px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(20,20,22,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;display:grid;place-items:center;cursor:pointer;opacity:.75;transition:opacity .15s ease}
+.rbtn:hover,.rbtn:focus-visible{opacity:1}.rbtn svg{width:16px;height:16px}.rbtn .ipl{display:none}.rbtn.paused .ip{display:none}.rbtn.paused .ipl{display:block}
 .shot .cap{margin:14px 0 0;font-size:14px;color:var(--ink2)}
 /* sections */
 section.block{padding:0 0 120px}
@@ -91,9 +94,10 @@ footer{border-top:1px solid var(--edge);padding:48px 0 64px;color:var(--ink2);fo
   <p class="fine"><span class="dots" aria-hidden="true"><i style="--c:var(--c-tiempo)"></i><i style="--c:var(--c-mov)"></i><i style="--c:var(--c-dist)"></i><i style="--c:var(--c-color)"></i><i style="--c:var(--c-tex)"></i></span><span data-i="fine">Gratis, libre y sin instalar nada. Funciona en Chrome o Edge desde la compu.</span></p>
 </section>
 
-<div class="shot wrap"><figure>
-  <img src="assets/app.webp" srcset="assets/app.webp 1600w, assets/app@2x.webp 2400w" sizes="(max-width:1228px) calc(100vw - 48px), 1180px" width="1600" height="960" alt="La app xekuoia: el logo en 3D cromado sobre un fondo de manchas de color, con el panel de capas y el inspector del objeto 3D abajo." data-i-alt="alt">
-</figure><p class="cap" data-i="cap">Tu logo en SVG, extruido en 3D y con material cromo, en un minuto.</p></div>
+<div class="shot wrap"><figure class="reel">
+  <video id="reel" src="assets/reel.mp4" poster="assets/reel-poster.jpg" width="1280" height="720" autoplay muted loop playsinline preload="metadata" aria-label="Reel de loops hechos con xekuoia" data-i-aria="reelaria"></video>
+  <button class="rbtn" id="reelBtn" type="button" aria-label="Pausar el video" data-i-aria="pause"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="ip" d="M5 3.5h2v9H5zM9 3.5h2v9H9z" fill="currentColor"/><path class="ipl" d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg></button>
+</figure><p class="cap" data-i="cap">Loops hechos con xekuoia: capas, objetos 3D, dibujo y efectos, exportados tal cual.</p></div>
 
 <section class="block wrap" id="que-hace">
   <h2 data-i="fh">Todo lo que necesitás para un loop, sin After Effects.</h2>
@@ -149,8 +153,8 @@ footer{border-top:1px solid var(--edge);padding:48px 0 64px;color:var(--ink2);fo
 <script>
 const EN={skip:'Skip to content',nav1:'What it does',nav2:'Get started',nav3:'Support',open:'Open xekuoia',open2:'Open xekuoia',gh:'View on GitHub',
 h1:'Play images like you play music.',lede:'xekuoia is a visual instrument for making reels, motion graphics and live visuals in your browser. Layers, effects, 3D and sound, all in a loop you can export or project.',
-fine:'Free, open source, nothing to install. Works in Chrome or Edge on a computer.',cap:'Your SVG logo, extruded in 3D with a chrome material, in a minute.',
-alt:'The xekuoia app: the logo in chrome 3D over a background of color blobs, with the layers panel and the 3D object inspector below.',
+fine:'Free, open source, nothing to install. Works in Chrome or Edge on a computer.',cap:'Loops made with xekuoia: layers, 3D objects, drawing and effects, exported as is.',reelaria:'Reel of loops made with xekuoia',pause:'Pause the video',play:'Play the video',
+
 fh:'Everything you need for a loop, no After Effects.',fi:'Stack layers, add effects and turn the knobs. Every knob can move with the tempo or react to sound.',
 f1h:'Layers',f1:'Backgrounds, images, videos, Giphy GIFs, kinetic type, patterns, audio visualizers and freehand drawing with a tablet.',
 f2h:'3D objects',f2:'OBJ, GLB or STL models, and SVG logos that extrude on their own. Chrome, wireframe and point materials, or their original colors.',
@@ -167,10 +171,15 @@ p2:'<strong>It’s free software.</strong> The code is open on GitHub under the 
 dh:'xekuoia is free. Help it keep growing.',dp:'Like Blender and other free tools, xekuoia is sustained by the people who use it. A one-time or monthly contribution on GitHub Sponsors pays for development time and new features.',dbtn:'Support on GitHub Sponsors',
 made:'Created by <a href="https://www.instagram.com/giocasabona/" target="_blank" rel="noopener noreferrer">Gio Casabona</a>, founder and lead developer.',mail:'A problem or an idea for future versions? Write to <a href="mailto:info@xekuoia.com">info@xekuoia.com</a>.',
 fx:'xekuoia',open3:'Open the app',dl:'Download to use offline',nav3b:'Support',fs:'Follow us',legal:'© 2026 Gio Casabona. Free software under the GPL-3.0 license. The xekuoia name and logo are not covered by the license.'};
-const ES={};document.querySelectorAll('[data-i]').forEach(e=>ES[e.dataset.i]=e.innerHTML);const img=document.querySelector('[data-i-alt]');ES.alt=img.alt;
+const ES={reelaria:'Reel de loops hechos con xekuoia',pause:'Pausar el video',play:'Reproducir el video'};document.querySelectorAll('[data-i]').forEach(e=>ES[e.dataset.i]=e.innerHTML);let LG='es';
 const metaES=document.title;
-function setLang(l){const D=l==='en'?EN:ES;document.documentElement.lang=l;document.querySelectorAll('[data-i]').forEach(e=>{if(D[e.dataset.i]!==undefined)e.innerHTML=D[e.dataset.i];});img.alt=D.alt;
+function setLang(l){LG=l;const D=l==='en'?EN:ES;document.documentElement.lang=l;document.querySelectorAll('[data-i]').forEach(e=>{if(D[e.dataset.i]!==undefined)e.innerHTML=D[e.dataset.i];});vid.setAttribute('aria-label',D.reelaria);syncBtn();
   document.title=l==='en'?'xekuoia: a visual instrument in your browser':metaES;document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===l));try{localStorage.setItem('xekuoia-site-lang',l);}catch(e){}}
+const vid=document.getElementById('reel'),rb=document.getElementById('reelBtn');
+function syncBtn(){const D=LG==='en'?EN:ES,p=vid.paused;rb.classList.toggle('paused',p);rb.setAttribute('aria-label',p?D.play:D.pause);}
+rb.addEventListener('click',()=>{if(vid.paused)vid.play().catch(()=>{});else vid.pause();});vid.addEventListener('play',syncBtn);vid.addEventListener('pause',syncBtn);
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){vid.removeAttribute('autoplay');vid.pause();}
+syncBtn();
 document.querySelector('.lang').addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(b)setLang(b.dataset.lang);});
 let start='es';try{start=localStorage.getItem('xekuoia-site-lang')||(/^es/i.test(navigator.language||'')?'es':'en');}catch(e){}if(start==='en')setLang('en');
 </script>
