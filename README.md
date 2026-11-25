@@ -2,7 +2,7 @@
 
 Instrumento visual para crear reels, motion graphics y visuales en vivo desde el navegador. Sin instalar nada, sin cuentas: todo pasa en tu compu.
 
-**Usala online:** [xekuoia.com](https://xekuoia.com) · **Instagram:** [@xekuoia](https://www.instagram.com/xekuoia/)
+**Usala online:** [xekuoia.com](https://xekuoia.com) · **Instagram:** [@xekuoia](https://www.instagram.com/xekuoia/) · **Apoyá el proyecto:** [GitHub Sponsors](https://github.com/sponsors/xekuoia)
 
 ## Qué hace
 
@@ -30,7 +30,7 @@ Código de terceros: la triangulación de polígonos es una adaptación de [earc
 
 ## Apoyar el desarrollo
 
-xekuoia es gratis. Si te sirve, podés aportar desde [GitHub Sponsors](https://github.com/sponsors/SergioCasabona).
+xekuoia es gratis. Si te sirve, podés aportar desde [GitHub Sponsors](https://github.com/sponsors/xekuoia).
 
 ## Contacto
 
