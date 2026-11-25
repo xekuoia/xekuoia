@@ -24,6 +24,8 @@ Tus archivos nunca se suben a ningún servidor. Lo único que sale a internet so
 
 xekuoia es software libre bajo la licencia [GPL-3.0](LICENSE) (versión 3 o posterior). Podés usarlo, estudiarlo, modificarlo y compartirlo; cualquier versión modificada que distribuyas tiene que publicarse también bajo GPL, con su código y manteniendo el crédito original.
 
+Copyright © 2026 Sergio "Gio" Casabona.
+
 El nombre **xekuoia** y su logo no están cubiertos por la licencia: si publicás una versión modificada, usá otro nombre.
 
 Código de terceros: la triangulación de polígonos es una adaptación de [earcut](https://github.com/mapbox/earcut) (Mapbox, ISC) y la exportación de video usa [Mediabunny](https://github.com/Vanilagy/mediabunny) (MPL-2.0).
