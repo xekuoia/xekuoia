@@ -492,6 +492,10 @@ body.moving #out{cursor:grabbing}
   transform:translate(-50%,12px);opacity:0;transition:opacity .25s ease,transform .3s cubic-bezier(.23,1,.32,1)}
 .compat.show{opacity:1;transform:translate(-50%,0)}.compat p{margin:0;font-size:13.5px;line-height:1.45;color:var(--ink)}.compat .btn{flex:none}
 @media (prefers-reduced-motion:reduce){.compat{transition:opacity .2s ease;transform:translate(-50%,0)}}
+.durg{gap:6px}.durg #dur{width:64px}
+.fitdur{min-width:30px;height:30px;padding:0 6px;font-size:14px}.fitdur[hidden]{display:none}
+@media (max-width:1440px){.top:has(#fitDur:not([hidden])) .grp .cap{display:none}}
+@media (max-width:1366px){.top:has(#fitDur:not([hidden])){gap:6px}.top:has(#fitDur:not([hidden])) #bpm{width:50px}.top:has(#fitDur:not([hidden])) #dur{width:58px}.top:has(#fitDur:not([hidden])) .fitdur{min-width:28px;height:28px}}
 </style>
 </head>
 <body data-layout="side">
@@ -501,7 +505,7 @@ body.moving #out{cursor:grabbing}
   <label class="grp"><span class="cap">Estilo</span><select class="pillsel" id="scene"></select></label>
   <div class="seg" id="fmt" role="group" aria-label="Formato del lienzo"></div>
   <label class="grp"><span class="cap">Tempo</span><input class="num mono" id="bpm" type="number" min="40" max="200" step="1"></label>
-  <label class="grp"><span class="cap">Loop</span><input class="num mono" id="dur" type="number" min="1" max="60" step="0.5"><span class="cap">s</span></label>
+  <div class="grp durg"><span class="cap">Loop</span><input class="num mono" id="dur" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" maxlength="7" placeholder="0:08" title="Duración del loop. Escribí minutos:segundos (2:00) o solo segundos (120). Máximo 10:00." aria-label="Duración del loop en minutos y segundos"><button class="btn icon fitdur" id="fitDur" type="button" hidden title="Ajustar el loop al largo del track" aria-label="Ajustar el loop al largo del track">♪</button></div>
   <div class="spacer"></div>
   <div class="seg" id="langSeg" role="group" aria-label="Idioma"><button data-lang="es" aria-pressed="true">ES</button><button data-lang="en" aria-pressed="false">EN</button></div>
   <button class="btn" id="recBtn" aria-pressed="false" data-learn="rec" title="Grabar movimientos (R)"><span class="rd"></span>Grabar movimientos</button>
@@ -825,7 +829,7 @@ function cleanAuto(a){if(!a||typeof a!=='object'||!AMODES.includes(a.m))return n
   for(const k of ['to','amt','c']){const n=+a[k];if(a[k]!=null&&Number.isFinite(n))o[k]=n;}
   if(typeof a.e==='string'&&Object.hasOwn(EASE,a.e))o.e=a.e;if(typeof a.band==='string'&&Object.hasOwn(BANDS,a.band))o.band=a.band;return o;}
 function hydrate(d,keepClips){
-  const oldG=new Map();for(const L of S.layers)if(L._g)oldG.set(L.id,L._g);const mg=S.master&&S.master._g;S.fmt=FORMATS[d.fmt]?d.fmt:'9:16';S.dur=clamp(+d.dur||8,1,120);S.gfonts=[];for(const f of (Array.isArray(d.gfonts)?d.gfonts:[]).slice(0,30))if(typeof f==='string'&&FONTNAME.test(f))loadGFont(f,{quiet:true});S.bpm=clamp(+d.bpm||90,30,300);S.scene=d.scene||'';
+  const oldG=new Map();for(const L of S.layers)if(L._g)oldG.set(L.id,L._g);const mg=S.master&&S.master._g;S.fmt=FORMATS[d.fmt]?d.fmt:'9:16';S.dur=clamp(+d.dur||8,1,MAXDUR);S.gfonts=[];for(const f of (Array.isArray(d.gfonts)?d.gfonts:[]).slice(0,30))if(typeof f==='string'&&FONTNAME.test(f))loadGFont(f,{quiet:true});S.bpm=clamp(+d.bpm||90,30,300);S.scene=d.scene||'';
   const fixP=(type,p)=>{const out=mkParams(type);for(const k in p||{})if(Object.hasOwn(out,k)&&p[k]&&typeof p[k]==='object'){const c=U[type]?.c.find(x=>x[0]===k)||LAYERCTL.find(x=>x[0]===k),v=cleanVal(c,p[k].v,out[k].v);out[k].v=v;
       const a=cleanAuto(p[k].a);if(a)out[k].a=a;if(Array.isArray(p[k].rec))out[k].rec=p[k].rec.slice(0,FPS*600).map(x=>x!==null&&Number.isFinite(+x)?+x:null);}return out;};
   const fixFx=fx=>{const o=mkFx();for(const id in fx||{})if(Object.hasOwn(o,id)&&fx[id]){o[id].on=!!fx[id].on;o[id].p=fixP(id,fx[id].p);}return o;};
@@ -843,6 +847,7 @@ function custom(){if(S.scene){S.scene='';$('#scene').value='';}persist();}
 
 /* ================= media bin + audio ================= */
 const BIN=[];let binId=1;
+const MAXDUR=600;
 let actx=null,abuf=null,ENV=null,ENVB=null,ENVDUR=0,asrc=null,aname='';
 const AUD={mode:'file',stream:null,src:null,an:null,monitor:false,devId:'',devices:[],err:'',label:''};
 const LIV={all:0,low:0,mid:0,high:0,spec:new Float32Array(48),wave:new Float32Array(256)};
@@ -919,7 +924,7 @@ let ABLOB=null,AHASH='';
 async function loadAudio(f,opts={}){
   try{actx=actx||new AudioContext();abuf=await actx.decodeAudioData(await f.arrayBuffer());ENVB=await buildBands(abuf);ENV=ENVB.all;ENVDUR=abuf.duration;aname=opts.name||f.name;ABLOB=f;stopLive();AUD.mode='file';specT=-1;
     AHASH=opts.hash||await hashFile(f,aname);if(!opts.noCache)cacheMedia(AHASH,f,aname);saveBin();
-    buildBin();drawSound();if(S.playing)startAudio();refresh();if(!opts.quiet)toast('Track cargado: '+aname);}
+    buildBin();drawSound();syncDur();if(S.playing)startAudio();refresh();if(!opts.quiet)toast('Track cargado: '+aname+(Math.abs(abuf.duration-S.dur)>.5?'. Tocá ♪ junto al loop para que dure lo mismo que el track ('+fmtDur(Math.min(MAXDUR,abuf.duration))+').':''));}
   catch(e){toast('No se pudo leer ese audio. Probá con MP3 o WAV.');}
 }
 function buildEnv(buf){const ch=buf.getChannelData(0),hop=Math.max(1,Math.floor(buf.sampleRate/60)),n=Math.ceil(ch.length/hop),e=new Float32Array(n);let mx=1e-6;
@@ -1584,7 +1589,7 @@ function autosHTML(){const rows=[];
 
 /* ================= top bar ================= */
 const sceneSel=$('#scene'),fmtBox=$('#fmt'),FMTI={'9:16':['v','Vertical'],'16:9':['h','Horizontal'],'1:1':['s','Cuadrado']};
-function syncTop(){if(OUT){document.body.dataset.layout='side';return;}$('#bpm').value=S.bpm;$('#dur').value=S.dur;sceneSel.value=SCENES[S.scene]?S.scene:'';fmtBox.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===S.fmt));
+function syncTop(){if(OUT){document.body.dataset.layout='side';return;}$('#bpm').value=S.bpm;syncDur();sceneSel.value=SCENES[S.scene]?S.scene:'';fmtBox.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===S.fmt));
   document.body.dataset.layout=S.fmt==='16:9'?'bottom':'side';}
 const recBtn=$('#recBtn');
 function setRec(v){S.rec=v;recBtn.setAttribute('aria-pressed',v);if(v)toast(S.playing?'Grabando: girá perillas y quedan en el loop.':'Grabación lista: dale play y girá perillas.');}
@@ -1594,7 +1599,13 @@ sceneSel.addEventListener('change',()=>{if(sceneSel.value)applyScene(sceneSel.va
 fmtBox.innerHTML=Object.keys(FORMATS).map(f=>`<button data-f="${f}" aria-pressed="false" aria-label="${FMTI[f][1]} ${f}">${IC[FMTI[f][0]]}${f}</button>`).join('');
 fmtBox.addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b||b.dataset.f===S.fmt)return;S.fmt=b.dataset.f;syncTop();setRes(document.fullscreenElement?1:PREVIEW);persist();refresh();});
 $('#bpm').addEventListener('change',e=>{S.bpm=clamp(+e.target.value||90,40,200);e.target.value=S.bpm;custom();refresh();});
-$('#dur').addEventListener('change',e=>{S.dur=clamp(+e.target.value||8,1,60);e.target.value=S.dur;S.t=S.t%S.dur;resizeRec();custom();refresh();});
+function setDur(d){S.dur=Math.round(clamp(+d||8,1,MAXDUR)*10)/10;S.t=S.t%S.dur;resizeRec();syncDur();custom();refresh();}
+function syncDur(){$('#dur').value=fmtDur(S.dur);$('#fitDur').hidden=!abuf;}
+function parseDur(v){v=String(v).trim().replace(',','.');let m=/^(\d{1,2})\s*:\s*(\d{1,2}(?:\.\d+)?)$/.exec(v);if(m)return +m[1]*60+ +m[2];m=/^(\d+(?:\.\d+)?)\s*(m|min)$/i.exec(v);if(m)return +m[1]*60;m=/^(\d+(?:\.\d+)?)\s*s?$/i.exec(v);return m?+m[1]:NaN;}
+const durIn=()=>{const d=parseDur($('#dur').value);if(isFinite(d)&&d>0)setDur(d);else syncDur();};
+$('#dur').addEventListener('change',durIn);$('#dur').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.target.blur();}});
+$('#fitDur').addEventListener('click',()=>{if(!abuf)return;setDur(Math.min(MAXDUR,abuf.duration));toast(abuf.duration>MAXDUR?'El track dura más de 10 minutos: el loop quedó en 10:00.':'Loop ajustado al track: '+fmtDur(S.dur)+'.');});
+function fmtDur(d){const m=Math.floor(d/60+1e-6),s=d-m*60;return m+':'+(s<10?'0':'')+(Math.round(s*10)/10);}
 recBtn.addEventListener('click',()=>{if(!LEARN.on)setRec(!S.rec);});
 $('#fsBtn').addEventListener('click',goFull);
 }
@@ -1641,7 +1652,7 @@ function fitAudio(buf,dur){const len=Math.round(dur*buf.sampleRate),o=new AudioB
 const slug=()=>(S.scene||'reel').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 $('#expBtn').addEventListener('click',async()=>{
   pause();cancelled=false;saveBtn.hidden=true;resV.hidden=true;closeBtn.textContent='Cancelar';barI.style.transform='scaleX(0)';
-  const [w,h]=FORMATS[S.fmt];$('#dlgInfo').textContent=`${w} × ${h}, 30 cuadros por segundo, ${fmt(S.dur,.1)} s, ${S.layers.length} capas${abuf?', con música':''}.`;
+  const [w,h]=FORMATS[S.fmt];$('#dlgInfo').textContent=`${w} × ${h}, 30 cuadros por segundo, ${S.dur>=60?fmtDur(S.dur)+' min':fmt(S.dur,.1)+' s'}, ${S.layers.length} capas${abuf?', con música':''}.`;
   st.textContent='Preparando el codificador…';veil.classList.add('open');closeBtn.focus();
   if(!('VideoEncoder' in window)){st.textContent='Este navegador no puede codificar video. Abrí la app en Chrome o Edge en la compu.';closeBtn.textContent='Cerrar';return;}
   const keep=S.t;
@@ -2829,7 +2840,7 @@ const DICT={
 'El paquete supera los 4 GB. Guardá el proyecto liviano y llevá los archivos aparte.':'The package is over 4 GB. Save the light project and carry the files separately.',
 'El navegador no tiene lugar para recordar tus archivos. Guardá el proyecto con archivos para no perderlos.':'The browser has no room to remember your files. Save the project with files so you don’t lose them.',
 'Track de audio':'Audio track',
-'Estilo':'Style','Tempo':'Tempo','Loop':'Loop','Grabar movimientos':'Record moves','Grabar movimientos (R)':'Record moves (R)','Sonido':'Sound','Salida':'Output','Pantalla completa':'Full screen','Monitor':'Monitor',
+'Estilo':'Style','Tempo':'Tempo','Loop':'Loop','Ajustar el loop al largo del track':'Fit the loop to the track length','Grabar movimientos':'Record moves','Grabar movimientos (R)':'Record moves (R)','Sonido':'Sound','Salida':'Output','Pantalla completa':'Full screen','Monitor':'Monitor',
 'Soltá tus archivos':'Drop your files','Cada imagen o video entra como capa nueva. La música marca el pulso.':'Each image or video comes in as a new layer. Music sets the pulse.',
 'Reproducir':'Play','Pausar':'Pause','Posición en el loop':'Loop position','Capturar cuadro':'Capture frame','Exportar':'Export','Banco de media':'Media bank','Capas y efectos':'Layers and effects',
 'Capas':'Layers','+ Capa':'+ Layer','Familias de efectos':'Effect families','Formato del lienzo':'Canvas format','Idioma':'Language',
