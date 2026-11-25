@@ -20,6 +20,14 @@ Descargá [`app/index.html`](app/index.html) y abrilo con Chrome o Edge. Es la a
 
 Tus archivos nunca se suben a ningún servidor. Lo único que sale a internet son las fuentes de Google Fonts, los GIFs de Giphy que pegues y el exportador de video, que se verifica antes de usarse.
 
+## Licencia
+
+xekuoia es software libre bajo la licencia [GPL-3.0](LICENSE) (versión 3 o posterior). Podés usarlo, estudiarlo, modificarlo y compartirlo; cualquier versión modificada que distribuyas tiene que publicarse también bajo GPL, con su código y manteniendo el crédito original.
+
+El nombre **xekuoia** y su logo no están cubiertos por la licencia: si publicás una versión modificada, usá otro nombre.
+
+Código de terceros: la triangulación de polígonos es una adaptación de [earcut](https://github.com/mapbox/earcut) (Mapbox, ISC) y la exportación de video usa [Mediabunny](https://github.com/Vanilagy/mediabunny) (MPL-2.0).
+
 ## Apoyar el desarrollo
 
 xekuoia es gratis. Si te sirve, podés aportar desde [GitHub Sponsors](https://github.com/sponsors/SergioCasabona).
@@ -30,4 +38,4 @@ Creado por [Gio Casabona](https://www.instagram.com/giocasabona/), fundador y de
 
 ---
 
-**English:** xekuoia is a browser-based visual instrument for reels, motion graphics and live visuals. Everything runs on your computer; no install, no account. Use it at [xekuoia.com](https://xekuoia.com) or download `app/index.html` and open it in Chrome or Edge.
+**English:** xekuoia is a browser-based visual instrument for reels, motion graphics and live visuals. Everything runs on your computer; no install, no account. Use it at [xekuoia.com](https://xekuoia.com) or download `app/index.html` and open it in Chrome or Edge. Free software under the GPL-3.0 license; the xekuoia name and logo are not covered by it.
