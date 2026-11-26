@@ -516,6 +516,9 @@ body[data-layout=bottom] .scenes{grid-column:1;grid-row:2}body[data-layout=botto
 .scxf{flex:none}.scxf .pillsel{height:34px}
 @media (max-width:1366px){.sclbl small,.scxf .cap{display:none}}
 @media (max-width:920px){.scenes{flex-wrap:wrap}.slots{order:3;flex-basis:100%}}
+.cats button .tk{font:500 10px/1 'JetBrains Mono',ui-monospace,monospace;color:var(--mute);margin-left:-1px;opacity:.8}
+.cats button[aria-pressed=true] .tk{color:var(--ink2)}
+.cats button{padding:0 11px}
 </style>
 </head>
 <body data-layout="side">
@@ -528,7 +531,7 @@ body[data-layout=bottom] .scenes{grid-column:1;grid-row:2}body[data-layout=botto
   <div class="grp durg"><span class="cap">Loop</span><input class="num mono" id="dur" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" maxlength="7" placeholder="0:08" title="Duración del loop. Escribí minutos:segundos (2:00) o solo segundos (120). Máximo 10:00." aria-label="Duración del loop en minutos y segundos"><button class="btn icon fitdur" id="fitDur" type="button" hidden title="Ajustar el loop al largo del track" aria-label="Ajustar el loop al largo del track">♪</button></div>
   <div class="spacer"></div>
   <div class="seg" id="langSeg" role="group" aria-label="Idioma"><button data-lang="es" aria-pressed="true">ES</button><button data-lang="en" aria-pressed="false">EN</button></div>
-  <button class="btn" id="recBtn" aria-pressed="false" data-learn="rec" title="Grabar movimientos (R)"><span class="rd"></span>Grabar movimientos</button>
+  <button class="btn" id="recBtn" aria-pressed="false" data-learn="rec" title="Grabar movimientos (G)" aria-keyshortcuts="G"><span class="rd"></span>Grabar movimientos</button>
   <button class="btn" id="sndBtn" aria-expanded="false"><span class="led" id="sndLed"></span>Sonido</button>
   <button class="btn" id="midiBtn" aria-expanded="false"><span class="led" id="midiLed"></span>MIDI</button>
   <button class="btn" id="outBtn" aria-expanded="false"><span class="led" id="outLed"></span>Salida</button>
@@ -1446,11 +1449,21 @@ llist.addEventListener('pointerup',endL);llist.addEventListener('pointercancel',
 }
 
 /* ================= tabs, tiles, inspector ================= */
+/* tabs on the QWERTY row: Q source, W time, E motion, R distortion, T color, Y texture, U active, I automation.
+   Pressing the key of the open tab again jumps to the next effect of that family (the ones turned on first). */
+const TABKEYS=['KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI'],TABLBL=['Q','W','E','R','T','Y','U','I'];
+const tabIds=()=>['fuente',...CATS.map(c=>c[0]),'activos','auto'];
+function tabKey(i){const id=tabIds()[i],L=selLayer();if(!id)return;if(id==='fuente'&&L.type==='master'){toast('Elegí una capa para ver su fuente.');return;}
+  if(S.tab===id&&id!=='fuente'&&id!=='auto'){const pool=id==='activos'?FXU.filter(u=>L.fx[u.id].on):FXU.filter(u=>u.cat===id);
+    const on=pool.filter(u=>L.fx[u.id].on),list=on.length>1||id==='activos'?on:pool;if(list.length<2&&!(list.length===1&&list[0].id!==S.selU))return;
+    const k=list.findIndex(u=>u.id===S.selU);S.selU=list[(k+1)%list.length].id;buildBrowser();buildInsp();persist();return;}
+  $(`#cats [data-cat="${id}"]`)?.click();}
 function buildCats(){if(OUT)return;
   const L=selLayer();let autos=0;eachAuto(()=>autos++);
-  $('#cats').innerHTML=(L.type!=='master'?`<button data-cat="fuente" style="--hue:${HUE.fuentes}" aria-pressed="${S.tab==='fuente'}"><i></i>${esc(U[L.type].name)}</button>`:'')
-    +CATS.map(([id,name,hue])=>`<button data-cat="${id}" style="--hue:${hue}" aria-pressed="${S.tab===id}"><i></i>${name}</button>`).join('')
-    +`<button data-cat="activos" aria-pressed="${S.tab==='activos'}">Activos <em>${fxCount(L)}</em></button><button data-cat="auto" aria-pressed="${S.tab==='auto'}">Automatización <em>${autos}</em></button>`;
+  const kb=i=>`<kbd class="tk" aria-hidden="true">${TABLBL[i]}</kbd>`,ks=i=>` aria-keyshortcuts="${TABLBL[i]}" title="Tecla ${TABLBL[i]}"`;
+  $('#cats').innerHTML=(L.type!=='master'?`<button data-cat="fuente" style="--hue:${HUE.fuentes}" aria-pressed="${S.tab==='fuente'}"${ks(0)}><i></i>${esc(U[L.type].name)}${kb(0)}</button>`:'')
+    +CATS.map(([id,name,hue],j)=>`<button data-cat="${id}" style="--hue:${hue}" aria-pressed="${S.tab===id}"${ks(j+1)}><i></i>${name}${kb(j+1)}</button>`).join('')
+    +`<button data-cat="activos" aria-pressed="${S.tab==='activos'}"${ks(6)}>Activos <em>${fxCount(L)}</em>${kb(6)}</button><button data-cat="auto" aria-pressed="${S.tab==='auto'}"${ks(7)}>Automatización <em>${autos}</em>${kb(7)}</button>`;
   $('#panel').classList.toggle('srcmode',S.tab==='fuente');}
 function tileHTML(L,u){const st=L.fx[u.id];return `<div class="tile${st.on?' on':''}${S.selU===u.id?' sel':''}" style="--hue:${HUE[u.cat]}" data-u="${u.id}">
   <button class="tsel" aria-label="${esc(u.name)}: ajustar">${IC[u.id]}<span>${esc(u.name)}</span></button>
@@ -1665,8 +1678,12 @@ function syncTime(){if(OUT)return;const p=S.t/S.dur;scrub.value=Math.round(p*100
 if(!OUT){
 playBtn.addEventListener('click',()=>{if(!LEARN.on)togglePlay();});
 scrub.addEventListener('input',()=>{S.t=scrub.value/1000*S.dur;seekVideos(S.t);if(S.playing){t0=S.t;wall0=performance.now();if(AUD.mode!=='live')startAudio();resetAllFB();}else refresh();sendClock();});
-document.addEventListener('keydown',e=>{if(e.target.closest('input,textarea,select,button,.knob'))return;
-  if(e.code==='Space'){e.preventDefault();togglePlay();}else if(e.key==='r'||e.key==='R')setRec(!S.rec);else if(e.key==='f'||e.key==='F')goFull();});
+document.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey||e.target.closest('input,textarea,select,[contenteditable]'))return;
+  const onCtl=!!e.target.closest('button,.knob,[role=slider]');
+  if(e.code==='Space'){if(onCtl)return;e.preventDefault();togglePlay();return;}
+  if(e.repeat||e.shiftKey)return;
+  const ti=TABKEYS.indexOf(e.code);if(ti>=0){e.preventDefault();tabKey(ti);return;}
+  if(e.code==='KeyG')setRec(!S.rec);else if(e.code==='KeyF')goFull();});
 }
 
 /* ================= export + capture ================= */
@@ -2563,7 +2580,7 @@ body:`
 <dt>Pulso</dt><dd>Golpea con el tempo.</dd>
 <dt>Audio</dt><dd>Sigue al sonido: todo, graves, medios o agudos.</dd>
 </dl>
-<p>Con <b>Grabar movimientos</b> (<kbd>R</kbd>) movés perillas mientras suena y quedan grabadas; las ves en la pestaña Automatización.</p></section>
+<p>Con <b>Grabar movimientos</b> (<kbd>G</kbd>) movés perillas mientras suena y quedan grabadas; las ves en la pestaña Automatización.</p></section>
 
 <section id="h-sonido"><h3>Sonido</h3>
 <p>En <b>Sonido</b> elegís de dónde escucha la app: un <b>Track</b> (suena y se incluye al exportar), la <b>Entrada en vivo</b> (micrófono o placa de audio) o el <b>Audio de la compu</b> (lo que esté sonando en la PC). Para que algo reaccione, poné una perilla en modo Audio y elegí la banda.</p></section>
@@ -2588,7 +2605,9 @@ body:`
 <section id="h-atajos"><h3>Atajos</h3>
 <table class="keys"><tbody>
 <tr><td><kbd>Espacio</kbd></td><td>Reproducir o pausar</td></tr>
-<tr><td><kbd>R</kbd></td><td>Grabar movimientos</td></tr>
+<tr><td><kbd>G</kbd></td><td>Grabar movimientos</td></tr>
+<tr><td><kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>I</kbd></td><td>Pestañas: la capa, Tiempo, Movimiento, Distorsión, Color, Textura, Activos y Automatización. Apretar otra vez la misma tecla pasa al siguiente efecto encendido de esa familia, y sus perillas quedan a mano.</td></tr>
+<tr><td><kbd>Shift</kbd> <kbd>1</kbd> a <kbd>8</kbd></td><td>Ir a una escena</td></tr>
 <tr><td><kbd>F</kbd></td><td>Pantalla completa</td></tr>
 <tr><td><kbd>1</kbd> a <kbd>9</kbd></td><td>Mostrar una sola capa (con las teclas activadas)</td></tr>
 <tr><td><kbd>Ctrl</kbd> <kbd>S</kbd></td><td>Guardar proyecto</td></tr>
@@ -2666,7 +2685,7 @@ body:`
 <dt>Pulse</dt><dd>Hits on the tempo.</dd>
 <dt>Audio</dt><dd>Follows the sound: all, lows, mids or highs.</dd>
 </dl>
-<p>With <b>Record moves</b> (<kbd>R</kbd>) you turn knobs while it plays and they get recorded; you’ll find them in the Automation tab.</p></section>
+<p>With <b>Record moves</b> (<kbd>G</kbd>) you turn knobs while it plays and they get recorded; you’ll find them in the Automation tab.</p></section>
 
 <section id="h-sonido"><h3>Sound</h3>
 <p>In <b>Sound</b> you choose what the app listens to: a <b>Track</b> (plays and is included in the export), the <b>Live input</b> (microphone or audio interface) or <b>Computer audio</b> (whatever is playing on the PC). To make something react, set a knob to Audio mode and pick the band.</p></section>
@@ -2691,7 +2710,9 @@ body:`
 <section id="h-atajos"><h3>Shortcuts</h3>
 <table class="keys"><tbody>
 <tr><td><kbd>Space</kbd></td><td>Play or pause</td></tr>
-<tr><td><kbd>R</kbd></td><td>Record moves</td></tr>
+<tr><td><kbd>G</kbd></td><td>Record moves</td></tr>
+<tr><td><kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>I</kbd></td><td>Tabs: the layer, Time, Motion, Distortion, Color, Texture, Active and Automation. Press the same key again to jump to the next effect that’s on in that family, with its knobs at hand.</td></tr>
+<tr><td><kbd>Shift</kbd> <kbd>1</kbd> to <kbd>8</kbd></td><td>Go to a scene</td></tr>
 <tr><td><kbd>F</kbd></td><td>Full screen</td></tr>
 <tr><td><kbd>1</kbd> to <kbd>9</kbd></td><td>Show a single layer (with keys turned on)</td></tr>
 <tr><td><kbd>Ctrl</kbd> <kbd>S</kbd></td><td>Save project</td></tr>
@@ -2938,7 +2959,7 @@ const DICT={
 'El paquete supera los 4 GB. Guardá el proyecto liviano y llevá los archivos aparte.':'The package is over 4 GB. Save the light project and carry the files separately.',
 'El navegador no tiene lugar para recordar tus archivos. Guardá el proyecto con archivos para no perderlos.':'The browser has no room to remember your files. Save the project with files so you don’t lose them.',
 'Track de audio':'Audio track',
-'Estilo':'Style','Tempo':'Tempo','Loop':'Loop','MIDI apagado.':'MIDI off.','Encender MIDI':'Turn MIDI on','Apagar MIDI':'Turn MIDI off','Reconectar':'Reconnect','Si el controlador dejó de responder, lo desconecta y lo vuelve a conectar':'If the controller stopped responding, this disconnects and reconnects it','MIDI apagado. El controlador ya no mueve nada.':'MIDI off. The controller no longer moves anything.','MIDI reconectado.':'MIDI reconnected.','MIDI encendido. Conectá el controlador por USB.':'MIDI on. Plug the controller in by USB.','Mientras está apagado, el controlador no mueve nada. El teclado de la compu sigue funcionando.':'While it’s off, the controller doesn’t move anything. The computer keyboard still works.','Escenas':'Scenes','Corte':'Cut','Shift + 1 a 8':'Shift + 1 to 8','Guardar':'Save','Transición':'Transition','Transición entre escenas':'Transition between scenes','Guardar lo que se ve ahora en un casillero':'Save what you see now into a slot','Disparan las escenas 1 a 8':'Fire scenes 1 to 8','Elegí un casillero para guardar lo que se ve ahora.':'Pick a slot to save what you see now.','1 beat':'1 beat','2 beats':'2 beats','4 beats':'4 beats','8 beats':'8 beats','Ajustar el loop al largo del track':'Fit the loop to the track length','Grabar movimientos':'Record moves','Grabar movimientos (R)':'Record moves (R)','Sonido':'Sound','Salida':'Output','Pantalla completa':'Full screen','Monitor':'Monitor',
+'Estilo':'Style','Tempo':'Tempo','Loop':'Loop','Elegí una capa para ver su fuente.':'Pick a layer to see its source.','MIDI apagado.':'MIDI off.','Encender MIDI':'Turn MIDI on','Apagar MIDI':'Turn MIDI off','Reconectar':'Reconnect','Si el controlador dejó de responder, lo desconecta y lo vuelve a conectar':'If the controller stopped responding, this disconnects and reconnects it','MIDI apagado. El controlador ya no mueve nada.':'MIDI off. The controller no longer moves anything.','MIDI reconectado.':'MIDI reconnected.','MIDI encendido. Conectá el controlador por USB.':'MIDI on. Plug the controller in by USB.','Mientras está apagado, el controlador no mueve nada. El teclado de la compu sigue funcionando.':'While it’s off, the controller doesn’t move anything. The computer keyboard still works.','Escenas':'Scenes','Corte':'Cut','Shift + 1 a 8':'Shift + 1 to 8','Guardar':'Save','Transición':'Transition','Transición entre escenas':'Transition between scenes','Guardar lo que se ve ahora en un casillero':'Save what you see now into a slot','Disparan las escenas 1 a 8':'Fire scenes 1 to 8','Elegí un casillero para guardar lo que se ve ahora.':'Pick a slot to save what you see now.','1 beat':'1 beat','2 beats':'2 beats','4 beats':'4 beats','8 beats':'8 beats','Ajustar el loop al largo del track':'Fit the loop to the track length','Grabar movimientos':'Record moves','Grabar movimientos (G)':'Record moves (G)','Sonido':'Sound','Salida':'Output','Pantalla completa':'Full screen','Monitor':'Monitor',
 'Soltá tus archivos':'Drop your files','Cada imagen o video entra como capa nueva. La música marca el pulso.':'Each image or video comes in as a new layer. Music sets the pulse.',
 'Reproducir':'Play','Pausar':'Pause','Posición en el loop':'Loop position','Capturar cuadro':'Capture frame','Exportar':'Export','Banco de media':'Media bank','Capas y efectos':'Layers and effects',
 'Capas':'Layers','+ Capa':'+ Layer','Familias de efectos':'Effect families','Formato del lienzo':'Canvas format','Idioma':'Language',
@@ -3074,7 +3095,7 @@ const PATS=[
  [/^(.+): prender (.+)$/,m=>`${T_(m[1])}: toggle ${T_(m[2])}`],[/^Ver u ocultar (.+)$/,m=>`Show or hide ${T_(m[1])}`],
  [/^(.+): ajustar$/,m=>`${T_(m[1])}: adjust`],
  [/^Mover (.+) \(o Alt \+ flechas\)$/,m=>`Move ${T_(m[1])} (or Alt + arrows)`],
- [/^Escena (\d)$/,m=>`Scene ${m[1]}`],[/^Escena (\d) guardada\.$/,m=>`Scene ${m[1]} saved.`],[/^Escena (\d) borrada\.$/,m=>`Scene ${m[1]} deleted.`],[/^La escena (\d) está vacía\.$/,m=>`Scene ${m[1]} is empty.`],[/^Escena (\d), vacía: tocá para guardar lo que se ve$/,m=>`Scene ${m[1]}, empty: click to save what you see`],[/^Escena (\d)\. Clic: ir\. Shift\+clic: reemplazar\. Alt\+clic: borrar\.$/,m=>`Scene ${m[1]}. Click: go. Shift+click: replace. Alt+click: delete.`],[/^Escena (\d) vacía\. Clic: guardar lo que se ve ahora\.$/,m=>`Scene ${m[1]} empty. Click: save what you see now.`],[/^Ir a la escena (\d)$/,m=>`Go to scene ${m[1]}`],
+ [/^Tecla (\w)$/,m=>`Key ${m[1]}`], [/^Escena (\d)$/,m=>`Scene ${m[1]}`],[/^Escena (\d) guardada\.$/,m=>`Scene ${m[1]} saved.`],[/^Escena (\d) borrada\.$/,m=>`Scene ${m[1]} deleted.`],[/^La escena (\d) está vacía\.$/,m=>`Scene ${m[1]} is empty.`],[/^Escena (\d), vacía: tocá para guardar lo que se ve$/,m=>`Scene ${m[1]}, empty: click to save what you see`],[/^Escena (\d)\. Clic: ir\. Shift\+clic: reemplazar\. Alt\+clic: borrar\.$/,m=>`Scene ${m[1]}. Click: go. Shift+click: replace. Alt+click: delete.`],[/^Escena (\d) vacía\. Clic: guardar lo que se ve ahora\.$/,m=>`Scene ${m[1]} empty. Click: save what you see now.`],[/^Ir a la escena (\d)$/,m=>`Go to scene ${m[1]}`],
  [/^Quitar (.+) del banco$/,m=>`Remove ${m[1]} from the bank`],[/^Usar (.+) en Media$/,m=>`Use ${m[1]} in Media`],[/^Agregar como capa (.+)$/,m=>`Add as layer ${m[1]}`],
  [/^Quitar animación de (.+)$/,m=>`Remove animation from ${T_(m[1])}`],
  [/^(Ocultar|Mostrar|Eliminar|Encender|Apagar|Restablecer|Animar|Usar) (.+)$/,m=>`${{Ocultar:'Hide',Mostrar:'Show',Eliminar:'Delete',Encender:'Turn on',Apagar:'Turn off',Restablecer:'Reset',Animar:'Animate',Usar:'Use'}[m[1]]} ${T_(m[2])}`],
