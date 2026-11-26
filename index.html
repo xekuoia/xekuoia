@@ -107,7 +107,7 @@ footer{margin-top:140px;padding-bottom:40px}
 </div></section>
 
 <div class="wrap"><div class="band"><div class="drift" aria-hidden="true"></div>
-  <div class="reel"><video id="reel" src="assets/reel.mp4" poster="assets/reel-poster.jpg" width="1280" height="720" autoplay muted loop playsinline preload="metadata" aria-label="Reel de loops hechos con xekuoia"></video>
+  <div class="reel"><video id="reel" data-src="assets/reel.mp4" data-src-sm="assets/reel-sm.mp4" poster="assets/reel-poster.jpg" width="1280" height="720" muted loop playsinline preload="none" aria-label="Reel de loops hechos con xekuoia"></video>
   <button class="rbtn" id="reelBtn" type="button" aria-label="Pausar el video"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="ip" d="M5 3.5h2v9H5zM9 3.5h2v9H9z" fill="currentColor"/><path class="ipl" d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg></button></div>
   <div class="bandcap"><span data-i="cap1">Loops hechos con xekuoia</span><span data-i="cap2">Capas, objetos 3D, dibujo y efectos, exportados tal cual</span></div>
 </div></div>
@@ -190,7 +190,12 @@ function setLang(l){LG=l;const D=l==='en'?EN:ES;document.documentElement.lang=l;
   vid.setAttribute('aria-label',D.reel);syncBtn();document.title=l==='en'?'xekuoia: a visual instrument in your browser':'xekuoia: un instrumento visual en tu navegador';
   document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===l));try{localStorage.setItem('xekuoia-site-lang',l);}catch(e){}}
 rb.addEventListener('click',()=>{if(vid.paused)vid.play().catch(()=>{});else vid.pause();});vid.addEventListener('play',syncBtn);vid.addEventListener('pause',syncBtn);
-if(matchMedia('(prefers-reduced-motion: reduce)').matches){vid.removeAttribute('autoplay');vid.pause();}
+/* the reel only downloads when it's about to be seen: smaller file on phones or with data saver; it pauses off-screen */
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,SAVE=!!(navigator.connection&&navigator.connection.saveData);let userPaused=RM,loaded=false;
+function loadReel(){if(loaded)return;loaded=true;vid.src=(innerWidth<=960||SAVE)?vid.dataset.srcSm:vid.dataset.src;vid.preload='auto';}
+rb.addEventListener('click',()=>{loadReel();userPaused=!vid.paused;},true);
+if('IntersectionObserver' in window){new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting){if(!SAVE)loadReel();if(loaded&&!userPaused)vid.play().catch(()=>{});}else if(loaded&&!vid.paused)vid.pause();}},{rootMargin:'300px 0px'}).observe(vid);}
+else{loadReel();if(!RM)vid.play().catch(()=>{});}
 syncBtn();
 document.querySelector('.lang').addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(b)setLang(b.dataset.lang);});
 let start='es';try{start=localStorage.getItem('xekuoia-site-lang')||(/^es/i.test(navigator.language||'')?'es':'en');}catch(e){}if(start==='en')setLang('en');
