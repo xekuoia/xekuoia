@@ -1263,7 +1263,7 @@ if(gl){
   gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
   gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
   dummy2=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,dummy2);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,0]));tp(gl.TEXTURE_2D);
-  dummyA=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D_ARRAY,dummyA);gl.texImage3D(gl.TEXTURE_2D_ARRAY,0,gl.RGBA,1,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,0]));tp(gl.TEXTURE_2D_ARRAY);
+  dummyA=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D_ARRAY,dummyA);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);gl.texImage3D(gl.TEXTURE_2D_ARRAY,0,gl.RGBA,1,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,0]));gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);tp(gl.TEXTURE_2D_ARRAY);
 }
 const RES={w:0,h:0,ver:0};let ALLOC=[];
 function mkTarget(){const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,RES.w,RES.h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);tp(gl.TEXTURE_2D);
@@ -1308,8 +1308,8 @@ function runChain(obj,F,tq,t,step,input,seedOff){
     if(!g.hist){g.hist=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D_ARRAY,g.hist);gl.texStorage3D(gl.TEXTURE_2D_ARRAY,1,gl.RGBA8,w,h,HL);tp(gl.TEXTURE_2D_ARRAY);g.fillAll=true;}
     gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D_ARRAY,g.hist);g.head=(g.head+1)%HL;
     const layersToFill=g.fillAll?[...Array(HL).keys()]:[g.head];g.fillAll=false;
-    for(const li of layersToFill){if(canvasIn)gl.texSubImage3D(gl.TEXTURE_2D_ARRAY,0,0,0,li,w,h,1,gl.RGBA,gl.UNSIGNED_BYTE,comp);
-      else{gl.bindFramebuffer(gl.READ_FRAMEBUFFER,input.fb);gl.copyTexSubImage3D(gl.TEXTURE_2D_ARRAY,0,0,0,li,0,0,w,h);gl.bindFramebuffer(gl.READ_FRAMEBUFFER,null);}}
+    for(const li of layersToFill){/* 3D textures can't take premultiplied canvas uploads: copy from the layer's own 2D target instead */
+      {gl.bindFramebuffer(gl.READ_FRAMEBUFFER,canvasIn?g.src.fb:input.fb);gl.copyTexSubImage3D(gl.TEXTURE_2D_ARRAY,0,0,0,li,0,0,w,h);gl.bindFramebuffer(gl.READ_FRAMEBUFFER,null);}}
   }else{gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D_ARRAY,dummyA);}
   gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,canvasIn?g.src.tex:input.tex);
   gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,g.fb[1-g.cur].tex);
@@ -1349,7 +1349,7 @@ function composite(o,op,mode,matte,mMode){
 }
 /* scene crossfade: the last finished frame fades out over the new scene */
 let LASTFIN=null;const XF={tex:null,t0:0,dur:0,on:false};
-function xfCapture(sec){if(!gl||!LASTFIN||!(sec>0))return;gl.activeTexture(gl.TEXTURE0);
+function xfCapture(sec){if(!gl||!LASTFIN||!(sec>0)||LASTFIN.ver!==RES.ver)return;gl.activeTexture(gl.TEXTURE0);
   if(!XF.tex){XF.tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,XF.tex);tp(gl.TEXTURE_2D);}else gl.bindTexture(gl.TEXTURE_2D,XF.tex);
   gl.bindFramebuffer(gl.FRAMEBUFFER,LASTFIN.fb);gl.copyTexImage2D(gl.TEXTURE_2D,0,gl.RGBA,0,0,RES.w,RES.h,0);gl.bindFramebuffer(gl.FRAMEBUFFER,null);
   XF.t0=performance.now();XF.dur=sec*1000;XF.on=true;}
@@ -1373,11 +1373,14 @@ function render(t){
   let fin={tex:ACC[acur].tex,fb:ACC[acur].fb,flip:0};
   if(anyFx(S.master.fx))fin=runChain(S.master,S.master.fx,M.tq,t,M.step,{kind:'tex',tex:fin.tex,fb:fin.fb},1);
   gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,RES.w,RES.h);gl.useProgram(PD);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,fin.tex);i1(PD,'tex',0);gl.drawArrays(gl.TRIANGLES,0,3);
-  LASTFIN=fin;
+  LASTFIN={fb:fin.fb,ver:RES.ver};
   if(XF.on){const u=(performance.now()-XF.t0)/XF.dur;if(u>=1)XF.on=false;else{const a=1-u*u*(3-2*u);gl.enable(gl.BLEND);gl.blendColor(0,0,0,a);gl.blendFunc(gl.CONSTANT_ALPHA,gl.ONE_MINUS_CONSTANT_ALPHA);gl.bindTexture(gl.TEXTURE_2D,XF.tex);gl.drawArrays(gl.TRIANGLES,0,3);gl.disable(gl.BLEND);}}
 }
-function refresh(){
+let refreshQ=0;
+function refresh(){if(S.playing||OUT||refreshQ)return;refreshQ=requestAnimationFrame(()=>{refreshQ=0;refreshNow();});}
+function refreshNow(){
   if(S.playing||OUT)return;
+  if(AUD.mode==='live'&&AUD.an){syncTime();return;}
   if(needsHistory()){resetAllFB();for(let i=HL+6;i>0;i--){const tt=S.t-i/FPS;render(((tt%S.dur)+S.dur)%S.dur);}}
   render(S.t);syncTime();updateLive();ambient();postAudio(S.t);meters();
 }
@@ -1655,7 +1658,7 @@ function pause(){S.playing=false;cancelAnimationFrame(raf);stopAudio();syncVideo
 function togglePlay(){S.playing?pause():play();}
 function tick(now){if(!S.playing)return;let t=t0+(now-wall0)/1000;
   if(t>=S.dur){t%=S.dur;t0=t;wall0=now;if(AUD.mode!=='live')startAudio();seekVideos(0);lastRec={};if(autosDirty){autosDirty=false;buildCats();if(S.tab==='auto')buildBrowser();}sendClock();}
-  S.t=t;if(AUD.mode==='live')readLive();if(BOOST!==BOOST_T)stepBoost();render(t);postAudio(t);syncTime();updateLive();meters();if(++frameN%24===0)ambient();raf=requestAnimationFrame(tick);}
+  S.t=t;if(AUD.mode==='live')readLive();if(BOOST!==BOOST_T)stepBoost();render(t);postAudio(t);syncTime();updateLive();meters();if(++frameN%120===0)ambient();raf=requestAnimationFrame(tick);}
 const pad=n=>String(n).padStart(2,'0');
 function syncTime(){if(OUT)return;const p=S.t/S.dur;scrub.value=Math.round(p*1000);scrub.style.setProperty('--p',(p*100).toFixed(2)+'%');
   $('#tNow').textContent=`${pad(Math.floor(S.t/60))}:${pad(Math.floor(S.t%60))}.${Math.floor(S.t*10)%10}`;$('#tBeat').textContent=`Beat ${Math.floor(S.t*S.bpm/60)+1} de ${Math.ceil(S.dur*S.bpm/60)}`;}
@@ -1735,7 +1738,8 @@ let bc=null;try{bc=new BroadcastChannel('bastidor-live');}catch(e){}
 let childWin=null;const OUTS=new Map();
 function post(msg){try{bc&&bc.postMessage(msg);}catch(e){}if(childWin&&!childWin.closed){try{childWin.postMessage({bastidor:1,...msg},'*');}catch(e){}}}
 let stateQueued=false,XFPOST=0;
-function markState(){if(OUT||stateQueued)return;stateQueued=true;requestAnimationFrame(()=>{stateQueued=false;if(OUTS.size||childWin)post({type:'state',state:serial(),xf:XFPOST});XFPOST=0;});}
+let lastStateAt=0;
+function markState(){if(OUT||stateQueued)return;stateQueued=true;const wait=XFPOST?0:Math.max(0,40-(performance.now()-lastStateAt));const go=()=>{stateQueued=false;lastStateAt=performance.now();if(OUTS.size||childWin)post({type:'state',state:serial(),xf:XFPOST});XFPOST=0;};wait?setTimeout(()=>requestAnimationFrame(go),wait):requestAnimationFrame(go);}
 const sendClock=()=>{if(!OUT)post({type:'clock',playing:S.playing,t:S.t,at:Date.now()});};
 const clipMsg=it=>it.remote?{type:'clip',id:it.id,name:it.name,url:it.url,kind:it.kind}:{type:'clip',id:it.id,name:it.name,blob:it.blob,kind:it.kind};
 const sendClip=it=>{if(!OUT&&(OUTS.size||childWin))post(clipMsg(it));};
@@ -1799,11 +1803,11 @@ const ROLES={knobs:['Perillas y faders',[['perillas','Mueven las perillas en pan
 const SEEN=new Set();let WIZ=null,WHEEL=0;
 let midi=null,midiState='idle',midiErr='';const LEARN={on:false,target:null,el:null};
 async function initMIDI(){
-  if(midi||midiState==='asking')return;
+  if(midi||midiState==='asking'||midiState==='off')return;
   if(!navigator.requestMIDIAccess){midiState='unsupported';drawMidiSheet();return;}
   midiState='asking';drawMidiSheet();
   try{midi=await navigator.requestMIDIAccess({sysex:false});midiState='ok';
-    const attach=()=>{for(const inp of midi.inputs.values())inp.onmidimessage=onMidi;drawMidiSheet();};attach();midi.onstatechange=attach;}
+    const attach=ev=>{for(const inp of midi.inputs.values())inp.onmidimessage=onMidi;if(ev&&ev.port&&ev.port.state==='disconnected')releaseMidiNotes();drawMidiSheet();};attach();midi.onstatechange=attach;}
   catch(e){midiState='blocked';midiErr=e&&e.name||'';}
   drawMidiSheet();
 }
@@ -1828,6 +1832,7 @@ function drawMidiSheet(){
   if(OUT)return;const devs=midiDevices();
   const stat=$('#midiStat'),acts=$('#midiActs'),body=$('#midiBody');
   for(const id of ['#midiLed','#midiLed2'])$(id)?.classList.toggle('ok',midiState==='ok'&&devs.length>0);
+  if(midiState==='off'){stat.textContent='MIDI apagado.';acts.innerHTML=`<button class="btn solid" id="midiOn">Encender MIDI</button>`;body.innerHTML=`<p class="note" style="margin:0">Mientras está apagado, el controlador no mueve nada. El teclado de la compu sigue funcionando.</p>`;$('#midiOn').onclick=()=>{midiState='idle';midiRestart();};return;}
   if(midiState==='idle'||midiState==='asking'){stat.textContent='Pidiendo acceso a tus dispositivos MIDI…';acts.innerHTML='';body.innerHTML='';return;}
   if(midiState==='unsupported'||midiState==='blocked'){
     stat.textContent=midiState==='unsupported'?'Este navegador no tiene MIDI. Usá Chrome o Edge en la compu.':IN_ARTIFACT?'Dentro de Claude el navegador bloquea el acceso a MIDI: la app corre en un marco protegido.':'Chrome no dio permiso para MIDI. Tocá el ícono a la izquierda de la dirección, permití dispositivos MIDI y recargá.';
@@ -1837,7 +1842,9 @@ function drawMidiSheet(){
     $('#dlApp')?.addEventListener('click',()=>saveFile('xekuoia.html',new Blob([PRISTINE],{type:'text/html'}),toast));return;}
   stat.innerHTML=devs.length?`<span class="led ok"></span>${devs.map(esc).join(', ')}`:'MIDI habilitado. Conectá el controlador por USB.';
   if(WIZ){acts.innerHTML='';body.innerHTML=wizHTML();bindWiz();return;}
-  acts.innerHTML=`<button class="btn solid" id="wizBtn">Configurar mi controlador</button><button class="btn${LEARN.on?' solid':''}" id="learnBtn">${LEARN.on?'Terminar de aprender':'Aprender un control'}</button>`;
+  acts.innerHTML=`<button class="btn solid" id="wizBtn">Configurar mi controlador</button><button class="btn${LEARN.on?' solid':''}" id="learnBtn">${LEARN.on?'Terminar de aprender':'Aprender un control'}</button>`
+    +`<button class="btn" id="midiRe" title="Si el controlador dejó de responder, lo desconecta y lo vuelve a conectar">Reconectar</button><button class="btn" id="midiOffB">Apagar MIDI</button>`;
+  $('#midiRe').onclick=midiRestart;$('#midiOffB').onclick=midiOff;
   const maps=Object.entries(MIDIMAP);
   const summary=PROF.configured?`${PROF.knobs.length?(PROF.knobs.length===1?'1 perilla':PROF.knobs.length+' perillas'):'Sin perillas'}, ${PROF.pads&&PROF.pads.length?(PROF.pads.length===1?'1 pad':PROF.pads.length+' pads'):'sin pads'}`:'Preparado para Launchkey Mini. Cualquier otra perilla que muevas se suma sola.';
   body.innerHTML=`<div class="tgl" style="display:block"><span>Tu controlador<small>${esc(summary)}</small></span></div>
@@ -1904,7 +1911,17 @@ function noteOnKey(ch,n,vel){const r=PROF.roles.keys,i=KEYORDER[n%12];
 function wheel(kind,v){const r=PROF.roles.wheel;
   if(r==='perillas')knobAt(kind==='mod'?0:1,v);
   else if(r==='intensidad'){WHEEL=kind==='pb'?Math.abs(v-.5)*2:v;BOOST_T=Math.max(CHORDB,WHEEL*1.6);if(S.playing){}else kickBoost();post({type:'boost',v:BOOST});}}
-function onMidi(e){
+const CCQ=new Map();let ccRaf=0;
+function onMidi(e){const d=e.data;if(!d||d.length<2)return;const type=d[0]&0xf0;
+  if(!WIZ&&!(LEARN.on&&LEARN.target)&&((type===0xB0&&d[2]>0&&d[2]<127)||type===0xE0)){CCQ.set(d[0]+':'+(type===0xE0?'pb':d[1]),d);
+    if(!ccRaf)ccRaf=requestAnimationFrame(()=>{ccRaf=0;const q=[...CCQ.values()];CCQ.clear();for(const m of q)safeMidi(m);});return;}
+  safeMidi(d);}
+function safeMidi(d){try{handleMidi({data:d});}catch(err){console.warn('MIDI',err);}}
+function midiDetach(){if(midi){midi.onstatechange=null;for(const i of midi.inputs.values()){i.onmidimessage=null;try{i.close();}catch(e){}}}midi=null;CCQ.clear();releaseMidiNotes();}
+function releaseMidiNotes(){let any=false;for(const k of [...HELD.keys()])if(k[0]==='m'||k[0]==='p'){HELD.delete(k);any=true;}if(any)applyKeys();if(WHEEL){WHEEL=0;BOOST_T=CHORDB;kickBoost();}}
+function midiOff(){midiDetach();midiState='off';drawMidiSheet();toast('MIDI apagado. El controlador ya no mueve nada.');}
+function midiRestart(){midiDetach();midiState='idle';drawMidiSheet();setTimeout(()=>{initMIDI().then(()=>{if(midiState==='ok')toast(midiDevices().length?'MIDI reconectado.':'MIDI encendido. Conectá el controlador por USB.');});},150);}
+function handleMidi(e){
   const [st,d1,d2=0]=e.data,type=st&0xf0,ch=st&0x0f;if(type!==0xB0&&type!==0x90&&type!==0x80&&type!==0xE0)return;blinkLed();
   if(WIZ){wizInput(type,ch,d1,d2);return;}
   if(type===0xE0){if(PROF.roles.wheel!=='nada')wheel('pb',(d1|(d2<<7))/16383);return;}
@@ -2921,7 +2938,7 @@ const DICT={
 'El paquete supera los 4 GB. Guardá el proyecto liviano y llevá los archivos aparte.':'The package is over 4 GB. Save the light project and carry the files separately.',
 'El navegador no tiene lugar para recordar tus archivos. Guardá el proyecto con archivos para no perderlos.':'The browser has no room to remember your files. Save the project with files so you don’t lose them.',
 'Track de audio':'Audio track',
-'Estilo':'Style','Tempo':'Tempo','Loop':'Loop','Escenas':'Scenes','Corte':'Cut','Shift + 1 a 8':'Shift + 1 to 8','Guardar':'Save','Transición':'Transition','Transición entre escenas':'Transition between scenes','Guardar lo que se ve ahora en un casillero':'Save what you see now into a slot','Disparan las escenas 1 a 8':'Fire scenes 1 to 8','Elegí un casillero para guardar lo que se ve ahora.':'Pick a slot to save what you see now.','1 beat':'1 beat','2 beats':'2 beats','4 beats':'4 beats','8 beats':'8 beats','Ajustar el loop al largo del track':'Fit the loop to the track length','Grabar movimientos':'Record moves','Grabar movimientos (R)':'Record moves (R)','Sonido':'Sound','Salida':'Output','Pantalla completa':'Full screen','Monitor':'Monitor',
+'Estilo':'Style','Tempo':'Tempo','Loop':'Loop','MIDI apagado.':'MIDI off.','Encender MIDI':'Turn MIDI on','Apagar MIDI':'Turn MIDI off','Reconectar':'Reconnect','Si el controlador dejó de responder, lo desconecta y lo vuelve a conectar':'If the controller stopped responding, this disconnects and reconnects it','MIDI apagado. El controlador ya no mueve nada.':'MIDI off. The controller no longer moves anything.','MIDI reconectado.':'MIDI reconnected.','MIDI encendido. Conectá el controlador por USB.':'MIDI on. Plug the controller in by USB.','Mientras está apagado, el controlador no mueve nada. El teclado de la compu sigue funcionando.':'While it’s off, the controller doesn’t move anything. The computer keyboard still works.','Escenas':'Scenes','Corte':'Cut','Shift + 1 a 8':'Shift + 1 to 8','Guardar':'Save','Transición':'Transition','Transición entre escenas':'Transition between scenes','Guardar lo que se ve ahora en un casillero':'Save what you see now into a slot','Disparan las escenas 1 a 8':'Fire scenes 1 to 8','Elegí un casillero para guardar lo que se ve ahora.':'Pick a slot to save what you see now.','1 beat':'1 beat','2 beats':'2 beats','4 beats':'4 beats','8 beats':'8 beats','Ajustar el loop al largo del track':'Fit the loop to the track length','Grabar movimientos':'Record moves','Grabar movimientos (R)':'Record moves (R)','Sonido':'Sound','Salida':'Output','Pantalla completa':'Full screen','Monitor':'Monitor',
 'Soltá tus archivos':'Drop your files','Cada imagen o video entra como capa nueva. La música marca el pulso.':'Each image or video comes in as a new layer. Music sets the pulse.',
 'Reproducir':'Play','Pausar':'Pause','Posición en el loop':'Loop position','Capturar cuadro':'Capture frame','Exportar':'Export','Banco de media':'Media bank','Capas y efectos':'Layers and effects',
 'Capas':'Layers','+ Capa':'+ Layer','Familias de efectos':'Effect families','Formato del lienzo':'Canvas format','Idioma':'Language',
