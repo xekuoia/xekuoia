@@ -1756,9 +1756,12 @@ $('#expBtn').addEventListener('click',async()=>{if(REC.on){toast('Detené la gra
 });
 saveBtn.addEventListener('click',()=>{if(lastBlob)saveFile(`xekuoia-${slug()}-${S.fmt.replace(':','x')}.mp4`,lastBlob,m=>{st.textContent=m;});});
 $('#capBtn').addEventListener('click',()=>{
-  const keep=S.t;if(S.playing)pause();setRes(1);resetAllFB();
+  const name=()=>`xekuoia-cuadro-${S.fmt.replace(':','x')}-${new Date().toTimeString().slice(0,8).replace(/:/g,'')}.png`;
+  /* during a show (playing, live sound or recording) grab the frame as it is: no pause, no resolution change, nothing glitches */
+  if(S.playing||REC.on||(AUD.mode==='live'&&AUD.an)){render(S.t);out.toBlob(b=>{if(!b){toast('No se pudo capturar el cuadro.');return;}saveFile(name(),b,toast);},'image/png');return;}
+  const keep=S.t;setRes(1);resetAllFB();
   if(needsHistory())for(let i=HL+6;i>0;i--){const tt=keep-i/FPS;render(((tt%S.dur)+S.dur)%S.dur);}render(keep);
-  out.toBlob(b=>{setRes(baseRes());resetAllFB();S.t=keep;refresh();if(!b){toast('No se pudo capturar el cuadro.');return;}saveFile(`xekuoia-cuadro-${S.fmt.replace(':','x')}.png`,b,toast);},'image/png');
+  out.toBlob(b=>{setRes(baseRes());resetAllFB();S.t=keep;refresh();if(!b){toast('No se pudo capturar el cuadro.');return;}saveFile(name(),b,toast);},'image/png');
 });
 }
 
