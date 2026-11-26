@@ -496,6 +496,26 @@ body.moving #out{cursor:grabbing}
 .fitdur{min-width:30px;height:30px;padding:0 6px;font-size:14px}.fitdur[hidden]{display:none}
 @media (max-width:1440px){.top:has(#fitDur:not([hidden])) .grp .cap{display:none}}
 @media (max-width:1366px){.top:has(#fitDur:not([hidden])){gap:6px}.top:has(#fitDur:not([hidden])) #bpm{width:50px}.top:has(#fitDur:not([hidden])) #dur{width:58px}.top:has(#fitDur:not([hidden])) .fitdur{min-width:28px;height:28px}}
+/* scenes strip */
+.scenes{display:flex;align-items:center;gap:12px;border-radius:22px;padding:8px 12px 8px 16px}
+body[data-layout=bottom] .scenes{grid-column:1;grid-row:2}body[data-layout=bottom] .dock>.bin{grid-column:2;grid-row:1/3}
+.sclbl{display:flex;flex-direction:column;line-height:1.15;flex:none}.sclbl b{font-size:13px;font-weight:600}.sclbl small{font-size:11px;color:var(--mute)}
+.slots{display:flex;gap:8px;flex:1;min-width:0}
+.slot{position:relative;flex:1 1 0;min-width:34px;max-width:76px;height:44px;border-radius:12px;border:1px dashed var(--line);background:transparent;overflow:hidden;color:var(--ink2);cursor:pointer;padding:0;transition:border-color .15s ease,transform .1s ease}
+.slot.full{border-style:solid;border-color:var(--edge);background:#08070B}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.8}
+.slot .sn{position:absolute;left:7px;bottom:4px;font-size:11px;color:var(--ink);text-shadow:0 1px 3px #000}
+.slot:not(.full) .sn{left:50%;top:50%;bottom:auto;transform:translate(-50%,-50%);color:var(--mute);text-shadow:none}
+.slot .smidi{position:absolute;right:6px;top:6px;width:6px;height:6px;border-radius:50%;background:var(--ink2)}
+.slot.cur{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}.slot.cur img{opacity:1}
+.slot:active{transform:scale(.96)}
+.slot:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@media (hover:hover) and (pointer:fine){.slot:hover{border-color:var(--ink2)}}
+.scenes.arm .slot{border-style:solid;border-color:var(--ink2)}.scenes.arm .slot:not(.full) .sn{color:var(--ink)}
+#scSave[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.scxf{flex:none}.scxf .pillsel{height:34px}
+@media (max-width:1366px){.sclbl small,.scxf .cap{display:none}}
+@media (max-width:920px){.scenes{flex-wrap:wrap}.slots{order:3;flex-basis:100%}}
 </style>
 </head>
 <body data-layout="side">
@@ -531,6 +551,12 @@ body.moving #out{cursor:grabbing}
         <input type="range" class="scrub" id="scrub" min="0" max="1000" value="0" aria-label="Posición en el loop">
         <button class="btn" id="capBtn">Capturar cuadro</button>
         <button class="btn volt" id="expBtn">Exportar</button>
+      </div>
+      <div class="scenes glass" id="scenes" aria-label="Escenas">
+        <div class="sclbl"><b>Escenas</b><small>Shift + 1 a 8</small></div>
+        <div class="slots" id="slots"></div>
+        <button class="btn" id="scSave" aria-pressed="false" title="Guardar lo que se ve ahora en un casillero">Guardar</button>
+        <label class="grp scxf"><span class="cap">Transición</span><select class="pillsel" id="scXf" aria-label="Transición entre escenas"><option value="Corte">Corte</option><option value="1 beat">1 beat</option><option value="2 beats">2 beats</option><option value="4 beats">4 beats</option><option value="8 beats">8 beats</option></select></label>
       </div>
       <div class="bin glass" id="bin" aria-label="Banco de media"></div>
     </div>
@@ -1321,6 +1347,12 @@ function composite(o,op,mode,matte,mMode){
   i1(PC,'base',0);i1(PC,'lay',1);i1(PC,'mat',2);f1(PC,'op',op);f1(PC,'mode',mode);f1(PC,'flipL',o.flip);f1(PC,'mMode',matte?mMode:0);f1(PC,'flipM',matte?matte.flip:0);
   gl.drawArrays(gl.TRIANGLES,0,3);acur=1-acur;
 }
+/* scene crossfade: the last finished frame fades out over the new scene */
+let LASTFIN=null;const XF={tex:null,t0:0,dur:0,on:false};
+function xfCapture(sec){if(!gl||!LASTFIN||!(sec>0))return;gl.activeTexture(gl.TEXTURE0);
+  if(!XF.tex){XF.tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,XF.tex);tp(gl.TEXTURE_2D);}else gl.bindTexture(gl.TEXTURE_2D,XF.tex);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,LASTFIN.fb);gl.copyTexImage2D(gl.TEXTURE_2D,0,gl.RGBA,0,0,RES.w,RES.h,0);gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  XF.t0=performance.now();XF.dur=sec*1000;XF.on=true;}
 function render(t){
   if(!gl)return;
   const M=timeAt(S.master.fx,t),k=comp.width/W;
@@ -1341,6 +1373,8 @@ function render(t){
   let fin={tex:ACC[acur].tex,fb:ACC[acur].fb,flip:0};
   if(anyFx(S.master.fx))fin=runChain(S.master,S.master.fx,M.tq,t,M.step,{kind:'tex',tex:fin.tex,fb:fin.fb},1);
   gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,RES.w,RES.h);gl.useProgram(PD);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,fin.tex);i1(PD,'tex',0);gl.drawArrays(gl.TRIANGLES,0,3);
+  LASTFIN=fin;
+  if(XF.on){const u=(performance.now()-XF.t0)/XF.dur;if(u>=1)XF.on=false;else{const a=1-u*u*(3-2*u);gl.enable(gl.BLEND);gl.blendColor(0,0,0,a);gl.blendFunc(gl.CONSTANT_ALPHA,gl.ONE_MINUS_CONSTANT_ALPHA);gl.bindTexture(gl.TEXTURE_2D,XF.tex);gl.drawArrays(gl.TRIANGLES,0,3);gl.disable(gl.BLEND);}}
 }
 function refresh(){
   if(S.playing||OUT)return;
@@ -1700,8 +1734,8 @@ $('#midiBtn').addEventListener('click',e=>{midiSheet.classList.contains('open')?
 let bc=null;try{bc=new BroadcastChannel('bastidor-live');}catch(e){}
 let childWin=null;const OUTS=new Map();
 function post(msg){try{bc&&bc.postMessage(msg);}catch(e){}if(childWin&&!childWin.closed){try{childWin.postMessage({bastidor:1,...msg},'*');}catch(e){}}}
-let stateQueued=false;
-function markState(){if(OUT||stateQueued)return;stateQueued=true;requestAnimationFrame(()=>{stateQueued=false;if(OUTS.size||childWin)post({type:'state',state:serial()});});}
+let stateQueued=false,XFPOST=0;
+function markState(){if(OUT||stateQueued)return;stateQueued=true;requestAnimationFrame(()=>{stateQueued=false;if(OUTS.size||childWin)post({type:'state',state:serial(),xf:XFPOST});XFPOST=0;});}
 const sendClock=()=>{if(!OUT)post({type:'clock',playing:S.playing,t:S.t,at:Date.now()});};
 const clipMsg=it=>it.remote?{type:'clip',id:it.id,name:it.name,url:it.url,kind:it.kind}:{type:'clip',id:it.id,name:it.name,blob:it.blob,kind:it.kind};
 const sendClip=it=>{if(!OUT&&(OUTS.size||childWin))post(clipMsg(it));};
@@ -1714,7 +1748,7 @@ function onLive(m){
     if(m.type==='bye'){OUTS.delete(m.from);updateOutStatus();}
     return;}
   // output side
-  if(m.type==='state'){const keepT=S.t;hydrate(m.state,true);S.t=keepT;setRes(1);outConnected();}
+  if(m.type==='state'){const keepT=S.t;if(m.xf>0)xfCapture(m.xf);hydrate(m.state,true);S.t=keepT;setRes(1);outConnected();}
   else if(m.type==='clip'){if(!BIN.some(b=>b.id===m.id)){if(m.blob)(m.kind==='model'?addModel:addClip)(m.blob,m.name,m.id,()=>{});else if(m.url)addClipUrl(m.kind,m.url,m.name,m.id);}}
   else if(m.type==='aud'){Object.assign(AF.lvl,m.lvl);AF.spec=m.spec;AF.wave=m.wave;}
   else if(m.type==='boost'){BOOST=BOOST_T=m.v;}
@@ -1759,7 +1793,7 @@ const PROF_DEF=()=>({configured:false,knobs:[21,22,23,24,25,26,27,28],pads:null,
 let PROF=PROF_DEF();try{const pr=JSON.parse(localStorage.getItem('bastidor-prof')||'null');if(pr&&Array.isArray(pr.knobs))PROF={...PROF_DEF(),...pr,roles:{...PROF_DEF().roles,...(pr.roles||{})}};}catch(e){}
 const saveMidi=()=>{try{localStorage.setItem('bastidor-midi',JSON.stringify(MIDIMAP));localStorage.setItem('bastidor-prof',JSON.stringify(PROF));}catch(e){}};
 const ROLES={knobs:['Perillas y faders',[['perillas','Mueven las perillas en pantalla'],['nada','Nada']]],
-  pads:['Pads',[['efectos','Prenden efectos y eligen capas'],['fuerza','Mueven perillas según la fuerza'],['capas','Muestran capas y acordes'],['nada','Nada']]],
+  pads:['Pads',[['efectos','Prenden efectos y eligen capas'],['escenas','Disparan las escenas 1 a 8'],['fuerza','Mueven perillas según la fuerza'],['capas','Muestran capas y acordes'],['nada','Nada']]],
   keys:['Teclas',[['capas','Muestran capas y acordes'],['fuerza','Mueven perillas según la fuerza'],['nada','Nada']]],
   wheel:['Rueda de modulación y pitch bend',[['perillas','Mueven las perillas 1 y 2'],['intensidad','Intensifican los efectos'],['nada','Nada']]]};
 const SEEN=new Set();let WIZ=null,WHEEL=0;
@@ -1780,6 +1814,7 @@ function targetLabel(tg){
   if(tg.kind==='param'){const L=layerById(tg.l);return L?`${L.name}: ${U[tg.u].name}, ${ctrl(tg.u,tg.k)[2]}`:'(capa borrada)';}
   if(tg.kind==='fx'){const L=layerById(tg.l);return L?`${L.name}: prender ${U[tg.u].name}`:'(capa borrada)';}
   if(tg.kind==='vis'){const L=layerById(tg.l);return L?`Ver u ocultar ${L.name}`:'(capa borrada)';}
+  if(tg.kind==='scene')return `Ir a la escena ${(+tg.n||0)+1}`;
   return tg.kind==='play'?'Reproducir o pausar':'Grabar movimientos';}
 function keysPart(){return `<div class="tgl"><span>Las teclas muestran una sola capa<small>Do, Re, Mi… eligen la capa 1, 2, 3 de la lista (también las teclas 1 a 9 de la compu). Un acorde muestra varias capas juntas.</small></span><button class="switch" id="keySw" role="switch" aria-checked="${KEYS.on}" aria-label="Las teclas muestran una sola capa"><i></i></button></div>
     <div class="tgl"><span>Al soltar la tecla<small>${KEYS.mode==='Mantener'?'La capa queda sola hasta la próxima tecla.':'Vuelven a verse las capas que estaban.'}</small></span><div class="opts" id="keyMode">${['Mantener','Mientras se aprieta'].map(m=>`<button data-v="${m}" aria-pressed="${KEYS.mode===m}">${m}</button>`).join('')}</div></div>
@@ -1841,13 +1876,15 @@ document.addEventListener('click',e=>{if(!LEARN.on)return;const el=e.target.clos
   if(kind==='param')tg={kind,l:el.dataset.l,u:el.dataset.u,k:el.dataset.k};
   else if(kind==='fx')tg={kind,l:S.selL,u:el.closest('.tile').dataset.u};
   else if(kind==='vis')tg={kind,l:el.closest('.lrow').dataset.lid};
+  else if(kind==='scene')tg={kind,n:+el.dataset.n};
   else tg={kind};
   LEARN.el?.classList.remove('wait');LEARN.el=el;el.classList.add('wait');LEARN.target=tg;toast('Ahora mové un control o tocá un pad del controlador.');},true);
-function idOf(tg){return tg.kind==='param'?`param:${tg.l}:${tg.u}:${tg.k}`:tg.kind==='fx'?`fx:${tg.l}:${tg.u}`:tg.kind==='vis'?`vis:${tg.l}`:tg.kind;}
+function idOf(tg){return tg.kind==='scene'?`scene:${tg.n}`:tg.kind==='param'?`param:${tg.l}:${tg.u}:${tg.k}`:tg.kind==='fx'?`fx:${tg.l}:${tg.u}`:tg.kind==='vis'?`vis:${tg.l}`:tg.kind;}
 function applyTarget(tg,val,isNote){
   if(tg.kind==='param'){const c=ctrl(tg.u,tg.k);if(isNote)return;setParam(tg.l,tg.u,tg.k,c[3]+val/127*(c[4]-c[3]));}
   else if(tg.kind==='fx'){if(isNote||val>=64)toggleFx(tg.l,tg.u);}
   else if(tg.kind==='vis'){if(isNote||val>=64){const L=layerById(tg.l);if(L){L.vis=!L.vis;syncVideos();buildLayers();custom();refresh();}}}
+  else if(tg.kind==='scene'){if(isNote||val>=64)recallScene(+tg.n,{fromCtl:true});}
   else if(tg.kind==='play'){if(isNote||val>=64)togglePlay();}
   else if(tg.kind==='rec'){if(isNote||val>=64)setRec(!S.rec);}
 }
@@ -1859,6 +1896,7 @@ const padIndex=(ch,n)=>PROF.pads?PROF.pads.indexOf(ch+':'+n):(((n-36)%16)+16)%16
 function padOn(i,vel){const r=PROF.roles.pads;
   if(r==='efectos'){if(i<8){const t=[...document.querySelectorAll('#browser .tile')][i];if(t){const u=t.dataset.u;toggleFx(S.selL,u);if(S.tab!=='activos'||selLayer().fx[u].on){S.selU=u;buildBrowser();buildInsp();}}}
     else{const r2=[...document.querySelectorAll('#llist .lrow')][i-8];if(r2)selectLayer(r2.dataset.lid);}}
+  else if(r==='escenas'){if(i<8)recallScene(i,{fromCtl:true});}
   else if(r==='fuerza')knobAt(i%8,vel/127);
   else if(r==='capas'&&KEYS.on)keyDown('p'+i,i,vel);}
 function noteOnKey(ch,n,vel){const r=PROF.roles.keys,i=KEYORDER[n%12];
@@ -1874,7 +1912,7 @@ function onMidi(e){
   const isNote=type===0x90,key=isNote?`note:${ch}:${d1}`:`cc:${d1}`;
   if(LEARN.on&&LEARN.target){const tg={...LEARN.target,key};if(tg.kind==='param'&&isNote){toast('Para una perilla usá una perilla del controlador, no un pad.');return;}
     for(const k in MIDIMAP)if(MIDIMAP[k].key===key)delete MIDIMAP[k];MIDIMAP[idOf(tg)]=tg;saveMidi();LEARN.el?.classList.remove('wait');LEARN.el?.closest('.kn')?.classList.add('mapped');LEARN.el=null;LEARN.target=null;
-    toast(`${describeKey(key)} controla: ${targetLabel(tg)}.`);return;}
+    if(tg.kind==='scene')drawScenes();toast(`${describeKey(key)} controla: ${targetLabel(tg)}.`);return;}
   for(const tg of Object.values(MIDIMAP))if(tg.key===key){applyTarget(tg,d2,isNote);return;}
   if(!isNote){
     let mi=PROF.knobs.indexOf(d1);
@@ -1906,9 +1944,50 @@ function applyKeys(release){
 function stepBoost(){const d=BOOST_T-BOOST;BOOST+=d*(d>0?.45:.07);if(Math.abs(d)<.002)BOOST=BOOST_T;post({type:'boost',v:BOOST});}
 function kickBoost(){if(S.playing)return;cancelAnimationFrame(boostRaf);const step=()=>{stepBoost();render(S.t);if(BOOST!==BOOST_T)boostRaf=requestAnimationFrame(step);};boostRaf=requestAnimationFrame(step);}
 if(!OUT){
-  document.addEventListener('keydown',e=>{if(!KEYS.on||e.repeat||e.metaKey||e.ctrlKey||e.altKey||e.target.closest('input,textarea,select'))return;const m=/^Digit([1-9])$/.exec(e.code);if(!m)return;e.preventDefault();keyDown('k'+m[1],+m[1]-1,100);});
+  document.addEventListener('keydown',e=>{if(!KEYS.on||e.repeat||e.shiftKey||e.metaKey||e.ctrlKey||e.altKey||e.target.closest('input,textarea,select'))return;const m=/^Digit([1-9])$/.exec(e.code);if(!m)return;e.preventDefault();keyDown('k'+m[1],+m[1]-1,100);});
   document.addEventListener('keyup',e=>{const m=/^Digit([1-9])$/.exec(e.code);if(m)keyUp('k'+m[1]);});
   addEventListener('blur',()=>{if(HELD.size){HELD.clear();applyKeys();}});
+}
+
+/* ================= scenes: 8 snapshots inside the project, fired live ================= */
+const SCN={slots:Array(8).fill(null),cur:-1,xf:'1 beat',arm:false};
+const XFOPTS={'Corte':0,'1 beat':1,'2 beats':2,'4 beats':4,'8 beats':8};
+const THUMBRE=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]{1,400000}$/;
+const snapState=()=>JSON.parse(JSON.stringify({layers:serial().layers,master:serial().master},(k,v)=>k==='_g'?undefined:v));
+function sceneThumb(){try{if(!S.playing)render(S.t);const c=document.createElement('canvas'),o=$('#out'),r=o.width/o.height;c.width=96;c.height=Math.round(96/r);
+  if(c.height>96){c.height=96;c.width=Math.round(96*r);}c.getContext('2d').drawImage(o,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.7);}catch(e){return '';}}
+function saveScene(i){if(OUT||i<0||i>7)return;SCN.slots[i]={state:snapState(),thumb:sceneThumb()};SCN.cur=i;SCN.arm=false;markDirty();drawScenes();toast(`Escena ${i+1} guardada.`);}
+function clearScene(i){const prev=SCN.slots[i];if(!prev)return;SCN.slots[i]=null;if(SCN.cur===i)SCN.cur=-1;markDirty();drawScenes();
+  toast(`Escena ${i+1} borrada.`,{label:'Deshacer',fn:()=>{SCN.slots[i]=prev;markDirty();drawScenes();}});}
+function clearScenes(){SCN.slots=Array(8).fill(null);SCN.cur=-1;SCN.arm=false;drawScenes();}
+function sceneData(){return {xf:SCN.xf,slots:SCN.slots.map(s=>s?{state:s.state,thumb:s.thumb}:null)};}
+function loadScenes(d,xf){clearScenes();if(!d||typeof d!=='object')return;if(Object.hasOwn(XFOPTS,d.xf))SCN.xf=d.xf;else if(Object.hasOwn(XFOPTS,xf))SCN.xf=xf;
+  const sl=Array.isArray(d.slots)?d.slots.slice(0,8):[];sl.forEach((s,i)=>{if(s&&typeof s==='object'&&s.state&&typeof s.state==='object'&&Array.isArray(s.state.layers))
+    SCN.slots[i]={state:{layers:s.state.layers.slice(0,64),master:s.state.master&&typeof s.state.master==='object'?s.state.master:{}},thumb:typeof s.thumb==='string'&&THUMBRE.test(s.thumb)?s.thumb:''};});drawScenes();}
+function xfKick(){if(S.playing||OUT||(AUD.mode==='live'&&AUD.an))return;const step=()=>{render(S.t);if(XF.on)requestAnimationFrame(step);};requestAnimationFrame(step);}
+function recallScene(i,o={}){if(OUT)return;const s=SCN.slots[i];if(!s){if(!o.fromCtl)saveScene(i);else toast(`La escena ${i+1} está vacía.`);return;}
+  const sec=(XFOPTS[SCN.xf]||0)*60/S.bpm;if(sec>0)xfCapture(sec);
+  const keepT=S.t;KEYSAVE=null;HELD.clear();
+  hydrate({...serial(),layers:s.state.layers,master:s.state.master,scene:''},true);S.t=keepT;
+  if(!layerById(S.selL)){S.selL=S.layers[S.layers.length-1]?.id||'master';}const L=selLayer();if(S.tab==='fuente'){if(L.type==='master')S.tab='tiempo';else S.selU=L.type;}
+  SCN.cur=i;resizeRec();syncTop();buildLayers();buildCats();buildBrowser();buildInsp();syncVideos();if(S.playing)seekVideos(S.t);
+  XFPOST=sec;markDirty();markState();
+  if(!S.playing){if(!(AUD.mode==='live'&&AUD.an))render(S.t);xfKick();}drawScenes();}
+function drawScenes(){const box=$('#slots');if(!box||OUT)return;
+  box.innerHTML=SCN.slots.map((s,i)=>{const mk=MIDIMAP[`scene:${i}`];return `<button class="slot${s?' full':''}${SCN.cur===i?' cur':''}" data-n="${i}" data-learn="scene" aria-pressed="${SCN.cur===i}" `+
+    `aria-label="${s?`Escena ${i+1}`:`Escena ${i+1}, vacía: tocá para guardar lo que se ve`}" title="${s?`Escena ${i+1}. Clic: ir. Shift+clic: reemplazar. Alt+clic: borrar.`:`Escena ${i+1} vacía. Clic: guardar lo que se ve ahora.`}">`+
+    `${s&&s.thumb?`<img src="${esc(s.thumb)}" alt="">`:''}<span class="sn mono">${i+1}</span>${mk?'<span class="smidi" aria-hidden="true"></span>':''}</button>`;}).join('');
+  $('#scSave').setAttribute('aria-pressed',SCN.arm);$('#scenes').classList.toggle('arm',SCN.arm);$('#scXf').value=SCN.xf;}
+if(!OUT){
+  $('#slots').addEventListener('click',e=>{if(LEARN.on)return;const b=e.target.closest('.slot');if(!b)return;const i=+b.dataset.n;
+    if(e.altKey){clearScene(i);return;}if(e.shiftKey||SCN.arm){saveScene(i);return;}recallScene(i);});
+  $('#slots').addEventListener('contextmenu',e=>{const b=e.target.closest('.slot');if(!b||!SCN.slots[+b.dataset.n])return;e.preventDefault();clearScene(+b.dataset.n);});
+  $('#scSave').addEventListener('click',()=>{SCN.arm=!SCN.arm;drawScenes();if(SCN.arm)toast('Elegí un casillero para guardar lo que se ve ahora.');});
+  $('#scXf').addEventListener('change',e=>{if(Object.hasOwn(XFOPTS,e.target.value)){SCN.xf=e.target.value;markDirty();}});
+  document.addEventListener('keydown',e=>{if(!e.shiftKey||e.repeat||e.metaKey||e.ctrlKey||e.target.closest('input,textarea,select'))return;const m=/^Digit([1-8])$/.exec(e.code);if(!m)return;e.preventDefault();
+    const i=+m[1]-1;if(e.altKey)saveScene(i);else recallScene(i,{fromCtl:true});});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&SCN.arm){SCN.arm=false;drawScenes();}});
+  drawScenes();
 }
 
 /* ================= sound source sheet ================= */
@@ -2476,6 +2555,7 @@ body:`
 <dl>
 <dt>MIDI</dt><dd>Conectá el controlador por USB y en <b>MIDI</b> tocá <b>Configurar mi controlador</b>. Las perillas mueven la capa o el efecto que tengas abierto, los pads prenden efectos, las teclas muestran una sola capa y los acordes intensifican los efectos.</dd>
 <dt>Sin controlador</dt><dd>Con las teclas activadas en el panel MIDI, los números 1 a 9 del teclado muestran cada capa.</dd>
+<dt>Escenas</dt><dd>Para shows largos. Armá un look y tocá un casillero vacío de <b>Escenas</b> (debajo del monitor) para guardarlo; tenés 8. En vivo pasás de una a otra con un clic, con <kbd>Shift</kbd> + <kbd>1</kbd> a <kbd>8</kbd> o con los pads del controlador (en MIDI, elegí que los pads disparen escenas). <b>Transición</b> elige si cambia de golpe o se funde en 1 a 8 beats. Shift+clic reemplaza una escena y Alt+clic la borra. Las escenas se guardan dentro del proyecto.</dd>
 <dt>Salida</dt><dd>Abre una ventana para el proyector o una segunda pantalla. Llevala a esa pantalla y apretá <kbd>F</kbd> para verla completa.</dd>
 </dl></section>
 
@@ -2578,6 +2658,7 @@ body:`
 <dl>
 <dt>MIDI</dt><dd>Plug the controller in by USB and in <b>MIDI</b> click <b>Set up my controller</b>. Knobs move the layer or effect you have open, pads turn effects on, keys show a single layer and chords push the effects harder.</dd>
 <dt>No controller</dt><dd>With keys turned on in the MIDI panel, the number keys 1 to 9 show each layer.</dd>
+<dt>Scenes</dt><dd>For long shows. Build a look and click an empty <b>Scenes</b> slot (below the monitor) to save it; you have 8. Live, jump between them with a click, with <kbd>Shift</kbd> + <kbd>1</kbd> to <kbd>8</kbd> or with your controller’s pads (in MIDI, set the pads to fire scenes). <b>Transition</b> picks a hard cut or a 1 to 8 beat fade. Shift+click replaces a scene and Alt+click deletes it. Scenes are saved inside the project.</dd>
 <dt>Output</dt><dd>Opens a window for the projector or a second screen. Move it to that screen and press <kbd>F</kbd> to fill it.</dd>
 </dl></section>
 
@@ -2701,7 +2782,7 @@ async function restoreMedia(items,audio,bundle={},keep=[]){
 }
 function refreshMedia(){buildBin();buildLayers();if(S.tab==='fuente')buildInsp();syncVideos();refresh();}
 function projectData(){return {app:'xekuoia',format:1,name:PROJ.name,saved:new Date().toISOString(),state:JSON.parse(JSON.stringify(serial(),(k,v)=>k==='_g'?undefined:v)),
-  view:{selL:S.selL,tab:S.tab,selU:S.selU},media:binManifest(),audio:abuf&&AHASH?{name:aname,hash:AHASH,size:ABLOB?.size||0}:null};}
+  view:{selL:S.selL,tab:S.tab,selU:S.selU},sceneXf:SCN.xf,scenes:sceneData(),media:binManifest(),audio:abuf&&AHASH?{name:aname,hash:AHASH,size:ABLOB?.size||0}:null};}
 const projSlug=()=>(PROJ.name||'proyecto').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'proyecto';
 async function saveProjectLight(){const data=projectData();await saveFile(`${projSlug()}.xekuoia.json`,new Blob([JSON.stringify(data)],{type:'application/json'}),toast);markClean();}
 /* minimal ZIP (stored, no compression: video and audio are already compressed) */
@@ -2751,14 +2832,14 @@ async function applyProject(data,bundle={},keep=[]){
   const v=data.view||{};S.selL=layerById(v.selL)?v.selL:(S.layers[S.layers.length-1]?.id||'master');S.tab=v.tab||'fuente';S.selU=v.selU||'grano';
   const L=selLayer();if(S.tab==='fuente'){if(L.type==='master')S.tab='tiempo';else S.selU=L.type;}
   if(!data.audio){abuf=null;ENVB=null;ENV=null;AHASH='';ABLOB=null;aname='';}
-  afterStructural();updateProjBtn();
+  loadScenes(data.scenes,data.sceneXf);afterStructural();updateProjBtn();
   const missing=await restoreMedia(data.media,data.audio,bundle,hold);
   for(const b of keep)if(!BIN.some(x=>x.url===b.url))URL.revokeObjectURL(b.url);
   refreshMedia();buildBin();if(OUTS.size||childWin)sendAll();markClean();
   if(missing.length)openRelink(missing);
 }
 function newProject(){const prev=projectData(),keep=BIN.slice();resetBin();abuf=null;ENVB=null;ENV=null;AHASH='';ABLOB=null;aname='';stopLive();PROJ.name='Proyecto sin nombre';
-  applyScene('Analógico 16 mm');buildBin();drawSound();updateProjBtn();markClean();
+  clearScenes();applyScene('Analógico 16 mm');buildBin();drawSound();updateProjBtn();markClean();
   toast('Proyecto nuevo.',{label:'Deshacer',fn:()=>applyProject(prev,{},keep)});}
 /* relink missing files */
 const RELINK={open:false,items:[]};
@@ -2840,7 +2921,7 @@ const DICT={
 'El paquete supera los 4 GB. Guardá el proyecto liviano y llevá los archivos aparte.':'The package is over 4 GB. Save the light project and carry the files separately.',
 'El navegador no tiene lugar para recordar tus archivos. Guardá el proyecto con archivos para no perderlos.':'The browser has no room to remember your files. Save the project with files so you don’t lose them.',
 'Track de audio':'Audio track',
-'Estilo':'Style','Tempo':'Tempo','Loop':'Loop','Ajustar el loop al largo del track':'Fit the loop to the track length','Grabar movimientos':'Record moves','Grabar movimientos (R)':'Record moves (R)','Sonido':'Sound','Salida':'Output','Pantalla completa':'Full screen','Monitor':'Monitor',
+'Estilo':'Style','Tempo':'Tempo','Loop':'Loop','Escenas':'Scenes','Corte':'Cut','Shift + 1 a 8':'Shift + 1 to 8','Guardar':'Save','Transición':'Transition','Transición entre escenas':'Transition between scenes','Guardar lo que se ve ahora en un casillero':'Save what you see now into a slot','Disparan las escenas 1 a 8':'Fire scenes 1 to 8','Elegí un casillero para guardar lo que se ve ahora.':'Pick a slot to save what you see now.','1 beat':'1 beat','2 beats':'2 beats','4 beats':'4 beats','8 beats':'8 beats','Ajustar el loop al largo del track':'Fit the loop to the track length','Grabar movimientos':'Record moves','Grabar movimientos (R)':'Record moves (R)','Sonido':'Sound','Salida':'Output','Pantalla completa':'Full screen','Monitor':'Monitor',
 'Soltá tus archivos':'Drop your files','Cada imagen o video entra como capa nueva. La música marca el pulso.':'Each image or video comes in as a new layer. Music sets the pulse.',
 'Reproducir':'Play','Pausar':'Pause','Posición en el loop':'Loop position','Capturar cuadro':'Capture frame','Exportar':'Export','Banco de media':'Media bank','Capas y efectos':'Layers and effects',
 'Capas':'Layers','+ Capa':'+ Layer','Familias de efectos':'Effect families','Formato del lienzo':'Canvas format','Idioma':'Language',
@@ -2976,6 +3057,7 @@ const PATS=[
  [/^(.+): prender (.+)$/,m=>`${T_(m[1])}: toggle ${T_(m[2])}`],[/^Ver u ocultar (.+)$/,m=>`Show or hide ${T_(m[1])}`],
  [/^(.+): ajustar$/,m=>`${T_(m[1])}: adjust`],
  [/^Mover (.+) \(o Alt \+ flechas\)$/,m=>`Move ${T_(m[1])} (or Alt + arrows)`],
+ [/^Escena (\d)$/,m=>`Scene ${m[1]}`],[/^Escena (\d) guardada\.$/,m=>`Scene ${m[1]} saved.`],[/^Escena (\d) borrada\.$/,m=>`Scene ${m[1]} deleted.`],[/^La escena (\d) está vacía\.$/,m=>`Scene ${m[1]} is empty.`],[/^Escena (\d), vacía: tocá para guardar lo que se ve$/,m=>`Scene ${m[1]}, empty: click to save what you see`],[/^Escena (\d)\. Clic: ir\. Shift\+clic: reemplazar\. Alt\+clic: borrar\.$/,m=>`Scene ${m[1]}. Click: go. Shift+click: replace. Alt+click: delete.`],[/^Escena (\d) vacía\. Clic: guardar lo que se ve ahora\.$/,m=>`Scene ${m[1]} empty. Click: save what you see now.`],[/^Ir a la escena (\d)$/,m=>`Go to scene ${m[1]}`],
  [/^Quitar (.+) del banco$/,m=>`Remove ${m[1]} from the bank`],[/^Usar (.+) en Media$/,m=>`Use ${m[1]} in Media`],[/^Agregar como capa (.+)$/,m=>`Add as layer ${m[1]}`],
  [/^Quitar animación de (.+)$/,m=>`Remove animation from ${T_(m[1])}`],
  [/^(Ocultar|Mostrar|Eliminar|Encender|Apagar|Restablecer|Animar|Usar) (.+)$/,m=>`${{Ocultar:'Hide',Mostrar:'Show',Eliminar:'Delete',Encender:'Turn on',Apagar:'Turn off',Restablecer:'Reset',Animar:'Animate',Usar:'Use'}[m[1]]} ${T_(m[2])}`],
