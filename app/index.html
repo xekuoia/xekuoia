@@ -535,6 +535,8 @@ body.recording #vidBtn{display:none}
 #recSheet .recbox{margin-top:0;padding-top:0;border-top:0}#recSheet .recbox h4{font-size:16px;margin-bottom:8px}
 .transport .capb{width:40px;height:40px}
 @media (min-width:921px){.transport{grid-template-columns:auto auto minmax(80px,1fr);grid-auto-flow:column;grid-auto-columns:auto}}
+#nodeRing{position:absolute;left:0;top:0;z-index:5;width:22px;height:22px;border-radius:50%;border:2px solid #F4F1EC;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 0 10px rgba(244,241,236,.5);pointer-events:none;opacity:0;transition:opacity .12s ease}
+#nodeRing.show{opacity:1}
 </style>
 </head>
 <body data-layout="side">
@@ -707,6 +709,7 @@ const IC={
  letra:P('<path d="M5 19 11 5h2l6 14M8 14h8"/>'),
  audio:P('<path d="M4 15v-4M8 18V7M12 20V4M16 17V8M20 14v-3"/>'),
  dibujo:P('<path d="M4 20c2-1 3-3 5-3s2 2 4 2 3-2 3-2"/><path d="m14 4 5 5-7 7-3 1 1-3z"/>'),
+ nodos:P('<path d="M6 7l6 10 6-8M6 7l12 2"/><circle cx="6" cy="7" r="2.2" fill="currentColor"/><circle cx="12" cy="17" r="2.2" fill="currentColor"/><circle cx="18" cy="9" r="2.2" fill="currentColor"/>'),
  modelo:P('<path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>'),
  master:P('<rect x="3" y="4" width="18" height="12" rx="2.5"/><path d="M8 20h8M12 16v4"/>'),
  tiempo:P('<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>'),
@@ -762,6 +765,10 @@ const UNITS=[
    ['x','knob','Pos X',-2,2,.01],['y','knob','Pos Y',-2,2,.01],['z','knob','Pos Z',-4,1,.01],['persp','knob','Perspectiva',0,1,.01],['luz','knob','Luz',0,360,1],['luzint','knob','Intensidad de luz',0,2,.01],['grosor','knob','Grosor',.5,8,.1],...LAYERCTL]},
  {id:'dibujo',cat:'fuentes',name:'Dibujo',desc:'Trazos a mano alzada',c:[['trazos','draw','Dibujo'],['aparicion','sel','Aparición',['Fija','Se dibuja en el loop','Se dibuja y se borra']],
    ['temblor','knob','Temblor',0,1,.01],['esc','knob','Escala',.2,3,.01],['rot','knob','Giro',-180,180,1],['x','knob','Pos X',-1,1,.01],['y','knob','Pos Y',-1,1,.01],...LAYERCTL]},
+ {id:'nodos',cat:'fuentes',name:'Nodos',desc:'Redes de líneas y puntos dibujadas con el lápiz',c:[['red','nodes','Red'],['trazo','sel','Trazo',['Línea','Curva','Circuito','Rayo','Punteada','Guiones','Doble']],['forma','sel','Nodo',['Círculo','Anillo','Cuadrado','Diamante','Cruz','Ninguno']],
+   ['paleta','sel','Paleta',['Un color','Dos colores','Spectral','Aurora']],['color','col','Color'],['color2','col','Color 2'],['simetria','sel','Simetría',['No','Espejo','×3','×4','×6','×8']],['aparicion','sel','Aparición',['Fija','Se arma en el loop','Se arma y se desarma','Destellos']],
+   ['grosor','knob','Grosor',.5,24,.1],['tam','knob','Tamaño de nodo',0,60,.5],['neon','knob','Neón',0,1,.01],['plexo','knob','Plexo',0,1,.01],['viajeros','knob','Chispas',0,1,.01],['vibra','knob','Vibración',0,1,.01],['explota','knob','Explosión',0,1,.01],['copias','knob','Copias',0,8,1],['reacc','knob','Reacción al sonido',0,1,.01],
+   ['esc','knob','Escala',.2,3,.01],['rot','knob','Giro',-180,180,1],['x','knob','Pos X',-1,1,.01],['y','knob','Pos Y',-1,1,.01],...LAYERCTL]},
  {id:'trama',cat:'fuentes',name:'Trama',desc:'Patrón repetido',c:[['forma','sel','Forma',['Círculos','Líneas','Cruces','Rombos','Imagen']],['mapa','sel','Dibujar con imagen',['No','Forma de la imagen','Forma invertida']],['img','imgsel','Imagen'],['tenir','sel','Teñir la imagen',['Sí','No']],['color','col','Color'],
    ['n','knob','Columnas',2,24,1],['tam','knob','Tamaño',2,200,1],['rot','knob','Giro',-180,180,1],['ola','knob','Ola',0,1,.01],['desf','knob','Desfase',0,1,.01],...LAYERCTL]},
  {id:'letra',cat:'fuentes',name:'Texto',desc:'Tipografía cinética al ritmo',c:[['txt','txt','Texto'],['fuente','sel','Fuente',FONT_LIST],['modo','sel','Aparición',['Palabra por palabra','Acumular palabras','Todo junto']],
@@ -791,13 +798,14 @@ const UNITS=[
  {id:'luz',cat:'textura',name:'Fugas de luz',desc:'Light leaks y quemado de película',c:[['cant','knob','Cantidad',0,1,.01],['calidez','knob','Tono',0,1,.01],['vueltas','knob','Vueltas',0,4,1],['quemado','knob','Quemado',0,1,.01]]}
 ];
 const U=Object.fromEntries(UNITS.map(u=>[u.id,u]));
-const SRC=['fondo','media','modelo','dibujo','trama','letra','audio'];
+const SRC=['fondo','media','modelo','dibujo','nodos','trama','letra','audio'];
 const FXU=UNITS.filter(u=>!SRC.includes(u.id));
 const LCOM={blend:'Normal',mascara:'Ninguna',opac:1};
 const DEF={
  fondo:{estilo:'Recortes',c1:'#1f4e5a',c2:'#c8643b',c3:'#9bab8a',c4:'#d9a441',tam:1,mov:.5,lob:.4,ang:160,...LCOM},
  media:{clip:0,ajuste:'Cubrir',esc:1,rot:0,x:0,y:0,vel:1,...LCOM},
  dibujo:{trazos:[],aparicion:'Fija',temblor:0,esc:1,rot:0,x:0,y:0,...LCOM},
+ nodos:{red:{n:[],e:[]},trazo:'Línea',forma:'Círculo',paleta:'Dos colores',color:'#F4F1EC',color2:'#FF3DA8',simetria:'No',aparicion:'Fija',grosor:3,tam:16,neon:.35,plexo:0,viajeros:.25,vibra:.1,explota:0,copias:0,reacc:.5,esc:1,rot:0,x:0,y:0,...LCOM},
  modelo:{clip:0,auto:'Gira',z:0,material:'Original',color:'#F4F1EC',color2:'#FF3DA8',esc:1,prof:1,rx:20,ry:0,rz:0,giro:1,x:0,y:0,persp:.4,luz:45,luzint:1,grosor:2,...LCOM},
  trama:{forma:'Círculos',mapa:'No',img:0,tenir:'Sí',color:'#F4F1EC',n:6,tam:40,rot:0,ola:.5,desf:.3,...LCOM,opac:.3},
  letra:{txt:'escribí algo',fuente:'Anton',modo:'Palabra por palabra',color:'#F4F1EC',cs:'#17282d',tam:200,ppb:1,sombra:0,track:0,x:0,y:0,esc:1,rot:0,...LCOM},
@@ -850,6 +858,9 @@ const SCENES={
    SC('letra',{txt:'pegar cortar mirar',fuente:'DM Serif Display',modo:'Acumular palabras',ppb:2,tam:160,color:'#1b1b1b',sombra:8,cs:'#f2c14e'})],master:{grano:{formato:'16 mm',cant:.3},luz:{cant:.25}}},
  'Túnel':{dur:8,bpm:120,layers:[SC('fondo',{estilo:'Sólido',c1:'#050505'}),SC('trama',{forma:'Rombos',n:5,tam:70,color:'#ffffff',ola:1,desf:.5,opac:1},{eco:{pers:.9,zoom:1.03,giro:1.2,_a:{giro:{m:'Onda',amt:2,c:2}}},desfase:{modo:'Radial',cant:.5},mapa:{}},{rot:{m:'Onda',amt:45}})],
    master:{grano:{cant:.3,vin:.45}}},
+ 'Red neón':{dur:8,bpm:120,layers:[SC('fondo',{estilo:'Manchas',c1:'#0E0D12',c2:'#2a0f4f',c3:'#06243a',c4:'#3a0f2f',mov:.5}),
+   SC('nodos',{red:{n:[.5,.3,1,.68,.4,.6,.68,.6,.8,.5,.7,1,.32,.6,.6,.32,.4,.8,.5,.5,.4,.58,.5,.7,.42,.5,.7,.6,.2,.5,.4,.2,.5,.8,.2,.5],e:[0,1,1,2,2,3,3,4,4,5,5,0,0,6,1,6,2,6,3,6,4,6,5,6,1,7,5,8,7,9,8,10,9,11,10,11]},trazo:'Curva',paleta:'Spectral',simetria:'×6',grosor:2.4,tam:14,neon:.75,plexo:.25,viajeros:.6,vibra:.25,esc:.9},{},{rot:{m:'Rampa',to:60},explota:{m:'Pulso',amt:.4}}),],
+   master:{glow:{cant:.45,umbral:.45,radio:.6,halo:.1},grano:{cant:.18,vin:.45}}},
  'Visualizador':{dur:8,bpm:100,layers:[SC('fondo',{estilo:'Manchas',c1:'#07060d',c2:'#2a1a6b',c3:'#0f4d5c',c4:'#3a0f3f',mov:.6}),
    SC('audio',{estilo:'Círculo',n:64,alto:.5,grosor:8,color:'#ffffff',color2:'#FF3DA8'},{eco:{pers:.82,zoom:1.02,giro:.4},glow:{cant:.6,umbral:.35,radio:.6,halo:.2}}),
    SC('audio',{estilo:'Onda',alto:.25,grosor:5,color:'#7ee0ff',color2:'#7ee0ff',y:.55,opac:.8})],
@@ -883,6 +894,7 @@ function cleanVal(c,v,def){if(!c)return typeof v==='number'&&Number.isFinite(v)?
   if(t==='col')return typeof v==='string'&&HEX.test(v)?v:def;
   if(t==='txt')return typeof v==='string'?v.slice(0,2000):def;
   if(t==='draw')return cleanStrokes(v);
+  if(t==='nodes')return cleanNet(v);
   if(t==='clip'||t==='imgsel'||t==='model'){const n=+v;return Number.isInteger(n)&&n>=0&&n<1e6?n:def;}
   return def;}
 function cleanAuto(a){if(!a||typeof a!=='object'||!AMODES.includes(a.m))return null;const o={m:a.m};
@@ -1131,6 +1143,7 @@ const DRAW={
   c.save();c.translate(W/2+pv(P,'x',t)*W/2,H/2+pv(P,'y',t)*H/2);c.rotate(pv(P,'rot',t)*Math.PI/180);c.drawImage(el,-w*k/2,-h*k/2,w*k,h*k);c.restore();
  },
  dibujo(c,P,t,L){drawLayer(c,P,t,L);},
+ nodos(c,P,t,L){nodesLayer(c,P,t,L);},
  modelo(c,P,t,L){const it=BIN.find(b=>b.id===P.clip.v&&b.kind==='model');if(!it||!it.mesh)return;const cv=R3.draw(it.mesh,W,H,modelOpts(P,t));if(cv)c.drawImage(cv,0,0,W,H);},
  trama(c,P,t){
   const n=Math.round(pv(P,'n',t)),cell=W/n,rows=Math.ceil(H/cell)+1,u=t/S.dur,tam=pv(P,'tam',t),ola=pv(P,'ola',t),desf=pv(P,'desf',t),rot=pv(P,'rot',t)*Math.PI/180,form=P.forma.v;
@@ -1516,6 +1529,7 @@ function ctlHTML(P,u,c){
   if(type==='txt')return `<div class="fld" style="flex-basis:100%"><span>${esc(label)}</span><textarea class="ta" data-k="${k}" rows="2">${esc(v)}</textarea></div>`;
   if(type==='imgsel'){const P2=P;return `<div class="fld" style="flex-basis:100%"><span>${esc(label)}</span><div class="clips">${BIN.filter(b=>b.kind!=='model').map(b=>`<button data-img="${b.id}" aria-pressed="${b.id===v}" aria-label="${esc(b.name)}">${b.thumb?`<img src="${b.thumb}" alt="">`:''}</button>`).join('')}<label class="addimg">+ Subir imagen<input type="file" accept="image/*" data-upimg="1"></label></div>${P2.forma.v==='Imagen'||P2.mapa.v!=='No'?(BIN.some(b=>b.id===v)?'':'<p class="note" style="margin:8px 0 0">Elegí o subí una imagen. Un logo en PNG con fondo transparente funciona muy bien.</p>'):''}</div>`;}
   if(type==='draw')return drawToolsHTML(selLayer());
+  if(type==='nodes')return nodeToolsHTML(selLayer());
   if(type==='model'){const ms=BIN.filter(b=>b.kind==='model');return `<div class="fld" style="flex-basis:100%"><span>${esc(label)}</span><div class="clips">${ms.map(b=>`<button data-model="${b.id}" aria-pressed="${b.id===v}" aria-label="${esc(b.name)}">${b.thumb?`<img src="${b.thumb}" alt="">`:''}</button>`).join('')}<label class="addimg">+ Subir modelo<input type="file" accept=".obj,.mtl,.glb,.gltf,.stl,.svg,image/*" multiple data-upmodel="1"></label></div>${ms.length?'<p class="note" style="margin:8px 0 0">Arrastrá el objeto en el monitor para moverlo. Con <kbd>Shift</kbd> lo girás, con <kbd>Alt</kbd> lo rotás de costado y con la rueda del mouse lo acercás o alejás.</p>':'<p class="note" style="margin:8px 0 0">Subí un archivo OBJ, GLB, STL o un logo en SVG. Si el OBJ tiene materiales, subilo junto con su .mtl y sus texturas.</p>'}</div>`;}
   if(type==='clip'){const vis=BIN.filter(b=>b.kind!=='model');return `<div class="fld" style="flex-basis:100%"><span>Clip</span>${vis.length?`<div class="clips">${vis.map(b=>`<button data-clip="${b.id}" aria-pressed="${b.id===v}" aria-label="${esc(b.name)}">${b.thumb?`<img src="${b.thumb}" alt="">`:''}</button>`).join('')}</div>`:'<p class="note">Sin clips. Soltá una imagen o un video en el monitor.</p>'}</div>`;}
   return '';}
@@ -1586,7 +1600,7 @@ insp.addEventListener('keydown',e=>{const knob=e.target.closest('.knob');if(!kno
 insp.addEventListener('click',e=>{
   const L=selLayer(),uid=S.tab==='fuente'?L.type:S.selU,isSrc=SRC.includes(uid),P=isSrc?L.p:L.fx[uid].p;
   if(e.target.closest('#uSwitch')){if(isSrc){L.vis=!L.vis;syncVideos();buildLayers();buildInsp();custom();refresh();}else toggleFx(L.id,uid);return;}
-  if(e.target.closest('#uReset')){for(const k in DEF[uid]){if(k==='clip'||k==='trazos')continue;P[k]={v:DEF[uid][k]};}buildInsp();buildCats();buildLayers();custom();refresh();return;}
+  if(e.target.closest('#uReset')){for(const k in DEF[uid]){if(k==='clip'||k==='trazos'||k==='red')continue;P[k]={v:DEF[uid][k]};}buildInsp();buildCats();buildLayers();custom();refresh();return;}
   const pre=e.target.closest('[data-preset]');if(pre){const g=GMAPS[pre.dataset.preset];['g0','g1','g2'].forEach((k,i)=>P[k].v=g[i]);if(!L.fx.mapa.on)L.fx.mapa.on=true;buildInsp();buildBrowser();buildLayers();custom();refresh();return;}
   const ib=e.target.closest('[data-img]');if(ib){P.img.v=+ib.dataset.img;if(P.forma.v!=='Imagen'&&P.mapa.v==='No')P.mapa.v='Forma de la imagen';buildInsp();custom();refresh();return;}
   const mb=e.target.closest('[data-model]');if(mb){P.clip.v=+mb.dataset.model;L.name=layerName('modelo',P.clip.v);buildInsp();buildLayers();buildBin();custom();refresh();return;}
@@ -2589,7 +2603,7 @@ function drawLayer(c,P,t,L){
   c.restore();}
 /* --- pointer input on the monitor --- */
 const drawTarget=()=>{const L=selLayer();return !OUT&&L&&L.type==='dibujo'&&L.vis?L:null;};
-function updateDrawMode(){if(OUT)return;const on=!!drawTarget();document.body.classList.toggle('drawmode',on);document.body.classList.toggle('movemode',!on&&!!moveTarget());if(!on)$('#brushCur')?.classList.remove('show');}
+function updateDrawMode(){if(OUT)return;const on=!!drawTarget()||!!nodeTarget();document.body.classList.toggle('drawmode',on);nodeRing();document.body.classList.toggle('movemode',!on&&!!moveTarget());if(!on)$('#brushCur')?.classList.remove('show');}
 function toLayer(e,L){const cv=$('#out'),r=cv.getBoundingClientRect(),cw=cv.width,ch=cv.height,sc=Math.min(r.width/cw,r.height/ch),ox=r.left+(r.width-cw*sc)/2,oy=r.top+(r.height-ch*sc)/2;
   const t=S.t,P=L.p;let X=(e.clientX-ox)/sc,Y=(e.clientY-oy)/sc;X-=cw/2+pv(P,'x',t)*cw/2;Y-=ch/2+pv(P,'y',t)*ch/2;const a=-pv(P,'rot',t)*Math.PI/180,es=pv(P,'esc',t)||1;
   const rx=(X*Math.cos(a)-Y*Math.sin(a))/es+cw/2,ry=(X*Math.sin(a)+Y*Math.cos(a))/es+ch/2;return {x:rx/cw,y:ry/ch,sc:sc*es,inside:e.clientX>=ox&&e.clientX<=ox+cw*sc&&e.clientY>=oy&&e.clientY<=oy+ch*sc};}
@@ -2609,6 +2623,205 @@ if(!OUT){const cv=$('#out');
   cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
   cv.addEventListener('pointerleave',()=>$('#brushCur')?.classList.remove('show'));
   document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.key.toLowerCase()!=='z'||e.shiftKey||e.target.closest('input,textarea'))return;const L=drawTarget();if(!L||!L.p.trazos.v.length)return;e.preventDefault();undoStroke(L);});}
+/* ================= nodes layer: line-and-dot networks drawn with the pen ================= */
+/* net: {n:[x,y,w,...] with x,y from 0 to 1 and w (pen pressure) from 0 to 1, e:[a,b,...] pairs of node indexes} */
+const NODE_MAX=3000,EDGE_MAX=6000;
+function cleanNet(v){const out={n:[],e:[]};if(!v||typeof v!=='object')return out;
+  const n=Array.isArray(v.n)?v.n.slice(0,NODE_MAX*3).map(Number):[];if(n.length%3||!n.every(Number.isFinite))return out;
+  for(let i=0;i<n.length;i+=3){n[i]=clamp(n[i],-1,2);n[i+1]=clamp(n[i+1],-1,2);n[i+2]=clamp(n[i+2],0,1);}
+  const cnt=n.length/3,e=[],seen=new Set();
+  if(Array.isArray(v.e))for(let i=0;i+1<v.e.length&&e.length<EDGE_MAX*2;i+=2){const a=v.e[i],b=v.e[i+1];if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>=cnt||b>=cnt||a===b)continue;const key=a<b?a+':'+b:b+':'+a;if(seen.has(key))continue;seen.add(key);e.push(a,b);}
+  out.n=n;out.e=e;return out;}
+const PALS={Spectral:['#2B3BFF','#8A2BFF','#FF3DA8','#FF6A1F','#FFD23F'],Aurora:['#00E0B0','#00A3FF','#6B4BFF','#E040FB']};
+const hexRgb=h=>{h=h.replace('#','');if(h.length<6)h=h.split('').map(c=>c+c).join('');const n=parseInt(h.slice(0,6),16);return [n>>16&255,n>>8&255,n&255];};
+const RGBC=new Map();const rgbOf=h=>{let r=RGBC.get(h);if(!r){r=hexRgb(h);RGBC.set(h,r);}return r;};
+function palAt(stops,s){s=((s%1)+1)%1;const f=s*stops.length,i=Math.floor(f)%stops.length,j=(i+1)%stops.length,m=f-Math.floor(f),A=rgbOf(stops[i]),B=rgbOf(stops[j]);
+  return `rgb(${A[0]+(B[0]-A[0])*m|0},${A[1]+(B[1]-A[1])*m|0},${A[2]+(B[2]-A[2])*m|0})`;}
+const easeBack=x=>x<=0?0:x>=1?1:1+2.2*Math.pow(x-1,3)+1.2*Math.pow(x-1,2);
+/* where every node is at time t, after wobble and explosion */
+function netPos(net,P,t,react){
+  const n=net.n,cnt=n.length/3,u=t/S.dur,k=Math.min(W,H)/1080,vib=pv(P,'vibra',t),ex=pv(P,'explota',t),pos=new Float32Array(cnt*2);
+  let cx=0,cy=0;for(let i=0;i<cnt;i++){cx+=n[i*3];cy+=n[i*3+1];}cx=cx/Math.max(1,cnt)*W;cy=cy/Math.max(1,cnt)*H;
+  const b=t*S.bpm/60,pulse=Math.exp(-(b-Math.floor(b))*5),push=ex*(pulse*.55+react*.5),amp=vib*46*k;
+  for(let i=0;i<cnt;i++){let x=n[i*3]*W,y=n[i*3+1]*H;
+    if(amp>0){const p1=hash3(i,7,1)*TAU,p2=hash3(i,9,2)*TAU;x+=(Math.sin(TAU*2*u+p1)+.4*Math.sin(TAU*5*u+p2))*amp;y+=(Math.cos(TAU*3*u+p2)+.4*Math.sin(TAU*4*u+p1))*amp;}
+    if(push>0){const a=hash3(i,3,5)*TAU;x+=(x-cx)*push*.8+Math.cos(a)*push*90*k;y+=(y-cy)*push*.8+Math.sin(a)*push*90*k;}
+    pos[i*2]=x;pos[i*2+1]=y;}
+  return pos;}
+/* the path an edge follows, as a polyline */
+function edgePoly(style,ax,ay,bx,by,j,t,g){
+  const dx=bx-ax,dy=by-ay,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len,u=t/S.dur;
+  if(style==='Curva'){const s=(j%2?1:-1)*len*.28*(1+.35*Math.sin(TAU*2*u+j)),qx=(ax+bx)/2+nx*s,qy=(ay+by)/2+ny*s,o=[];
+    for(let i=0;i<=14;i++){const f=i/14,m=1-f;o.push(m*m*ax+2*m*f*qx+f*f*bx,m*m*ay+2*m*f*qy+f*f*by);}return o;}
+  if(style==='Circuito'){const adx=Math.abs(dx),ady=Math.abs(dy),sx=Math.sign(dx),sy=Math.sign(dy),d=Math.min(adx,ady);
+    if(j%2){return adx>ady?[ax,ay,ax+sx*d,ay+sy*d,bx,by]:[ax,ay,ax+sx*d,ay+sy*d,bx,by];}
+    return adx>ady?[ax,ay,bx-sx*d,ay,bx,by]:[ax,ay,ax,by-sy*d,bx,by];}
+  if(style==='Rayo'){const fr=Math.floor(t*15),o=[ax,ay],segs=Math.max(3,Math.min(12,Math.round(len/(40*g))));
+    for(let i=1;i<segs;i++){const f=i/segs,off=(hash3(j,i,fr)-.5)*len*.22;o.push(ax+dx*f+nx*off,ay+dy*f+ny*off);}o.push(bx,by);return o;}
+  return [ax,ay,bx,by];}
+function polyLen(p){let L=0;for(let i=2;i<p.length;i+=2)L+=Math.hypot(p[i]-p[i-2],p[i+1]-p[i-1]);return L;}
+/* the piece of a polyline between fractions f0 and f1 of its length */
+function polyCut(p,f0,f1){if(f0<=0&&f1>=1)return p;const L=polyLen(p),a=f0*L,b=f1*L,o=[];let acc=0;
+  for(let i=2;i<p.length;i+=2){const x0=p[i-2],y0=p[i-1],x1=p[i],y1=p[i+1],s=Math.hypot(x1-x0,y1-y0);if(s<=0)continue;
+    const lo=Math.max(a,acc),hi=Math.min(b,acc+s);if(hi>lo){const m0=(lo-acc)/s,m1=(hi-acc)/s;if(!o.length)o.push(x0+(x1-x0)*m0,y0+(y1-y0)*m0);o.push(x0+(x1-x0)*m1,y0+(y1-y0)*m1);}acc+=s;if(acc>=b)break;}
+  return o;}
+function polyAt(p,f){const L=polyLen(p),d=f*L;let acc=0;for(let i=2;i<p.length;i+=2){const s=Math.hypot(p[i]-p[i-2],p[i+1]-p[i-1]);if(acc+s>=d&&s>0){const m=(d-acc)/s;return [p[i-2]+(p[i]-p[i-2])*m,p[i-1]+(p[i+1]-p[i-1])*m];}acc+=s;}return [p[p.length-2],p[p.length-1]];}
+function strokePoly(g,p){if(p.length<4)return;g.beginPath();g.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)g.lineTo(p[i],p[i+1]);g.stroke();}
+function offsetPoly(p,d){const o=[];for(let i=0;i<p.length;i+=2){const i0=Math.max(0,i-2),i1=Math.min(p.length-2,i+2),dx=p[i1]-p[i0],dy=p[i1+1]-p[i0+1],l=Math.hypot(dx,dy)||1;o.push(p[i]-dy/l*d,p[i+1]+dx/l*d);}return o;}
+function nodeShape(g,shape,x,y,r){
+  if(shape==='Ninguno'||r<=.2)return;
+  if(shape==='Anillo'){g.lineWidth=Math.max(1,r*.34);g.beginPath();g.arc(x,y,r*.83,0,TAU);g.stroke();return;}
+  g.beginPath();
+  if(shape==='Cuadrado')g.rect(x-r*.85,y-r*.85,r*1.7,r*1.7);
+  else if(shape==='Diamante'){g.moveTo(x,y-r*1.15);g.lineTo(x+r*1.15,y);g.lineTo(x,y+r*1.15);g.lineTo(x-r*1.15,y);g.closePath();}
+  else if(shape==='Cruz'){const w=r*.42;g.rect(x-r*1.1,y-w/2,r*2.2,w);g.rect(x-w/2,y-r*1.1,w,r*2.2);}
+  else g.arc(x,y,r,0,TAU);
+  g.fill();}
+/* draws one copy of the network on g (already transformed to layer space) */
+function drawNet(g,L,P,t,alpha){
+  const net=P.red.v,cnt=net.n.length/3;if(!cnt)return;
+  const u=((t/S.dur)%1+1)%1,k=Math.min(W,H)/1080,env=envAt(t,'low'),react=pv(P,'reacc',t)*(env*1.6+BOOST),pos=netPos(net,P,t,react),n=net.n,e=net.e,E=e.length/2;
+  const style=P.trazo.v,shape=P.forma.v,pal=P.paleta.v,stops=PALS[pal],c1=P.color.v,c2=P.color2.v,gros=Math.max(.3,pv(P,'grosor',t))*k*(1+react*.35),tam=pv(P,'tam',t)*k,mode=P.aparicion.v;
+  const sAt=(x,y)=>x/W*.7+y/H*.5+u,colAt=(x,y)=>stops?palAt(stops,sAt(x,y)):c1,dotCol=(x,y)=>stops?palAt(stops,sAt(x,y)+.15):pal==='Dos colores'?c2:c1;
+  /* how much of each edge shows: [from,to] fractions of its length, and its opacity */
+  const b2=t*S.bpm/60*2,beat=Math.floor(b2),fl=Math.exp(-(b2-beat)*3);
+  const vis=j=>{if(mode==='Se arma en el loop'){const pr=Math.min(1,u/.8)*E;return [0,clamp(pr-j),1];}
+    if(mode==='Se arma y se desarma'){if(u<.45)return [0,clamp(u/.45*E-j),1];if(u>.7)return [clamp((u-.7)/.3*E-j),1,1];return [0,1,1];}
+    if(mode==='Destellos')return hash3(j,beat,3)>.42?[0,1,.25+.75*fl]:[0,1,.12];return [0,1,1];};
+  const nodeA=new Float32Array(cnt),deg=new Uint16Array(cnt),polys=new Array(E);
+  g.save();g.globalAlpha=alpha;g.lineCap=style==='Circuito'?'square':'round';g.lineJoin=style==='Rayo'||style==='Circuito'?'miter':'round';
+  /* plexus: faint lines between nearby nodes, recomputed every frame so they flicker as the nodes move */
+  const px=pv(P,'plexo',t);
+  if(px>0&&cnt<=700){const d=px*420*k,d2=d*d,buckets=[new Path2D(),new Path2D(),new Path2D(),new Path2D()];
+    for(let i=0;i<cnt;i++)for(let j=i+1;j<cnt;j++){const dx=pos[j*2]-pos[i*2],dy=pos[j*2+1]-pos[i*2+1],q=dx*dx+dy*dy;if(q>=d2)continue;const b=Math.min(3,Math.floor(Math.sqrt(q)/d*4));buckets[b].moveTo(pos[i*2],pos[i*2+1]);buckets[b].lineTo(pos[j*2],pos[j*2+1]);}
+    g.strokeStyle=stops?stops[1]:c1;g.lineWidth=Math.max(.6*k,gros*.3);g.setLineDash([]);
+    buckets.forEach((pa,b)=>{g.globalAlpha=alpha*(.75-b*.17);g.stroke(pa);});g.globalAlpha=alpha;}
+  /* edges */
+  if(style==='Punteada')g.setLineDash([.01,gros*2.6]);
+  else if(style==='Guiones'){g.setLineDash([gros*4,gros*3]);g.lineDashOffset=-u*gros*7*4;}
+  for(let j=0;j<E;j++){const a=e[j*2],b=e[j*2+1];deg[a]++;deg[b]++;const [f0,f1,al]=vis(j);if(f1<=f0)continue;
+    const ax=pos[a*2],ay=pos[a*2+1],bx=pos[b*2],by=pos[b*2+1],full=edgePoly(style,ax,ay,bx,by,j,t,k),p=polyCut(full,f0,f1);polys[j]=full;
+    const reach=f1-f0;nodeA[a]=Math.max(nodeA[a],f0<=0?Math.min(1,reach*4):0);nodeA[b]=Math.max(nodeA[b],f1>=1?Math.min(1,(f1-.75)*4):0);
+    if(p.length<4)continue;const w=gros*(.55+.45*(n[a*3+2]+n[b*3+2])/2);
+    if(stops){const gr=g.createLinearGradient(ax,ay,bx,by);gr.addColorStop(0,colAt(ax,ay));gr.addColorStop(1,colAt(bx,by));g.strokeStyle=gr;}else g.strokeStyle=c1;
+    g.globalAlpha=alpha*al;
+    if(style==='Doble'){g.lineWidth=w*.55;strokePoly(g,offsetPoly(p,w*1.1));strokePoly(g,offsetPoly(p,-w*1.1));}
+    else{g.lineWidth=w;strokePoly(g,p);}}
+  g.setLineDash([]);g.globalAlpha=alpha;
+  /* travellers: sparks that run along the edges, in whole laps so the loop closes */
+  const tv=pv(P,'viajeros',t);
+  if(tv>0){const m=tv<.34?1:tv<.67?2:3,r=(gros*.9+3*k)*(.6+tv*.8)*(1+react*.5);
+    for(let j=0;j<E;j++){const p=polys[j];if(!p)continue;const [f0,f1,al]=vis(j);if(f1-f0<.999)continue;const cyc=1+(j%3),dir=j%2?1:-1;
+      for(let q=0;q<m;q++){let f=((u*cyc*dir+hash3(j,q,11)+q/m)%1+1)%1;
+        for(let s=0;s<4;s++){const ff=clamp(f-dir*s*.025),[x,y]=polyAt(p,ff);g.globalAlpha=alpha*al*(1-s*.24);g.fillStyle=stops?palAt(stops,sAt(x,y)+.3):c2;g.beginPath();g.arc(x,y,r*(1-s*.18),0,TAU);g.fill();}}}
+    g.globalAlpha=alpha;}
+  /* nodes */
+  const fixed=mode==='Fija'||mode==='Destellos',iso=mode==='Se arma y se desarma'?(u<.45?u/.45:u>.7?1-(u-.7)/.3:1):Math.min(1,u/.8);
+  for(let i=0;i<cnt;i++){const a=fixed?1:deg[i]?nodeA[i]:iso;if(a<=0)continue;const x=pos[i*2],y=pos[i*2+1],r=tam*.5*(.5+.5*n[i*3+2])*easeBack(a)*(1+react*.9);
+    g.fillStyle=g.strokeStyle=dotCol(x,y);nodeShape(g,shape,x,y,r);}
+  g.restore();}
+let NA=null,NB=null;const nodeCanvas=(cv,w,h)=>{if(!cv)cv=document.createElement('canvas');if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}const g=cv.getContext('2d');g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.clearRect(0,0,w,h);return cv;};
+const SYMS={'No':1,'Espejo':2,'×3':3,'×4':4,'×6':6,'×8':8};
+function nodesLayer(c,P,t,L){
+  const live=NODEDRAW.on&&NODEDRAW.L===L;if(!P.red.v.n.length&&!live)return;
+  const T=c.getTransform(),dw=c.canvas.width,dh=c.canvas.height,dk=T.a;NA=nodeCanvas(NA,dw,dh);const a=NA.getContext('2d');
+  const ox=W/2+pv(P,'x',t)*W/2,oy=H/2+pv(P,'y',t)*H/2,rot=pv(P,'rot',t)*Math.PI/180,es=pv(P,'esc',t);
+  a.setTransform(T);a.translate(ox,oy);a.rotate(rot);a.scale(es,es);a.translate(-W/2,-H/2);
+  const cp=Math.round(clamp(pv(P,'copias',t),0,8));
+  for(let ci=cp;ci>=0;ci--){a.save();if(ci){const s=1+ci*.06;a.translate(W/2,H/2);a.rotate(ci*.035);a.scale(s,s);a.translate(-W/2,-H/2);}
+    drawNet(a,L,P,t-ci*S.dur*.02,ci?.6*(1-ci/(cp+1)):1);a.restore();}
+  if(live&&NODEDRAW.raw.length>=4){const k=Math.min(W,H)/1080;a.save();a.strokeStyle=P.color.v;a.globalAlpha=.8;a.lineWidth=2*k;a.setLineDash([6*k,6*k]);a.lineCap='round';
+    a.beginPath();const r=NODEDRAW.raw;a.moveTo(r[0]*W,r[1]*H);for(let i=3;i<r.length;i+=3)a.lineTo(r[i]*W,r[i+1]*H);a.stroke();a.restore();}
+  /* symmetry: stamp the drawing turned (or mirrored) around the layer's center */
+  let src=NA;const ns=SYMS[P.simetria.v]||1;
+  if(ns>1){NB=nodeCanvas(NB,dw,dh);const b=NB.getContext('2d'),cx=ox*dk,cy=oy*dk;
+    for(let s=0;s<ns;s++){b.setTransform(1,0,0,1,0,0);b.translate(cx,cy);if(P.simetria.v==='Espejo'){if(s)b.scale(-1,1);}else b.rotate(s*TAU/ns);b.translate(-cx,-cy);b.drawImage(NA,0,0);}src=NB;}
+  /* neon glow */
+  const neon=pv(P,'neon',t),react=pv(P,'reacc',t)*(envAt(t,'low')*1.6+BOOST);
+  c.save();c.setTransform(1,0,0,1,0,0);
+  if(neon>0){c.shadowColor=PALS[P.paleta.v]?PALS[P.paleta.v][2]:P.paleta.v==='Dos colores'?P.color2.v:P.color.v;c.shadowBlur=neon*34*dk*(1+react*.6);c.drawImage(src,0,0);
+    if(neon>.45){c.globalCompositeOperation='lighter';c.globalAlpha=Math.min(1,(neon-.45)*1.6);c.shadowBlur=neon*70*dk;c.drawImage(src,0,0);}}
+  else c.drawImage(src,0,0);
+  c.restore();}
+/* --- drawing networks with the pen on the monitor --- */
+const NODEDRAW={on:false,L:null,raw:[],ptr:null,mode:'',start:-1,drag:-1};
+const NTOOL={mode:'trazar',chain:null};
+try{const m=localStorage.getItem('xekuoia-nodos');if(['trazar','mover','borrar'].includes(m))NTOOL.mode=m;}catch(e){}
+const NHIST=new WeakMap();
+const nodeTarget=()=>{const L=selLayer();return !OUT&&L&&L.type==='nodos'&&L.vis?L:null;};
+/* every edit works on a fresh copy, so undo keeps the old one and scenes are never touched */
+function netEdit(L){const h=NHIST.get(L)||[];h.push(L.p.red.v);if(h.length>60)h.shift();NHIST.set(L,h);const v=L.p.red.v;L.p.red.v={n:v.n.slice(),e:v.e.slice()};return L.p.red.v;}
+function netUndo(L){const h=NHIST.get(L);if(!h||!h.length)return false;L.p.red.v=h.pop();NTOOL.chain=null;nodeRing();buildLayers();if(selLayer()===L)buildInsp();custom();refresh();return true;}
+function nearestNode(net,q,cw,ch,maxPx,skip=-1){let best=-1,bd=Infinity;const n=net.n;for(let i=0;i<n.length/3;i++){if(i===skip)continue;const d=Math.hypot((n[i*3]-q.x)*cw,(n[i*3+1]-q.y)*ch)*q.sc;if(d<bd){bd=d;best=i;}}return bd<=maxPx?best:-1;}
+const addEdge=(net,a,b)=>{if(a<0||b<0||a===b||net.e.length>=EDGE_MAX*2)return;for(let i=0;i<net.e.length;i+=2)if((net.e[i]===a&&net.e[i+1]===b)||(net.e[i]===b&&net.e[i+1]===a))return;net.e.push(a,b);};
+const addNode=(net,x,y,w)=>{if(net.n.length>=NODE_MAX*3)return -1;net.n.push(+x.toFixed(5),+y.toFixed(5),+clamp(w,0,1).toFixed(2));return net.n.length/3-1;};
+function removeNodes(net,dead){if(!dead.size)return;const map=new Int32Array(net.n.length/3),n=[];let k=0;
+  for(let i=0;i<map.length;i++){if(dead.has(i)){map[i]=-1;continue;}map[i]=k++;n.push(net.n[i*3],net.n[i*3+1],net.n[i*3+2]);}
+  const e=[];for(let i=0;i<net.e.length;i+=2){const a=map[net.e[i]],b=map[net.e[i+1]];if(a>=0&&b>=0)e.push(a,b);}net.n=n;net.e=e;}
+/* Ramer-Douglas-Peucker: keeps the corners of a hand-drawn line, in canvas pixels */
+function simplify(raw,cw,ch,eps){const pts=[];for(let i=0;i<raw.length;i+=3)pts.push([raw[i]*cw,raw[i+1]*ch,raw[i+2]]);if(pts.length<3)return pts;
+  const keep=new Uint8Array(pts.length);keep[0]=keep[pts.length-1]=1;const st=[[0,pts.length-1]];
+  while(st.length){const [a,b]=st.pop();const A=pts[a],B=pts[b],dx=B[0]-A[0],dy=B[1]-A[1],l=Math.hypot(dx,dy)||1;let md=0,mi=-1;
+    for(let i=a+1;i<b;i++){const d=Math.abs((pts[i][0]-A[0])*dy-(pts[i][1]-A[1])*dx)/l;if(d>md){md=d;mi=i;}}if(md>eps&&mi>0){keep[mi]=1;st.push([a,mi],[mi,b]);}}
+  return pts.filter((p,i)=>keep[i]);}
+function randomNet(L){const net=netEdit(L);net.n=[];net.e=[];const ar=W/H,cnt=26+Math.floor(Math.random()*14),sx=ar>1?.62/ar:.62,sy=ar>1?.62:.62*ar;
+  for(let i=0;i<cnt;i++){const a=Math.random()*TAU,r=Math.sqrt(Math.random());addNode(net,.5+Math.cos(a)*r*sx,.5+Math.sin(a)*r*sy,.3+Math.random()*.7);}
+  for(let i=0;i<cnt;i++){const d=[];for(let j=0;j<cnt;j++)if(j!==i)d.push([Math.hypot((net.n[i*3]-net.n[j*3])*W,(net.n[i*3+1]-net.n[j*3+1])*H),j]);d.sort((p,q)=>p[0]-q[0]);addEdge(net,i,d[0][1]);if(Math.random()<.6)addEdge(net,i,d[1][1]);}
+  NTOOL.chain=null;nodeRing();buildLayers();buildInsp();custom();refresh();}
+/* a ring on the monitor marks the node the next tap connects from */
+function fromLayer(x,y,L){const cv=$('#out'),r=cv.getBoundingClientRect(),cw=cv.width,ch=cv.height,sc=Math.min(r.width/cw,r.height/ch),t=S.t,P=L.p,a=pv(P,'rot',t)*Math.PI/180,es=pv(P,'esc',t)||1;
+  const X=(x*cw-cw/2)*es,Y=(y*ch-ch/2)*es,rx=X*Math.cos(a)-Y*Math.sin(a)+cw/2+pv(P,'x',t)*cw/2,ry=X*Math.sin(a)+Y*Math.cos(a)+ch/2+pv(P,'y',t)*ch/2;
+  const m=$('#monitor').getBoundingClientRect();return {x:r.left-m.left+(r.width-cw*sc)/2+rx*sc,y:r.top-m.top+(r.height-ch*sc)/2+ry*sc};}
+function nodeRing(){let el=$('#nodeRing');if(OUT)return;if(!el){el=document.createElement('div');el.id='nodeRing';el.setAttribute('aria-hidden','true');$('#monitor').append(el);}
+  const L=nodeTarget(),ch=NTOOL.chain;if(!L||!ch||ch.L!==L||ch.i<0||ch.i>=L.p.red.v.n.length/3||S.playing){el.classList.remove('show');return;}
+  const n=L.p.red.v.n,p=fromLayer(n[ch.i*3],n[ch.i*3+1],L);el.style.transform=`translate(${p.x-11}px,${p.y-11}px)`;el.classList.add('show');}
+if(!OUT){const cv=$('#out');
+  cv.addEventListener('pointerdown',e=>{const L=nodeTarget();if(!L||(e.button!==0&&e.button!==5))return;e.preventDefault();cv.setPointerCapture(e.pointerId);
+    const q=toLayer(e,L),eraser=e.button===5||!!(e.buttons&32),mode=eraser?'borrar':NTOOL.mode,net=L.p.red.v;
+    Object.assign(NODEDRAW,{on:true,L,ptr:e.pointerId,mode,raw:[q.x,q.y,pressureOf(e)],start:nearestNode(net,q,cv.width,cv.height,18),drag:-1,edited:false,sx:e.clientX,sy:e.clientY});
+    if(mode==='mover'){const i=nearestNode(net,q,cv.width,cv.height,26);if(i>=0){netEdit(L);NODEDRAW.drag=i;}}
+    if(mode==='borrar'){const i=nearestNode(net,q,cv.width,cv.height,20);if(i>=0){const v=netEdit(L);removeNodes(v,new Set([i]));NODEDRAW.edited=true;NTOOL.chain=null;nodeRing();}}
+    refresh();});
+  cv.addEventListener('pointermove',e=>{if(!NODEDRAW.on||e.pointerId!==NODEDRAW.ptr)return;const L=NODEDRAW.L,cw=cv.width,ch=cv.height;
+    for(const ev of (e.getCoalescedEvents?.()||[e])){const q=toLayer(ev,L),r=NODEDRAW.raw;
+      if(NODEDRAW.mode==='trazar'){const dx=(q.x-r[r.length-3])*cw*q.sc,dy=(q.y-r[r.length-2])*ch*q.sc;if(dx*dx+dy*dy<4)continue;if(r.length<9000)r.push(+q.x.toFixed(5),+q.y.toFixed(5),+pressureOf(ev).toFixed(2));}
+      else if(NODEDRAW.mode==='mover'&&NODEDRAW.drag>=0){const n=L.p.red.v.n,i=NODEDRAW.drag;n[i*3]=+clamp(q.x,-1,2).toFixed(5);n[i*3+1]=+clamp(q.y,-1,2).toFixed(5);NODEDRAW.edited=true;}
+      else if(NODEDRAW.mode==='borrar'){const net=L.p.red.v,i=nearestNode(net,q,cw,ch,20);if(i>=0){if(!NODEDRAW.edited){netEdit(L);NODEDRAW.edited=true;}removeNodes(L.p.red.v,new Set([i]));}}}
+    nodeRing();if(!S.playing)refresh();});
+  const end=e=>{if(!NODEDRAW.on||e.pointerId!==NODEDRAW.ptr)return;const L=NODEDRAW.L,mode=NODEDRAW.mode,raw=NODEDRAW.raw,cw=cv.width,ch=cv.height;NODEDRAW.on=false;
+    if(mode==='trazar'){const q=toLayer(e,L),moved=Math.hypot(e.clientX-NODEDRAW.sx,e.clientY-NODEDRAW.sy);
+      if(moved<7||raw.length<6){/* a tap: a new node, or chain from an existing one */
+        const hit=nearestNode(L.p.red.v,q,cw,ch,18),ch0=NTOOL.chain&&NTOOL.chain.L===L?NTOOL.chain.i:-1;
+        if(hit>=0&&hit===ch0)NTOOL.chain=null;
+        else if(hit>=0){if(ch0>=0){const v=netEdit(L);addEdge(v,ch0,hit);}NTOOL.chain={L,i:hit};}
+        else{const v=netEdit(L),i=addNode(v,clamp(q.x,-1,2),clamp(q.y,-1,2),raw[2]);if(i>=0){if(ch0>=0)addEdge(v,ch0,i);NTOOL.chain={L,i};}}}
+      else{/* a line: its corners become nodes, joined in order; the ends snap to nodes that are already there */
+        const sc=q.sc||1,pts=simplify(raw,cw,ch,Math.max(3,9/sc)),v=netEdit(L);let prev=NODEDRAW.start;
+        pts.forEach((p,i)=>{let id=-1;const last=i===pts.length-1;
+          if(i===0&&prev>=0)return;
+          if(last){id=nearestNode(v,{x:p[0]/cw,y:p[1]/ch,sc},cw,ch,18,prev);}
+          if(id<0)id=addNode(v,clamp(p[0]/cw,-1,2),clamp(p[1]/ch,-1,2),p[2]);
+          if(prev>=0)addEdge(v,prev,id);prev=id;});
+        NTOOL.chain=prev>=0?{L,i:prev}:null;}}
+    NODEDRAW.raw=[];nodeRing();buildLayers();if(selLayer()===L)buildInsp();custom();refresh();};
+  cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+  document.addEventListener('keydown',e=>{const L=nodeTarget();if(!L||e.target.closest('input,textarea'))return;
+    if(e.key==='Escape'&&NTOOL.chain){NTOOL.chain=null;nodeRing();return;}
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.shiftKey){e.preventDefault();netUndo(L);}});
+  addEventListener('resize',nodeRing);}
+const NMODES=[['trazar','Trazar'],['mover','Mover nodos'],['borrar','Borrar nodos']];
+function nodeToolsHTML(L){const v=L.p.red.v,nn=v.n.length/3,ne=v.e.length/2,h=NHIST.get(L);
+  return `<div class="fld dtools" data-ntools="1" style="flex-basis:100%"><span>Herramienta</span>
+    <div class="opts">${NMODES.map(([k,nm])=>`<button data-nmode="${k}" aria-pressed="${NTOOL.mode===k}">${esc(nm)}</button>`).join('')}</div>
+    <div class="acts2"><button class="btn" data-nrand="1">Red al azar</button><button class="btn" data-nundo="1"${h&&h.length?'':' disabled'}>Deshacer</button><button class="btn" data-nclear="1"${nn?'':' disabled'}>Borrar todo</button></div>
+    <p class="note" style="margin:0">${nn?`<span>${nn} ${nn===1?'nodo':'nodos'} y ${ne} ${ne===1?'línea':'líneas'}.</span> `:''}Trazá una línea sobre el monitor y sus esquinas se vuelven nodos. Tocá para sumar nodos uno a uno, encadenados; tocá el último otra vez o apretá <kbd>Esc</kbd> para cortar la cadena. Con tableta, la presión cambia el tamaño del nodo y la punta de atrás borra. <kbd>Ctrl</kbd> <kbd>Z</kbd> deshace.</p></div>`;}
+if(!OUT){const insp=$('#insp');
+  insp.addEventListener('click',e=>{const box=e.target.closest('[data-ntools]');if(!box)return;e.stopImmediatePropagation();const L=selLayer();if(L.type!=='nodos')return;
+    const b=e.target.closest('[data-nmode]');if(b){NTOOL.mode=b.dataset.nmode;try{localStorage.setItem('xekuoia-nodos',NTOOL.mode);}catch(err){}buildInsp();return;}
+    if(e.target.closest('[data-nrand]')){randomNet(L);return;}
+    if(e.target.closest('[data-nundo]')){netUndo(L);return;}
+    if(e.target.closest('[data-nclear]')){const v=netEdit(L);v.n=[];v.e=[];NTOOL.chain=null;nodeRing();buildLayers();buildInsp();custom();refresh();
+      toast('Red borrada.',{label:'Deshacer',fn:()=>netUndo(L)});}},true);}
 /* move, turn and push 3D objects by dragging them on the monitor */
 const moveTarget=()=>{const L=selLayer();return !OUT&&L&&L.type==='modelo'&&L.vis&&BIN.some(b=>b.id===L.p.clip.v)?L:null;};
 const MV={on:false};
@@ -2682,6 +2895,7 @@ body:`
 <dt>Media</dt><dd>Imágenes, videos y GIFs de Giphy.</dd>
 <dt>Objeto 3D</dt><dd>Modelos OBJ, GLB o STL, y logos SVG que se extruyen solos. Se mueven arrastrando en el monitor; con <kbd>Shift</kbd> giran, con <kbd>Alt</kbd> rotan de costado y con la rueda se acercan. En Rotación automática elegís si gira o queda quieto.</dd>
 <dt>Dibujo</dt><dd>Pintá sobre el monitor con pincel, marcador, lápiz, aerosol o borrador. Con tableta, la presión cambia el grosor. Puede dibujarse solo durante el loop.</dd>
+<dt>Nodos</dt><dd>Redes de líneas y puntos, como un logo en línea y punto. Trazá con el mouse o el lápiz de la tableta: las esquinas se vuelven nodos y los toques los suman de a uno. Elegís el tipo de trazo (curva, circuito, rayo, punteado), la forma de los nodos, la paleta y efectos como neón, plexo, chispas, explosión, copias y simetría de caleidoscopio. La presión del lápiz cambia el tamaño de cada nodo.</dd>
 <dt>Trama</dt><dd>Un patrón repetido de formas o de tu propio logo.</dd>
 <dt>Texto</dt><dd>Tipografía cinética al ritmo, con fuentes incluidas o de Google Fonts.</dd>
 <dt>Visualizador</dt><dd>Barras u ondas que dibujan el sonido.</dd>
@@ -2731,7 +2945,7 @@ body:`
 <tr><td><kbd>Ctrl</kbd> <kbd>S</kbd></td><td>Guardar proyecto</td></tr>
 <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>S</kbd></td><td>Guardar con archivos</td></tr>
 <tr><td><kbd>Ctrl</kbd> <kbd>O</kbd></td><td>Abrir proyecto</td></tr>
-<tr><td><kbd>Ctrl</kbd> <kbd>Z</kbd></td><td>Deshacer el último trazo de un dibujo</td></tr>
+<tr><td><kbd>Ctrl</kbd> <kbd>Z</kbd></td><td>Deshacer el último trazo de un dibujo o de una red de nodos</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>Cerrar paneles y ventanas</td></tr>
 </tbody></table>
 <p class="fine">En Mac, <kbd>Cmd</kbd> en lugar de <kbd>Ctrl</kbd>.</p></section>
@@ -2788,6 +3002,7 @@ body:`
 <dt>Media</dt><dd>Images, videos and Giphy GIFs.</dd>
 <dt>3D object</dt><dd>OBJ, GLB or STL models, and SVG logos that extrude on their own. Move them by dragging on the monitor; with <kbd>Shift</kbd> they turn, with <kbd>Alt</kbd> they roll and the wheel brings them closer. Auto rotation sets whether it spins or stays still.</dd>
 <dt>Drawing</dt><dd>Paint on the monitor with brush, marker, pencil, spray or eraser. With a tablet, pressure changes the thickness. It can draw itself over the loop.</dd>
+<dt>Nodes</dt><dd>Line-and-dot networks, like a line-and-dot logo. Draw with the mouse or the tablet pen: corners become nodes and taps add them one at a time. Pick the stroke (curve, circuit, lightning, dotted), the node shape, the palette and effects like neon, plexus, sparks, explosion, copies and kaleidoscope symmetry. Pen pressure changes the size of each node.</dd>
 <dt>Pattern</dt><dd>A repeating pattern of shapes or of your own logo.</dd>
 <dt>Text</dt><dd>Kinetic type on the beat, with built-in fonts or Google Fonts.</dd>
 <dt>Visualizer</dt><dd>Bars or waves that draw the sound.</dd>
@@ -2837,7 +3052,7 @@ body:`
 <tr><td><kbd>Ctrl</kbd> <kbd>S</kbd></td><td>Save project</td></tr>
 <tr><td><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>S</kbd></td><td>Save with files</td></tr>
 <tr><td><kbd>Ctrl</kbd> <kbd>O</kbd></td><td>Open project</td></tr>
-<tr><td><kbd>Ctrl</kbd> <kbd>Z</kbd></td><td>Undo the last stroke of a drawing</td></tr>
+<tr><td><kbd>Ctrl</kbd> <kbd>Z</kbd></td><td>Undo the last stroke of a drawing or a node network</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>Close panels and windows</td></tr>
 </tbody></table>
 <p class="fine">On a Mac, <kbd>Cmd</kbd> instead of <kbd>Ctrl</kbd>.</p></section>
@@ -3035,6 +3250,7 @@ async function restoreSession(){const man=readBin();if(!man)return;const missing
 
 /* ================= i18n: Spanish source → English ================= */
 const DICT={
+'Nodos':'Nodes','Paleta':'Palette','Redes de líneas y puntos dibujadas con el lápiz':'Line-and-dot networks drawn with the pen','Red':'Network','Trazo':'Stroke','Línea':'Line','Circuito':'Circuit','Rayo':'Lightning','Punteada':'Dotted','Guiones':'Dashed','Doble':'Double','Nodo':'Node','Anillo':'Ring','Diamante':'Diamond','Cruz':'Cross','Ninguno':'None','Un color':'One color','Dos colores':'Two colors','Simetría':'Symmetry','Se arma en el loop':'Builds over the loop','Se arma y se desarma':'Builds and comes apart','Destellos':'Flashes','Tamaño de nodo':'Node size','Neón':'Neon','Plexo':'Plexus','Chispas':'Sparks','Vibración':'Vibration','Explosión':'Explosion','Copias':'Copies','Reacción al sonido':'Sound reaction','Herramienta':'Tool','Trazar':'Draw','Mover nodos':'Move nodes','Borrar nodos':'Erase nodes','Red al azar':'Random network','Red borrada.':'Network cleared.','Red neón':'Neon network','Trazá una línea sobre el monitor y sus esquinas se vuelven nodos. Tocá para sumar nodos uno a uno, encadenados; tocá el último otra vez o apretá':'Draw a line on the monitor and its corners become nodes. Tap to add nodes one by one, chained; tap the last one again or press','para cortar la cadena. Con tableta, la presión cambia el tamaño del nodo y la punta de atrás borra.':'to end the chain. With a tablet, pressure changes the node size and the back of the pen erases.',
 'Entendido':'Got it','xekuoia está pensada para la compu: en el celular la pantalla queda chica y no hay MIDI. Para usarla de verdad, abrila en Chrome o Edge desde una computadora.':'xekuoia is made for computers: on a phone the screen is too small and there’s no MIDI. To really use it, open it in Chrome or Edge on a computer.',
 'Este navegador no puede dibujar los efectos. Abrí xekuoia en Chrome o Edge desde la compu.':'This browser can’t draw the effects. Open xekuoia in Chrome or Edge on a computer.',
 'xekuoia funciona mejor en Chrome o Edge. En este navegador no van a andar el MIDI ni la exportación a video.':'xekuoia works best in Chrome or Edge. In this browser MIDI and video export won’t work.',
@@ -3183,6 +3399,7 @@ const DICT={
 };
 const T_=x=>{const r=trCore(x);return r==null?x:r;};
 const PATS=[
+ [/^(\d+) nodos? y (\d+) líneas?\.$/,m=>`${m[1]} node${m[1]==='1'?'':'s'} and ${m[2]} line${m[2]==='1'?'':'s'}.`],
  [/^Usar el color (#[0-9a-f]+)$/i,m=>`Use color ${m[1]}`],
  [/^(\d+) objetos 3D nuevos\.$/,m=>`${m[1]} new 3D objects.`],
  [/^No pude leer (.+)\. Probá con OBJ, GLB o STL\.$/,m=>`Couldn’t read ${m[1]}. Try OBJ, GLB or STL.`],

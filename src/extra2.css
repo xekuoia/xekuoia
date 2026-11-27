@@ -186,3 +186,5 @@ body.recording #vidBtn{display:none}
 #recSheet .recbox{margin-top:0;padding-top:0;border-top:0}#recSheet .recbox h4{font-size:16px;margin-bottom:8px}
 .transport .capb{width:40px;height:40px}
 @media (min-width:921px){.transport{grid-template-columns:auto auto minmax(80px,1fr);grid-auto-flow:column;grid-auto-columns:auto}}
+#nodeRing{position:absolute;left:0;top:0;z-index:5;width:22px;height:22px;border-radius:50%;border:2px solid #F4F1EC;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 0 10px rgba(244,241,236,.5);pointer-events:none;opacity:0;transition:opacity .12s ease}
+#nodeRing.show{opacity:1}
