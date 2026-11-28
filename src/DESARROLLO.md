@@ -31,7 +31,8 @@ Después de armarla, abrí `app/index.html` en Chrome o Edge (por ejemplo con `p
 
 - Todo pasa en el navegador de quien la usa. No hay servidor ni cuentas, y no se guarda nada entre sesiones salvo preferencias en `localStorage` (claves `xekuoia-*` y `bastidor-*`).
 - Los archivos de proyecto que abre la app son datos no confiables: todo valor se valida antes de usarse (ver `cleanVal`, `cleanAuto`, `loadScenes`).
-- La única librería externa es Mediabunny (exportar MP4), cargada con SRI.
+- Librerías externas, todas verificadas con su huella (SRI) antes de correr: Mediabunny (exportar MP4); MediaPipe Tasks Vision 0.10.21 y sus modelos de cara, silueta, manos y recorte (`VFILES`); ONNX Runtime Web 1.20.1 y Depth Anything V2 small para la Foto 2.5D (`DFILES`). Se cargan recién cuando una capa las necesita.
+- La cámara se procesa en el navegador: ningún cuadro sale de la compu.
 - Textos de la interfaz en español; el inglés sale del diccionario `DICT` y los patrones `PATS` de `app.js`.
 - Colores y tipografías según el brand kit (ver `../brand/` y el contexto del proyecto).
 

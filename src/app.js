@@ -28,6 +28,13 @@ const IC={
  media:P('<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z" fill="currentColor"/>'),
  trama:P('<circle cx="6" cy="6" r="1.6" fill="currentColor"/><circle cx="12" cy="6" r="1.6" fill="currentColor"/><circle cx="18" cy="6" r="1.6" fill="currentColor"/><circle cx="6" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="18" cy="12" r="1.6" fill="currentColor"/><circle cx="6" cy="18" r="1.6" fill="currentColor"/><circle cx="12" cy="18" r="1.6" fill="currentColor"/><circle cx="18" cy="18" r="1.6" fill="currentColor"/>'),
  letra:P('<path d="M5 19 11 5h2l6 14M8 14h8"/>'),
+ vivo:P('<path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.8l1.5-2h6.4l1.5 2h1.8A2.5 2.5 0 0 1 21 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 16.5z"/><circle cx="12" cy="12.5" r="3.6"/>'),
+ recorte:P('<circle cx="6" cy="6" r="2.6"/><circle cx="6" cy="18" r="2.6"/><path d="M8.2 7.6 20 17M8.2 16.4 20 7"/>'),
+ chispas:P('<circle cx="8" cy="15" r="4" fill="currentColor" stroke="none" opacity=".5"/><circle cx="15" cy="9" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="1.1" fill="currentColor" stroke="none"/><circle cx="17" cy="14" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="5" r=".9" fill="currentColor" stroke="none"/><circle cx="21" cy="11" r=".8" fill="currentColor" stroke="none"/>'),
+ fluido:P('<path d="M4 15c2-3 4-3 6 0s4 3 6 0 3-2 4-1"/><path d="M5 9c1.6-2 3.4-2 5 0s3.4 2 5 0"/><circle cx="17" cy="19" r="1.4" fill="currentColor" stroke="none"/>'),
+ crece:P('<path d="M12 21v-7M12 14c0-4-3-6-6-6 0 3 2 6 6 6zM12 12c0-4 2.5-7 6.5-7 0 4-2.5 7-6.5 7z"/>'),
+ relieve:P('<path d="M3 18l5-7 4 5 3-3 6 5z"/><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="15.5" cy="8.5" r="1.6"/>'),
+ esquinas:P('<path d="M5 6l14-2 1 15-15 1z"/><circle cx="5" cy="6" r="1.7" fill="currentColor"/><circle cx="19" cy="4" r="1.7" fill="currentColor"/><circle cx="20" cy="19" r="1.7" fill="currentColor"/><circle cx="5" cy="20" r="1.7" fill="currentColor"/>'),
  audio:P('<path d="M4 15v-4M8 18V7M12 20V4M16 17V8M20 14v-3"/>'),
  dibujo:P('<path d="M4 20c2-1 3-3 5-3s2 2 4 2 3-2 3-2"/><path d="m14 4 5 5-7 7-3 1 1-3z"/>'),
  nodos:P('<path d="M6 7l6 10 6-8M6 7l12 2"/><circle cx="6" cy="7" r="2.2" fill="currentColor"/><circle cx="12" cy="17" r="2.2" fill="currentColor"/><circle cx="18" cy="9" r="2.2" fill="currentColor"/>'),
@@ -90,6 +97,18 @@ const UNITS=[
    ['paleta','sel','Paleta',['Un color','Dos colores','Spectral','Aurora']],['color','col','Color'],['color2','col','Color 2'],['simetria','sel','Simetría',['No','Espejo','×3','×4','×6','×8']],['aparicion','sel','Aparición',['Fija','Se arma en el loop','Se arma y se desarma','Destellos']],
    ['grosor','knob','Grosor',.5,24,.1],['tam','knob','Tamaño de nodo',0,60,.5],['neon','knob','Neón',0,1,.01],['plexo','knob','Plexo',0,1,.01],['viajeros','knob','Chispas',0,1,.01],['vibra','knob','Vibración',0,1,.01],['explota','knob','Explosión',0,1,.01],['copias','knob','Copias',0,8,1],['reacc','knob','Reacción al sonido',0,1,.01],
    ['esc','knob','Escala',.2,3,.01],['rot','knob','Giro',-180,180,1],['x','knob','Pos X',-1,1,.01],['y','knob','Pos Y',-1,1,.01],...LAYERCTL]},
+ {id:'vivo',cat:'fuentes',name:'Cámara en vivo',desc:'Tu cámara, entera o con la cara o el cuerpo recortados',c:[['cam','cam','Cámara'],['recorte','sel','Recorte',['Cuadro entero','Cara','Silueta','Fondo sin vos']],['encuadre','sel','Encuadre',['Cubrir','Contener','Seguir la cara']],['espejo','sel','Espejo',['Sí','No']],['manos','sel','Manos como perillas',['No','Sí','Sí, con esqueleto']],
+   ['borde','knob','Borde suave',0,1,.01],['margen','knob','Margen de la cara',.8,1.8,.01],['sticker','knob','Borde de papel',0,40,1],['sombra','knob','Sombra',0,1,.01],['temblor','knob','Temblor',0,1,.01],['esc','knob','Escala',.2,3,.01],['rot','knob','Giro',-180,180,1],['x','knob','Pos X',-1,1,.01],['y','knob','Pos Y',-1,1,.01],...LAYERCTL]},
+ {id:'recorte',cat:'fuentes',name:'Recorte',desc:'Un objeto de una foto o un video, recortado con un clic: sticker o collage',c:[['clip','clip','Clip'],['pts','pick','Recorte'],
+   ['borde','knob','Borde suave',0,1,.01],['sticker','knob','Borde de papel',0,40,1],['sombra','knob','Sombra',0,1,.01],['temblor','knob','Temblor',0,1,.01],['copias','knob','Copias',1,12,1],['disp','knob','Dispersión',0,1,.01],['esc','knob','Escala',.2,3,.01],['rot','knob','Giro',-180,180,1],['x','knob','Pos X',-1,1,.01],['y','knob','Pos Y',-1,1,.01],...LAYERCTL]},
+ {id:'chispas',cat:'fuentes',name:'Partículas',desc:'La cara, el cuerpo o un recorte que se deshacen en partículas',c:[['origen','sel','Sale de',['Capa de cámara','Recorte']],['figura','sel','Figura',['Se deshace','Solo partículas']],['dir','sel','Se deshace desde',['Ruido','Arriba','Abajo','El centro']],['color','sel','Color',['Del original','Un color','Dos colores']],['c1','col','Color 1'],['c2','col','Color 2'],
+   ['deshace','knob','Cuánto se deshace',0,1,.01],['cant','knob','Cantidad',0,1,.01],['vida','knob','Vida',.2,4,.05],['tam','knob','Tamaño',1,16,.5],['viento','knob','Viento',0,1,.01],['ang','knob','Dirección del viento',0,360,1],['turb','knob','Turbulencia',0,1,.01],['grav','knob','Gravedad',-1,1,.01],['brillo','knob','Brillo',0,1,.01],['reacc','knob','Reacción al sonido',0,1,.01],...LAYERCTL]},
+ {id:'fluido',cat:'fuentes',name:'Tinta',desc:'Tinta y fluido que se empujan con el mouse, el lápiz, las manos o el cuerpo',c:[['empuje','sel','La empujan',['Mouse y lápiz','Las manos','La silueta','El ritmo']],['paleta','sel','Paleta',['Arcoíris','Un color','Dos colores']],['c1','col','Color 1'],['c2','col','Color 2'],
+   ['tam','knob','Tamaño de la gota',.2,3,.01],['fuerza','knob','Fuerza',0,2,.01],['disipa','knob','Se apaga',0,1,.01],['remolino','knob','Remolinos',0,1,.01],['visc','knob','Espesor',0,1,.01],['brillo','knob','Brillo',.2,2,.01],['reacc','knob','Reacción al sonido',0,1,.01],...LAYERCTL]},
+ {id:'crece',cat:'fuentes',name:'Crecimiento',desc:'Formas orgánicas que crecen desde un texto, un logo o tu silueta',c:[['semilla','sel','Crece desde',['Texto','Imagen','Silueta de la cámara']],['txt','txt','Texto'],['img','imgsel','Imagen'],['patron','sel','Patrón',['Coral','Laberinto','Células','Huellas','Ondas']],['sembrar','sel','Sembrar',['Al empezar el loop','Siempre']],['color','col','Color'],['color2','col','Fondo'],['fondo','sel','Fondo',['Transparente','Color']],
+   ['vel','knob','Velocidad',1,30,1],['escala','knob','Escala del patrón',.5,3,.01],['contraste','knob','Contraste',0,1,.01],['reacc','knob','Reacción al sonido',0,1,.01],...LAYERCTL]},
+ {id:'relieve',cat:'fuentes',name:'Foto 2.5D',desc:'Una foto con profundidad que se mueve como si fuera 3D',c:[['clip','clip','Clip'],['prof','sel','Profundidad',['Calculada en tu compu','Por luz']],['mov','sel','Movimiento',['Vaivén','Órbita','Acercarse','Con el mouse','Con la cara']],
+   ['cant','knob','Cantidad',0,1,.01],['foco','knob','Foco',0,1,.01],['vueltas','knob','Vueltas por loop',1,4,1],['zoom','knob','Zoom',1,1.6,.01],['suave','knob','Suavizado',0,1,.01],['esc','knob','Escala',.2,3,.01],['x','knob','Pos X',-1,1,.01],['y','knob','Pos Y',-1,1,.01],...LAYERCTL]},
  {id:'trama',cat:'fuentes',name:'Trama',desc:'Patrón repetido',c:[['forma','sel','Forma',['Círculos','Líneas','Cruces','Rombos','Imagen']],['mapa','sel','Dibujar con imagen',['No','Forma de la imagen','Forma invertida']],['img','imgsel','Imagen'],['tenir','sel','Teñir la imagen',['Sí','No']],['color','col','Color'],
    ['n','knob','Columnas',2,24,1],['tam','knob','Tamaño',2,200,1],['rot','knob','Giro',-180,180,1],['ola','knob','Ola',0,1,.01],['desf','knob','Desfase',0,1,.01],...LAYERCTL]},
  {id:'letra',cat:'fuentes',name:'Texto',desc:'Tipografía cinética al ritmo',c:[['txt','txt','Texto'],['fuente','sel','Fuente',FONT_LIST],['modo','sel','Aparición',['Palabra por palabra','Acumular palabras','Todo junto']],
@@ -104,6 +123,7 @@ const UNITS=[
  {id:'desenfoque',cat:'movimiento',name:'Desenfoque',desc:'Motion blur direccional o radial',c:[['modo','sel','Tipo',['Direccional','Radial']],['cant','knob','Cantidad',0,1,.01],['ang','knob','Ángulo',0,360,1]]},
  {id:'onda',cat:'distorsion',name:'Onda',desc:'Ondula la imagen',c:[['onda','knob','Intensidad',0,1,.01],['frec','knob','Frecuencia',0,12,.1],['vel','knob','Vueltas',0,6,1]]},
  {id:'turbulencia',cat:'distorsion',name:'Turbulencia',desc:'Desplazamiento líquido',c:[['cant','knob','Cantidad',0,1,.01],['escala','knob','Escala',.5,12,.1],['vueltas','knob','Vueltas',0,4,1]]},
+ {id:'esquinas',cat:'distorsion',name:'Mapping de esquinas',desc:'Mové las cuatro esquinas para calzar la imagen en el escenario',c:[['pin','pin','Esquinas'],['donde','sel','Dónde',['Monitor y salida','Solo en la salida en vivo']]]},
  {id:'ojo',cat:'distorsion',name:'Ojo de pez',desc:'Compensación óptica',c:[['cant','knob','Curvatura',-1,1,.01]]},
  {id:'datamosh',cat:'distorsion',name:'Datamosh',desc:'Bloques arrastrados del cuadro anterior',c:[['cant','knob','Cantidad',0,1,.01],['bloque','knob','Bloque',4,64,1]]},
  {id:'sort',cat:'distorsion',name:'Pixel sort',desc:'Estira los píxeles claros',c:[['cant','knob','Cantidad',0,1,.01],['umbral','knob','Umbral',0,1,.01],['largo','knob','Largo',10,400,1],['ang','knob','Ángulo',0,360,1]]},
@@ -119,7 +139,8 @@ const UNITS=[
  {id:'luz',cat:'textura',name:'Fugas de luz',desc:'Light leaks y quemado de película',c:[['cant','knob','Cantidad',0,1,.01],['calidez','knob','Tono',0,1,.01],['vueltas','knob','Vueltas',0,4,1],['quemado','knob','Quemado',0,1,.01]]}
 ];
 const U=Object.fromEntries(UNITS.map(u=>[u.id,u]));
-const SRC=['fondo','media','modelo','dibujo','nodos','trama','letra','audio'];
+const SRC=['fondo','media','modelo','dibujo','nodos','vivo','recorte','chispas','fluido','crece','relieve','trama','letra','audio'];
+const CLIPT=['media','recorte','relieve'];
 const FXU=UNITS.filter(u=>!SRC.includes(u.id));
 const LCOM={blend:'Normal',mascara:'Ninguna',opac:1};
 const DEF={
@@ -127,11 +148,18 @@ const DEF={
  media:{clip:0,ajuste:'Cubrir',esc:1,rot:0,x:0,y:0,vel:1,...LCOM},
  dibujo:{trazos:[],aparicion:'Fija',temblor:0,esc:1,rot:0,x:0,y:0,...LCOM},
  nodos:{red:{n:[],e:[]},trazo:'Línea',forma:'Círculo',paleta:'Dos colores',color:'#F4F1EC',color2:'#FF3DA8',simetria:'No',aparicion:'Fija',grosor:3,tam:16,neon:.35,plexo:0,viajeros:.25,vibra:.1,explota:0,copias:0,reacc:.5,esc:1,rot:0,x:0,y:0,...LCOM},
+ vivo:{cam:0,recorte:'Cara',encuadre:'Seguir la cara',espejo:'Sí',manos:'No',borde:.3,margen:1.15,sticker:0,sombra:0,temblor:0,esc:1,rot:0,x:0,y:0,...LCOM},
+ recorte:{clip:0,pts:[],vel:1,borde:.15,sticker:14,sombra:.45,temblor:.25,copias:1,disp:.5,esc:1,rot:0,x:0,y:0,...LCOM},
+ chispas:{origen:'Capa de cámara',figura:'Se deshace',dir:'Ruido',color:'Del original',c1:'#FFD23F',c2:'#FF3DA8',deshace:.35,cant:.75,vida:1.8,tam:6,viento:.35,ang:300,turb:.5,grav:-.2,brillo:.3,reacc:.5,...LCOM},
+ fluido:{empuje:'Mouse y lápiz',paleta:'Arcoíris',c1:'#FF3DA8',c2:'#00A3FF',tam:1,fuerza:1,disipa:.35,remolino:.45,visc:.2,brillo:1,reacc:.5,...LCOM},
+ crece:{semilla:'Texto',txt:'xekuoia',img:0,patron:'Coral',sembrar:'Al empezar el loop',color:'#F4F1EC',color2:'#0E0D12',fondo:'Transparente',vel:12,escala:1,contraste:.6,reacc:.3,...LCOM},
+ relieve:{clip:0,vel:1,prof:'Calculada en tu compu',mov:'Vaivén',cant:.5,foco:.5,vueltas:1,zoom:1.12,suave:.4,esc:1,x:0,y:0,...LCOM},
  modelo:{clip:0,auto:'Gira',z:0,material:'Original',color:'#F4F1EC',color2:'#FF3DA8',esc:1,prof:1,rx:20,ry:0,rz:0,giro:1,x:0,y:0,persp:.4,luz:45,luzint:1,grosor:2,...LCOM},
  trama:{forma:'Círculos',mapa:'No',img:0,tenir:'Sí',color:'#F4F1EC',n:6,tam:40,rot:0,ola:.5,desf:.3,...LCOM,opac:.3},
  letra:{txt:'escribí algo',fuente:'Anton',modo:'Palabra por palabra',color:'#F4F1EC',cs:'#17282d',tam:200,ppb:1,sombra:0,track:0,x:0,y:0,esc:1,rot:0,...LCOM},
  audio:{estilo:'Barras',espejo:'Sí',color:'#ffffff',color2:'#FF3DA8',n:48,alto:.45,grosor:10,sens:1.4,x:0,y:0,esc:1,rot:0,...LCOM},
  tiempo:{cuadros:'Fluido',rampa:.6,ciclos:1},eco:{pers:.85,zoom:1.015,giro:.6},desfase:{modo:'Vertical',cant:.6},
+ esquinas:{pin:[0,0,1,0,1,1,0,1],donde:'Monitor y salida'},
  camara:{dir:'Horizontal',punch:.4,barrido:8,estela:.6,sac:0,giro:0},desenfoque:{modo:'Direccional',cant:.3,ang:0},
  onda:{onda:.2,frec:3,vel:1},turbulencia:{cant:.4,escala:3,vueltas:1},ojo:{cant:.4},datamosh:{cant:.25,bloque:24},sort:{cant:.7,umbral:.55,largo:140,ang:90},
  rgb:{ab:.4,ang:0,radial:1},mapa:{g0:'#120404',g1:'#ff3b30',g2:'#ffd6b0',mix:1,bal:.5},umbral:{nivel:.5,suave:.05,mix:1},glow:{cant:.4,umbral:.6,radio:.5,halo:.3},
@@ -216,6 +244,8 @@ function cleanVal(c,v,def){if(!c)return typeof v==='number'&&Number.isFinite(v)?
   if(t==='txt')return typeof v==='string'?v.slice(0,2000):def;
   if(t==='draw')return cleanStrokes(v);
   if(t==='nodes')return cleanNet(v);
+  if(t==='pick')return cleanPick(v);
+  if(t==='pin')return cleanPin(v,def);
   if(t==='clip'||t==='imgsel'||t==='model'){const n=+v;return Number.isInteger(n)&&n>=0&&n<1e6?n:def;}
   return def;}
 function cleanAuto(a){if(!a||typeof a!=='object'||!AMODES.includes(a.m))return null;const o={m:a.m};
@@ -227,7 +257,7 @@ function hydrate(d,keepClips){
       const a=cleanAuto(p[k].a);if(a)out[k].a=a;if(Array.isArray(p[k].rec))out[k].rec=p[k].rec.slice(0,FPS*600).map(x=>x!==null&&Number.isFinite(+x)?+x:null);}return out;};
   const fixFx=fx=>{const o=mkFx();for(const id in fx||{})if(Object.hasOwn(o,id)&&fx[id]){o[id].on=!!fx[id].on;o[id].p=fixP(id,fx[id].p);}return o;};
   S.layers=(Array.isArray(d.layers)?d.layers:[]).filter(l=>l&&SRC.includes(l.type)).slice(0,64).map(l=>{const L={id:/^L\d{1,6}$/.test(l.id)?l.id:('L'+lidN++),type:l.type,vis:l.vis!==false,name:typeof l.name==='string'?l.name.slice(0,60):U[l.type].name,p:fixP(l.type,l.p),fx:fixFx(l.fx)};
-    if(!keepClips&&L.type==='media')L.p.clip.v=0;return L;});
+    if(!keepClips&&CLIPT.includes(L.type))L.p.clip.v=0;return L;});
   for(const l of S.layers){const n=parseInt(String(l.id).slice(1));if(n>=lidN)lidN=n+1;}
   S.master={...newMaster(),fx:fixFx(d.master?.fx)};
   for(const L of S.layers){const g=oldG.get(L.id);if(g){L._g=g;oldG.delete(L.id);}}
@@ -378,8 +408,8 @@ function meters(){const t=S.t;const m=document.getElementById('meter');if(m)m.st
   if(soundSheet&&soundSheet.classList.contains('open'))for(const b in BANDS){const el=document.getElementById('bm-'+b);if(el)el.style.transform=`scaleX(${envAt(t,b).toFixed(3)})`;}}
 function startAudio(){stopAudio();if(!abuf||!actx)return;asrc=actx.createBufferSource();asrc.buffer=abuf;asrc.loop=true;asrc.connect(actx.destination);if(REC.dest)asrc.connect(REC.dest);asrc.start(0,S.t%abuf.duration);}
 function stopAudio(){if(asrc){try{asrc.stop();}catch(e){}asrc.disconnect();asrc=null;}}
-const clipOf=L=>L&&L.type==='media'?BIN.find(b=>b.id===L.p.clip.v):null;
-function syncVideos(){const want=new Set();if(S.playing)for(const L of S.layers)if(L.vis&&L.type==='media'){const c=clipOf(L);if(c&&c.kind==='video'){want.add(c);c.el.playbackRate=+L.p.vel.v;}}
+const clipOf=L=>L&&CLIPT.includes(L.type)?BIN.find(b=>b.id===L.p.clip.v):null;
+function syncVideos(){const want=new Set();if(S.playing)for(const L of S.layers)if(L.vis&&CLIPT.includes(L.type)){const c=clipOf(L);if(c&&c.kind==='video'){want.add(c);c.el.playbackRate=+L.p.vel.v;}}
   for(const b of BIN)if(b.kind==='video'){if(want.has(b))b.el.play().catch(()=>{});else b.el.pause();}}
 function buildBin(){
   if(OUT)return;
@@ -393,7 +423,7 @@ if(!OUT){
 $('#bin').addEventListener('click',e=>{
   const tile=e.target.closest('.clip');if(!tile)return;const id=+tile.dataset.id;
   if(e.target.closest('.x')){const i=BIN.findIndex(b=>b.id===id),b=BIN[i];b.el.pause();URL.revokeObjectURL(b.url);BIN.splice(i,1);
-    for(const L of S.layers)if((L.type==='media'||L.type==='modelo')&&L.p.clip.v===id)L.p.clip.v=0;saveBin();}
+    for(const L of S.layers)if((CLIPT.includes(L.type)||L.type==='modelo')&&L.p.clip.v===id)L.p.clip.v=0;saveBin();}
   else if(BIN.find(b=>b.id===id)?.kind==='model'){const L=selLayer();if(L.type==='modelo'){L.p.clip.v=id;L.name=layerName('modelo',id);}else{const N=newLayer('modelo',{clip:id});const i=S.layers.findIndex(l=>l.id===S.selL);S.layers.splice(i<0?S.layers.length:i+1,0,N);S.selL=N.id;S.tab='fuente';S.selU='modelo';buildCats();buildBrowser();}}
   else{const L=selLayer();if(L.type==='media'){L.p.clip.v=id;L.name=layerName('media',id);}else{const N=newLayer('media',{clip:id});const i=S.layers.findIndex(l=>l.id===S.selL);S.layers.splice(i<0?S.layers.length:i+1,0,N);S.selL=N.id;S.tab='fuente';S.selU='media';buildCats();buildBrowser();}}
   buildBin();buildLayers();buildInsp();syncVideos();custom();refresh();
@@ -465,6 +495,8 @@ const DRAW={
  },
  dibujo(c,P,t,L){drawLayer(c,P,t,L);},
  nodos(c,P,t,L){nodesLayer(c,P,t,L);},
+ vivo(c,P,t,L){vivoLayer(c,P,t,L);},recorte(c,P,t,L){recorteLayer(c,P,t,L);},chispas(c,P,t,L){chispasLayer(c,P,t,L);},
+ fluido(c,P,t,L){fluidoLayer(c,P,t,L);},crece(c,P,t,L){creceLayer(c,P,t,L);},relieve(c,P,t,L){relieveLayer(c,P,t,L);},
  modelo(c,P,t,L){const it=BIN.find(b=>b.id===P.clip.v&&b.kind==='model');if(!it||!it.mesh)return;const cv=R3.draw(it.mesh,W,H,modelOpts(P,t));if(cv)c.drawImage(cv,0,0,W,H);},
  trama(c,P,t){
   const n=Math.round(pv(P,'n',t)),cell=W/n,rows=Math.ceil(H/cell)+1,u=t/S.dur,tam=pv(P,'tam',t),ola=pv(P,'ola',t),desf=pv(P,'desf',t),rot=pv(P,'rot',t)*Math.PI/180,form=P.forma.v;
@@ -545,13 +577,14 @@ in vec2 uv; out vec4 o;
 uniform sampler2DArray hist; uniform sampler2D srcT,prev; uniform vec2 res; uniform float head,seed,seed6,useHist,flipS;
 uniform vec2 camOff,blurVec; uniform float camZoom,camRot,blurAmt,blurAng,blurRad;
 uniform float fish,turb,turbScale,turbPh,wave,waveFreq,wavePh,boil,slit,slitMode;
-uniform float rgb,rgbAng,rgbRad,sortAmt,sortTh,sortLen,sortAng,pers,ecoZoom,ecoRot,mosh,moshBlock;
+uniform float rgb,rgbAng,rgbRad,sortAmt,sortTh,sortLen,sortAng,pers,ecoZoom,ecoRot,mosh,moshBlock,pinOn; uniform mat3 pinH;
 ${LIB}
 float backOf(vec2 q){ if(slit<=0.) return 0.; float f= slitMode<.5? 1.-q.y : slitMode<1.5? q.x : clamp(length((q-.5)*vec2(res.x/res.y,1.))*1.5,0.,1.); return floor(f*slit*${HL-1}.+.5); }
 vec4 src(vec2 q){ vec2 s=vec2(q.x,flipS>.5?1.-q.y:q.y); if(useHist>.5){ float l=mod(head-backOf(q)+${HL*4}.,${HL}.); return texture(hist,vec3(s,l)); } return texture(srcT,s); }
 vec4 rgbs(vec2 q,vec2 d){ vec4 r=src(q+d),g=src(q),b=src(q-d); return vec4(r.r,g.g,b.b,max(g.a,max(r.a,b.a))); }
 void main(){
   float a=res.x/res.y; vec2 q=uv;
+  if(pinOn>.5){ vec3 r=pinH*vec3(uv.x,1.-uv.y,1.); if(r.z<=0.){o=vec4(0.);return;} vec2 s=r.xy/r.z; if(any(lessThan(s,vec2(0.)))||any(greaterThan(s,vec2(1.)))){o=vec4(0.);return;} q=vec2(s.x,1.-s.y); }
   vec2 p=q-.5; p.x*=a; float cs=cos(camRot),sn=sin(camRot); p=mat2(cs,-sn,sn,cs)*p; p/=camZoom; p.x/=a; q=p+.5+camOff;
   if(length(camOff)>0.) q=fract(q);
   if(fish!=0.){ vec2 d=q-.5; d.x*=a; float r2=dot(d,d); d*=1.+fish*r2*1.6; d.x/=a; q=d+.5; }
@@ -692,6 +725,7 @@ function runChain(obj,F,tq,t,step,input,seedOff){
   f1(PA,'rgb',Pv('rgb','ab'));f1(PA,'rgbAng',Pv('rgb','ang')*Math.PI/180);f1(PA,'rgbRad',Pv('rgb','radial'));
   f1(PA,'sortAmt',Pv('sort','cant'));f1(PA,'sortTh',on('sort')?pv(F.sort.p,'umbral',tq):1);f1(PA,'sortLen',Pv('sort','largo')*k);f1(PA,'sortAng',Pv('sort','ang')*Math.PI/180);
   f1(PA,'pers',Pv('eco','pers'));f1(PA,'ecoZoom',on('eco')?pv(F.eco.p,'zoom',tq):1);f1(PA,'ecoRot',Pv('eco','giro')*Math.PI/180);
+  {const pin=on('esquinas')&&(OUT||F.esquinas.p.donde.v!=='Solo en la salida en vivo')?pinInverse(F.esquinas.p.pin.v):null;f1(PA,'pinOn',pin?1:0);gl.uniformMatrix3fv(loc(PA,'pinH'),false,pin||new Float32Array(9));}
   f1(PA,'mosh',Pv('datamosh','cant'));f1(PA,'moshBlock',Math.max(2,(on('datamosh')?pv(F.datamosh.p,'bloque',tq):16)*k));
   gl.drawArrays(gl.TRIANGLES,0,3);
   gl.bindFramebuffer(gl.FRAMEBUFFER,g.outB.fb);gl.useProgram(PB);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,g.fb[g.cur].tex);
@@ -723,12 +757,13 @@ function xfCapture(sec){if(!gl||!LASTFIN||!(sec>0)||LASTFIN.ver!==RES.ver)return
   XF.t0=performance.now();XF.dur=sec*1000;XF.on=true;}
 function render(t){
   if(!gl)return;
+  camFrame();
   const M=timeAt(S.master.fx,t),k=comp.width/W;
   gl.bindFramebuffer(gl.FRAMEBUFFER,ACC[acur].fb);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);
   let prevOut=null;const Ls=S.layers;
   for(let i=0;i<Ls.length;i++){
     const L=Ls[i],next=Ls[i+1],asMatte=!!(next&&next.vis&&next.p.mascara.v!=='Ninguna');
-    if(!L.vis&&!asMatte){prevOut=null;continue;}
+    if((!L.vis&&!asMatte)||consumed(L)){prevOut=null;continue;}
     const {tq,step}=timeAt(L.fx,M.tq);
     ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,comp.width,comp.height);ctx.setTransform(k,0,0,k,0,0);
     DRAW[L.type](ctx,L.p,tq,L);
@@ -779,8 +814,8 @@ addRow.addEventListener('click',e=>{const b=e.target.closest('[data-add]');if(!b
   const vis=BIN.filter(b=>b.kind!=='model'),ms=BIN.filter(b=>b.kind==='model');
   if(type==='media'&&!vis.length){$('#fileIn')?.click();addRow.hidden=true;return;}
   if(type==='modelo'&&!ms.length){$('#modelIn').click();addRow.hidden=true;return;}
-  const L=newLayer(type,type==='media'?{clip:vis[0].id}:type==='modelo'?{clip:ms[ms.length-1].id}:{});const i=S.layers.findIndex(l=>l.id===S.selL);S.layers.splice(i<0?S.layers.length:i+1,0,L);
-  S.selL=L.id;S.tab='fuente';S.selU=type;addRow.hidden=true;syncVideos();buildLayers();buildCats();buildBrowser();buildInsp();buildBin();custom();refresh();});
+  const L=newLayer(type,type==='media'?{clip:vis[0].id}:CLIPT.includes(type)?{clip:vis.length?vis[vis.length-1].id:0}:type==='modelo'?{clip:ms[ms.length-1].id}:{});const i=S.layers.findIndex(l=>l.id===S.selL);S.layers.splice(i<0?S.layers.length:i+1,0,L);
+  S.selL=L.id;S.tab='fuente';S.selU=type;addRow.hidden=true;layerAdded(L);syncVideos();buildLayers();buildCats();buildBrowser();buildInsp();buildBin();custom();refresh();});
 }
 function selectLayer(id){const L=layerById(id);if(!L)return;S.selL=id;if(L.type==='master'){if(S.tab==='fuente')S.tab='tiempo';if(SRC.includes(S.selU))S.selU=firstFx(L)||'grano';}
   else if(S.tab==='fuente')S.selU=L.type;else if(SRC.includes(S.selU))S.selU=firstFx(L)||'tiempo';
@@ -848,9 +883,12 @@ function ctlHTML(P,u,c){
   if(type==='sel')return `<div class="fld"${k==='fuente'?' style="flex-basis:100%"':''}><span>${esc(label)}</span><div class="opts" data-k="${k}">${opts.map(o=>`<button data-v="${esc(o)}" aria-pressed="${o===v}"${k==='fuente'?` style="font-family:'${esc(o)}'"`:''}>${esc(o)}</button>`).join('')}</div>${k==='fuente'?`<form class="link gfont" data-gfont="1"><input type="text" name="gf" placeholder="Nombre o enlace de Google Fonts" aria-label="Fuente de Google Fonts" autocomplete="off" spellcheck="false"><button class="btn" type="submit">Agregar fuente</button></form>`:''}</div>`;
   if(type==='col')return `<label class="sw" data-k="${k}" style="--c:${esc(v)}"><input type="color" value="${esc(v)}"><i></i>${esc(label)}</label>`;
   if(type==='txt')return `<div class="fld" style="flex-basis:100%"><span>${esc(label)}</span><textarea class="ta" data-k="${k}" rows="2">${esc(v)}</textarea></div>`;
-  if(type==='imgsel'){const P2=P;return `<div class="fld" style="flex-basis:100%"><span>${esc(label)}</span><div class="clips">${BIN.filter(b=>b.kind!=='model').map(b=>`<button data-img="${b.id}" aria-pressed="${b.id===v}" aria-label="${esc(b.name)}">${b.thumb?`<img src="${b.thumb}" alt="">`:''}</button>`).join('')}<label class="addimg">+ Subir imagen<input type="file" accept="image/*" data-upimg="1"></label></div>${P2.forma.v==='Imagen'||P2.mapa.v!=='No'?(BIN.some(b=>b.id===v)?'':'<p class="note" style="margin:8px 0 0">Elegí o subí una imagen. Un logo en PNG con fondo transparente funciona muy bien.</p>'):''}</div>`;}
+  if(type==='imgsel'){const P2=P;return `<div class="fld" style="flex-basis:100%"><span>${esc(label)}</span><div class="clips">${BIN.filter(b=>b.kind!=='model').map(b=>`<button data-img="${b.id}" aria-pressed="${b.id===v}" aria-label="${esc(b.name)}">${b.thumb?`<img src="${b.thumb}" alt="">`:''}</button>`).join('')}<label class="addimg">+ Subir imagen<input type="file" accept="image/*" data-upimg="1"></label></div>${!P2.forma||P2.forma.v==='Imagen'||P2.mapa.v!=='No'?(BIN.some(b=>b.id===v)?'':'<p class="note" style="margin:8px 0 0">Elegí o subí una imagen. Un logo en PNG con fondo transparente funciona muy bien.</p>'):''}</div>`;}
   if(type==='draw')return drawToolsHTML(selLayer());
   if(type==='nodes')return nodeToolsHTML(selLayer());
+  if(type==='cam')return camHTML();
+  if(type==='pick')return pickHTML(selLayer());
+  if(type==='pin')return pinHTML();
   if(type==='model'){const ms=BIN.filter(b=>b.kind==='model');return `<div class="fld" style="flex-basis:100%"><span>${esc(label)}</span><div class="clips">${ms.map(b=>`<button data-model="${b.id}" aria-pressed="${b.id===v}" aria-label="${esc(b.name)}">${b.thumb?`<img src="${b.thumb}" alt="">`:''}</button>`).join('')}<label class="addimg">+ Subir modelo<input type="file" accept=".obj,.mtl,.glb,.gltf,.stl,.svg,image/*" multiple data-upmodel="1"></label></div>${ms.length?'<p class="note" style="margin:8px 0 0">Arrastrá el objeto en el monitor para moverlo. Con <kbd>Shift</kbd> lo girás, con <kbd>Alt</kbd> lo rotás de costado y con la rueda del mouse lo acercás o alejás.</p>':'<p class="note" style="margin:8px 0 0">Subí un archivo OBJ, GLB, STL o un logo en SVG. Si el OBJ tiene materiales, subilo junto con su .mtl y sus texturas.</p>'}</div>`;}
   if(type==='clip'){const vis=BIN.filter(b=>b.kind!=='model');return `<div class="fld" style="flex-basis:100%"><span>Clip</span>${vis.length?`<div class="clips">${vis.map(b=>`<button data-clip="${b.id}" aria-pressed="${b.id===v}" aria-label="${esc(b.name)}">${b.thumb?`<img src="${b.thumb}" alt="">`:''}</button>`).join('')}</div>`:'<p class="note">Sin clips. Soltá una imagen o un video en el monitor.</p>'}</div>`;}
   return '';}
@@ -921,9 +959,9 @@ insp.addEventListener('keydown',e=>{const knob=e.target.closest('.knob');if(!kno
 insp.addEventListener('click',e=>{
   const L=selLayer(),uid=S.tab==='fuente'?L.type:S.selU,isSrc=SRC.includes(uid),P=isSrc?L.p:L.fx[uid].p;
   if(e.target.closest('#uSwitch')){if(isSrc){L.vis=!L.vis;syncVideos();buildLayers();buildInsp();custom();refresh();}else toggleFx(L.id,uid);return;}
-  if(e.target.closest('#uReset')){for(const k in DEF[uid]){if(k==='clip'||k==='trazos'||k==='red')continue;P[k]={v:DEF[uid][k]};}buildInsp();buildCats();buildLayers();custom();refresh();return;}
+  if(e.target.closest('#uReset')){for(const k in DEF[uid]){if(k==='clip'||k==='trazos'||k==='red'||k==='pts'||k==='txt'||k==='img')continue;P[k]={v:DEF[uid][k]};}buildInsp();buildCats();buildLayers();custom();refresh();return;}
   const pre=e.target.closest('[data-preset]');if(pre){const g=GMAPS[pre.dataset.preset];['g0','g1','g2'].forEach((k,i)=>P[k].v=g[i]);if(!L.fx.mapa.on)L.fx.mapa.on=true;buildInsp();buildBrowser();buildLayers();custom();refresh();return;}
-  const ib=e.target.closest('[data-img]');if(ib){P.img.v=+ib.dataset.img;if(P.forma.v!=='Imagen'&&P.mapa.v==='No')P.mapa.v='Forma de la imagen';buildInsp();custom();refresh();return;}
+  const ib=e.target.closest('[data-img]');if(ib){P.img.v=+ib.dataset.img;if(P.forma&&P.forma.v!=='Imagen'&&P.mapa.v==='No')P.mapa.v='Forma de la imagen';if(P.semilla)P.semilla.v='Imagen';buildInsp();custom();refresh();return;}
   const mb=e.target.closest('[data-model]');if(mb){P.clip.v=+mb.dataset.model;L.name=layerName('modelo',P.clip.v);buildInsp();buildLayers();buildBin();custom();refresh();return;}
   const cb=e.target.closest('[data-clip]');if(cb){P.clip.v=+cb.dataset.clip;L.name=layerName('media',P.clip.v);syncVideos();buildInsp();buildLayers();buildBin();custom();refresh();return;}
   const opt=e.target.closest('.opts button');if(opt){const box=opt.parentElement,k=box.dataset.k;P[k].v=opt.dataset.v;box.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===opt));
@@ -933,7 +971,7 @@ insp.addEventListener('submit',async e=>{const f=e.target.closest('[data-gfont]'
   btn.disabled=true;const name=await loadGFont(inp.value);btn.disabled=false;if(!name)return;
   const L=selLayer();if(L.type==='letra'){L.p.fuente.v=name;custom();}buildInsp();refresh();toast('Fuente agregada: '+name+'.');});
 insp.addEventListener('change',e=>{if(e.target.matches('[data-upmodel]')&&e.target.files.length){const fs=[...e.target.files];e.target.value='';addFiles(fs,{intoLayer:selLayer()});return;}if(!e.target.matches('[data-upimg]')||!e.target.files[0])return;const f=e.target.files[0],L=selLayer();
-  const it=addClip(f,f.name,0,()=>{L.p.img.v=it.id;if(L.p.forma.v!=='Imagen'&&L.p.mapa.v==='No')L.p.mapa.v='Forma de la imagen';buildBin();buildInsp();custom();refresh();});sendClip(it);});
+  const it=addClip(f,f.name,0,()=>{L.p.img.v=it.id;if(L.p.semilla)L.p.semilla.v='Imagen';if(L.p.forma&&L.p.forma.v!=='Imagen'&&L.p.mapa.v==='No')L.p.mapa.v='Forma de la imagen';buildBin();buildInsp();custom();refresh();});sendClip(it);});
 insp.addEventListener('input',e=>{const L=selLayer(),uid=S.tab==='fuente'?L.type:S.selU,P=SRC.includes(uid)?L.p:L.fx[uid].p;
   const sw=e.target.closest('.sw');if(sw){P[sw.dataset.k].v=e.target.value;sw.style.setProperty('--c',e.target.value);custom();refresh();return;}
   if(e.target.matches('.ta')){P[e.target.dataset.k].v=e.target.value;custom();refresh();}});
@@ -1097,7 +1135,7 @@ $('#expBtn').addEventListener('click',async()=>{if(REC.on){toast('Detené la gra
     let as=null;if(abuf){const ac=await MB.getFirstEncodableAudioCodec(['aac','opus'],{numberOfChannels:abuf.numberOfChannels,sampleRate:abuf.sampleRate});if(ac){as=new MB.AudioBufferSource({codec:ac,quality:MB.QUALITY_HIGH});output.addAudioTrack(as);}}
     await output.start();
     if(needsHistory())for(let i=FPS;i>0;i--){const tt=S.dur-i/FPS;await seekClips(tt);render(tt);}
-    const n=N();
+    const n=N();SIMFIX=true;
     for(let i=0;i<n;i++){if(cancelled){await output.cancel();throw new Error('cancel');}
       const t=i/FPS;await seekClips(t);render(t);await vs.add(t,1/FPS);
       if(i%6===0){barI.style.transform=`scaleX(${(i/n).toFixed(3)})`;st.textContent=`Cuadro ${i+1} de ${n}`;await new Promise(r=>setTimeout(r));}}
@@ -1107,7 +1145,7 @@ $('#expBtn').addEventListener('click',async()=>{if(REC.on){toast('Detené la gra
     resV.src=resUrl;resV.hidden=false;resV.play().catch(()=>{});
     st.textContent=`Listo: ${(lastBlob.size/1048576).toFixed(1).replace('.',',')} MB, ${vc.toUpperCase()}${as?' con audio':''}.`;closeBtn.textContent='Cerrar';saveBtn.hidden=false;saveBtn.focus();
   }catch(err){if(err.message!=='cancel'){st.textContent='No se pudo exportar: '+(err.message||err)+'.';closeBtn.textContent='Cerrar';}}
-  finally{setRes(baseRes());resetAllFB();S.t=keep;refresh();}
+  finally{SIMFIX=false;setRes(baseRes());resetAllFB();S.t=keep;refresh();}
 });
 saveBtn.addEventListener('click',()=>{if(lastBlob)saveFile(`xekuoia-${slug()}-${S.fmt.replace(':','x')}.mp4`,lastBlob,m=>{st.textContent=m;});});
 $('#capBtn').addEventListener('click',()=>{
@@ -1277,7 +1315,7 @@ async function initMIDI(){
 }
 function midiDevices(){return midi?[...midi.inputs.values()].filter(i=>i.state!=='disconnected').map(i=>i.name):[];}
 function blinkLed(){for(const id of ['#midiLed','#midiLed2']){const l=$(id);if(!l)continue;l.classList.add('hit');clearTimeout(l._t);l._t=setTimeout(()=>l.classList.remove('hit'),70);}}
-function describeKey(key){const [t,a,b]=key.split(':');return t==='cc'?`CC ${a}`:`Nota ${b} (canal ${+a+1})`;}
+function describeKey(key){if(key.startsWith('mano:'))return handLabel(key);const [t,a,b]=key.split(':');return t==='cc'?`CC ${a}`:`Nota ${b} (canal ${+a+1})`;}
 function targetLabel(tg){
   if(tg.kind==='param'){const L=layerById(tg.l);return L?`${L.name}: ${U[tg.u].name}, ${ctrl(tg.u,tg.k)[2]}`:'(capa borrada)';}
   if(tg.kind==='fx'){const L=layerById(tg.l);return L?`${L.name}: prender ${U[tg.u].name}`:'(capa borrada)';}
@@ -1924,7 +1962,7 @@ function drawLayer(c,P,t,L){
   c.restore();}
 /* --- pointer input on the monitor --- */
 const drawTarget=()=>{const L=selLayer();return !OUT&&L&&L.type==='dibujo'&&L.vis?L:null;};
-function updateDrawMode(){if(OUT)return;const on=!!drawTarget()||!!nodeTarget();document.body.classList.toggle('drawmode',on);nodeRing();document.body.classList.toggle('movemode',!on&&!!moveTarget());if(!on)$('#brushCur')?.classList.remove('show');}
+function updateDrawMode(){if(OUT)return;const on=!!drawTarget()||!!nodeTarget()||!!touchTarget();pinHandles();document.body.classList.toggle('drawmode',on);nodeRing();document.body.classList.toggle('movemode',!on&&!!moveTarget());if(!on)$('#brushCur')?.classList.remove('show');}
 function toLayer(e,L){const cv=$('#out'),r=cv.getBoundingClientRect(),cw=cv.width,ch=cv.height,sc=Math.min(r.width/cw,r.height/ch),ox=r.left+(r.width-cw*sc)/2,oy=r.top+(r.height-ch*sc)/2;
   const t=S.t,P=L.p;let X=(e.clientX-ox)/sc,Y=(e.clientY-oy)/sc;X-=cw/2+pv(P,'x',t)*cw/2;Y-=ch/2+pv(P,'y',t)*ch/2;const a=-pv(P,'rot',t)*Math.PI/180,es=pv(P,'esc',t)||1;
   const rx=(X*Math.cos(a)-Y*Math.sin(a))/es+cw/2,ry=(X*Math.sin(a)+Y*Math.cos(a))/es+ch/2;return {x:rx/cw,y:ry/ch,sc:sc*es,inside:e.clientX>=ox&&e.clientX<=ox+cw*sc&&e.clientY>=oy&&e.clientY<=oy+ch*sc};}
@@ -2182,6 +2220,461 @@ if(!OUT){const insp=$('#insp');
 
 if(!OUT){$('#modelIn').addEventListener('change',e=>{const fs=[...e.target.files];e.target.value='';if(fs.length)addFiles(fs);});}
 
+/* ================= vision: camera, face, silhouette, hands and click cutouts (MediaPipe, local) =================
+   Everything runs on this computer. The library and every model are downloaded once and checked against a
+   fixed fingerprint (SRI) before they run; the camera image never leaves the browser. */
+const MPV='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/',MPM='https://storage.googleapis.com/mediapipe-models/';
+const VFILES={
+ bundle:[MPV+'vision_bundle.mjs','sha384-ab4SY/+FR9msCvHcCTSMNxTZGzrlfQPZBytYVX2byeIYBx6TOui9vvsLeq9cZJW4'],
+ loader:[MPV+'wasm/vision_wasm_internal.js','sha384-MMmkTwRjsrcocMM4i/voctUk/2bgv860D1e8/H8lZlWQwII8hBPhO8nZRfVDWErY'],
+ wasm:[MPV+'wasm/vision_wasm_internal.wasm','sha384-5CHiizcG3SmHE9yb31ynp58+HxhuoCVp7RUsTP9sjbx28ItTh3QvnzETYPbiCp5U'],
+ face:[MPM+'face_landmarker/face_landmarker/float16/1/face_landmarker.task','sha384-tYQh+yJE8llY+zO4RviZmWaSKs5W9tsB0ix5rjQVpF5/CLTqmwtP7bYtkUi2w65P'],
+ seg:[MPM+'image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite','sha384-A2bQ8+iZyQM3KIGVBUf0FyetqxuynyKpjsjCE8uzoJEnj1ghCu6ge2daiRffAiS5'],
+ hand:[MPM+'hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task','sha384-uWvruVKd887ov8k43S+DBHCsi7UXXS+CKvvdM1PX00rjPzx/B0QrAPfJ1U9yKcze'],
+ touch:[MPM+'interactive_segmenter/magic_touch/float32/1/magic_touch.tflite','sha384-7bbysjN3gsNf2NUs4Ihqq42+np1aXSlSN3QAl/XiusEEYBiog3hvk5ZtVWMnEtrj']};
+async function vfetch(f,as){const r=await fetch(f[0],{integrity:f[1],mode:'cors',credentials:'omit'});if(!r.ok)throw new Error('http '+r.status);return as==='text'?r.text():new Uint8Array(await r.arrayBuffer());}
+const blobUrl=(data,type)=>URL.createObjectURL(new Blob([data],{type}));
+let VISP=null;
+function loadVision(){return VISP||=(async()=>{
+  const [code,loader,wasm]=await Promise.all([vfetch(VFILES.bundle,'text'),vfetch(VFILES.loader,'text'),vfetch(VFILES.wasm)]);
+  const mod=await import(blobUrl(code,'text/javascript'));
+  return {mod,fs:{wasmLoaderPath:blobUrl(loader,'text/javascript'),wasmBinaryPath:blobUrl(wasm,'application/wasm')}};})().catch(e=>{VISP=null;throw e;});}
+const VT={};/* tasks: face, seg, hand, touch -> {task} | {err} | promise */
+const VNAME={face:'la detección de caras',seg:'la silueta',hand:'las manos',touch:'el recorte'};
+function vtask(kind){
+  const v=VT[kind];if(v&&(v.task||v.wait))return v.task||null;if(v&&v.err&&performance.now()-v.at<15000)return null;
+  VT[kind]={wait:true};camStatus();
+  (async()=>{const {mod,fs}=await loadVision();const buf=await vfetch(VFILES[kind]);
+    const mk=async delegate=>{const base={baseOptions:{modelAssetBuffer:buf,delegate}};
+      if(kind==='face')return mod.FaceLandmarker.createFromOptions(fs,{...base,runningMode:'VIDEO',numFaces:3});
+      if(kind==='hand')return mod.HandLandmarker.createFromOptions(fs,{...base,runningMode:'VIDEO',numHands:2});
+      if(kind==='seg')return mod.ImageSegmenter.createFromOptions(fs,{...base,runningMode:'VIDEO',outputCategoryMask:false,outputConfidenceMasks:true});
+      return mod.InteractiveSegmenter.createFromOptions(fs,{...base,outputCategoryMask:false,outputConfidenceMasks:true});};
+    let task;try{task=await mk(kind==='face'||kind==='hand'?'GPU':'CPU');}catch(e){task=await mk('CPU');}
+    VT[kind]={task};camStatus();refresh();})().catch(e=>{console.warn('vision',kind,e);VT[kind]={err:String(e&&e.message||e),at:performance.now()};
+      if(!OUT)toast(navigator.onLine?`No se pudo cargar ${VNAME[kind]}. Probá de nuevo en un rato.`:`Para ${VNAME[kind]} hace falta internet la primera vez.`);camStatus();});
+  return null;}
+const visionBusy=()=>Object.values(VT).some(v=>v.wait);
+
+/* --- the camera --- */
+const CAM={st:'off',stream:null,video:null,dev:'',devs:[],err:'',lastT:-1,ts:0,face:[],hands:[],segCv:null,segAt:0,mask:null,fbox:null,frameId:0};
+try{CAM.dev=localStorage.getItem('xekuoia-cam')||'';}catch(e){}
+const camLayers=()=>S.layers.filter(L=>L.type==='vivo');
+async function camStart(){
+  if(CAM.st==='on'||CAM.st==='asking')return;
+  if(!navigator.mediaDevices?.getUserMedia){CAM.st='unsupported';camStatus();return;}
+  CAM.st='asking';camStatus();
+  try{const v={width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30}};if(CAM.dev)v.deviceId={exact:CAM.dev};
+    let st;try{st=await navigator.mediaDevices.getUserMedia({video:v,audio:false});}catch(e){if(CAM.dev&&e.name==='OverconstrainedError'){delete v.deviceId;st=await navigator.mediaDevices.getUserMedia({video:v,audio:false});}else throw e;}
+    CAM.stream=st;const vid=CAM.video||Object.assign(document.createElement('video'),{muted:true,playsInline:true,autoplay:true});vid.srcObject=st;CAM.video=vid;await vid.play().catch(()=>{});
+    CAM.st='on';CAM.err='';const tr=st.getVideoTracks()[0];tr.addEventListener('ended',()=>{if(CAM.stream===st)camStop('ended');});
+    try{CAM.devs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');}catch(e){}
+    const set=tr.getSettings?.();if(set&&set.deviceId&&!CAM.dev)CAM.dev=set.deviceId;}
+  catch(e){CAM.st=e&&(e.name==='NotAllowedError'||e.name==='SecurityError')?'blocked':e&&e.name==='NotFoundError'?'nodev':'error';CAM.err=e&&e.name||'';}
+  camStatus();refresh();liveKick();}
+function camStop(why){if(CAM.stream)for(const t of CAM.stream.getTracks())t.stop();CAM.stream=null;if(CAM.video)CAM.video.srcObject=null;CAM.st=why==='ended'?'ended':'off';CAM.face=[];CAM.hands=[];CAM.mask=null;camStatus();refresh();}
+function camSwitch(id){CAM.dev=id;try{localStorage.setItem('xekuoia-cam',id);}catch(e){}if(CAM.stream){camStop();camStart();}}
+/* a camera layer asks for the camera by itself when the browser already allowed it */
+async function camAuto(){if(CAM.st!=='off'||!needCam())return;try{const p=await navigator.permissions?.query({name:'camera'});if(p&&p.state==='granted')camStart();}catch(e){}}
+const consumers=()=>S.layers.filter(L=>(L.type==='vivo')||(L.type==='chispas'&&L.vis&&L.p.origen.v==='Capa de cámara')||(L.type==='fluido'&&L.vis&&['Las manos','La silueta'].includes(L.p.empuje.v))||(L.type==='crece'&&L.vis&&L.p.semilla.v==='Silueta de la cámara')||(L.type==='relieve'&&L.vis&&L.p.mov.v==='Con la cara'));
+const needCam=()=>consumers().length>0;
+function camNeeds(){const n={face:false,seg:false,hand:false};
+  for(const L of consumers()){const P=L.p;
+    if(L.type==='vivo'){if(L.vis||isSource(L)){if(P.recorte.v==='Cara'||P.encuadre.v==='Seguir la cara')n.face=true;if(P.recorte.v==='Silueta'||P.recorte.v==='Fondo sin vos')n.seg=true;}if(P.manos.v!=='No'&&(!OUT||(L.vis&&P.manos.v==='Sí, con esqueleto')))n.hand=true;}
+    else if(L.type==='fluido'){if(P.empuje.v==='Las manos')n.hand=true;else n.seg=true;}
+    else if(L.type==='crece')n.seg=true;else if(L.type==='relieve')n.face=true;}
+  return n;}
+let camLastFrame=-1;
+function camFrame(){
+  if(!needCam()){camFrame.tried=false;if(CAM.st==='on'&&!camLayers().length)camStop();return;}
+  if(CAM.st==='off'&&!camFrame.tried){camFrame.tried=true;camAuto();}
+  const v=CAM.video;if(CAM.st!=='on'||!v||v.readyState<2)return;
+  const now=performance.now();if(now-camLastFrame<12)return;/* once per screen frame, even when the frame renders twice */
+  if(v.currentTime===CAM.lastT)return;CAM.lastT=v.currentTime;camLastFrame=now;CAM.frameId++;
+  const need=camNeeds(),ts=CAM.ts=Math.max(CAM.ts+1,Math.round(now));
+  try{if(need.face){const t=vtask('face');if(t){const r=t.detectForVideo(v,ts);CAM.face=r.faceLandmarks||[];}}else CAM.face=[];}catch(e){console.warn(e);}
+  try{if(need.hand){const t=vtask('hand');if(t){const r=t.detectForVideo(v,ts);CAM.hands=(r.landmarks||[]).map((lm,i)=>({lm,side:r.handednesses?.[i]?.[0]?.categoryName||r.handedness?.[i]?.[0]?.categoryName||''}));handsToKnobs();}}else CAM.hands=[];}catch(e){console.warn(e);}
+  try{if(need.seg){const t=vtask('seg');if(t)t.segmentForVideo(v,ts,r=>{const m=r.confidenceMasks&&r.confidenceMasks[0];if(m){segToCanvas(m.getAsFloat32Array(),m.width,m.height);}});}}catch(e){console.warn(e);}
+}
+let SEGD=null;
+function segToCanvas(f,w,h){const cv=CAM.segCv||(CAM.segCv=document.createElement('canvas'));if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;SEGD=null;}
+  const g=cv.getContext('2d');SEGD=SEGD||g.createImageData(w,h);const d=SEGD.data;
+  for(let i=0;i<w*h;i++){const a=f[i],x=a<=.3?0:a>=.7?1:(a-.3)/.4;d[i*4]=d[i*4+1]=d[i*4+2]=255;d[i*4+3]=x*x*(3-2*x)*255;}
+  g.putImageData(SEGD,0,0);CAM.mask=cv;CAM.segAt=CAM.frameId;}
+
+/* --- drawing the camera: shared by the camera layer and the layers that take its shape --- */
+const FACE_OVAL=[10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+const HAND_LINKS=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
+const mkCv=()=>document.createElement('canvas');
+const sizeCv=(cv,w,h)=>{w=Math.max(1,Math.round(w));h=Math.max(1,Math.round(h));if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}else cv.getContext('2d').clearRect(0,0,w,h);return cv.getContext('2d');};
+const CUT={cv:mkCv(),m:mkCv()};
+/* the camera frame cut out as the layer asks, in camera pixels, mirrored if needed */
+function camCut(P){
+  const v=CAM.video,vw=v.videoWidth,vh=v.videoHeight,mir=P.espejo.v==='Sí',mode=P.recorte.v,soft=pv(P,'borde',S.t);
+  const g=sizeCv(CUT.cv,vw,vh);g.save();if(mir){g.translate(vw,0);g.scale(-1,1);}
+  if(mode==='Cuadro entero'){g.drawImage(v,0,0);g.restore();return CUT.cv;}
+  const m=sizeCv(CUT.m,vw,vh),blur=soft*Math.min(vw,vh)*.03;
+  if(mode==='Cara'){if(!CAM.face.length){g.restore();return null;}
+    if(blur>.5)m.filter=`blur(${blur.toFixed(1)}px)`;m.fillStyle='#fff';const k=pv(P,'margen',S.t);
+    for(const lm of CAM.face){let cx=0,cy=0;for(const i of FACE_OVAL){cx+=lm[i].x;cy+=lm[i].y;}cx/=FACE_OVAL.length;cy/=FACE_OVAL.length;
+      m.beginPath();FACE_OVAL.forEach((i,j)=>{const x=(cx+(lm[i].x-cx)*k)*vw,y=(cy+(lm[i].y-cy)*k*(lm[i].y<cy?1.12:1))*vh;j?m.lineTo(x,y):m.moveTo(x,y);});m.closePath();m.fill();}
+    m.filter='none';}
+  else{if(!CAM.mask){g.restore();return null;}if(blur>.5)m.filter=`blur(${blur.toFixed(1)}px)`;m.drawImage(CAM.mask,0,0,vw,vh);m.filter='none';
+    if(mode==='Fondo sin vos'){m.globalCompositeOperation='xor';m.fillStyle='#fff';m.fillRect(0,0,vw,vh);m.globalCompositeOperation='source-over';}}
+  g.drawImage(v,0,0);g.restore();g.globalCompositeOperation='destination-in';g.drawImage(CUT.m,0,0);g.globalCompositeOperation='source-over';
+  return CUT.cv;}
+/* where the camera image goes on the canvas: returns {cx,cy,k,rot} (center, scale camera px -> canvas px, rotation) */
+function camPlace(P,t,L){
+  const v=CAM.video,vw=v.videoWidth,vh=v.videoHeight,mode=P.encuadre.v;let k=(mode==='Contener'?Math.min:Math.max)(W/vw,H/vh),cx=W/2,cy=H/2;
+  if(mode==='Seguir la cara'&&CAM.face.length){const lm=CAM.face[0];let x0=1,x1=0,y0=1,y1=0;for(const i of FACE_OVAL){const p=lm[i];x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y);}
+    const mir=P.espejo.v==='Sí',fx=((mir?1-(x0+x1)/2:(x0+x1)/2)-.5)*vw,fy=((y0+y1)/2-.5)*vh,fh=(y1-y0)*vh*1.15,box=[fx,fy,fh];
+    const s=L._fbox||(L._fbox=box.slice());for(let i=0;i<3;i++)s[i]+=(box[i]-s[i])*.35;k=H*.42/Math.max(20,s[2]);cx-=s[0]*k;cy-=s[1]*k;}
+  const e=pv(P,'esc',t);return {cx:cx+pv(P,'x',t)*W/2,cy:cy+pv(P,'y',t)*H/2,k:k*e,rot:pv(P,'rot',t)*Math.PI/180,vw,vh};}
+/* camera point (0..1, unmirrored, as the detector gives it) -> canvas point */
+function camToCanvas(P,pl,x,y){const mir=P.espejo.v==='Sí';let X=((mir?1-x:x)-.5)*pl.vw*pl.k,Y=(y-.5)*pl.vh*pl.k;const c=Math.cos(pl.rot),s=Math.sin(pl.rot);return [pl.cx+X*c-Y*s,pl.cy+X*s+Y*c];}
+const defCamP=()=>mkParams('vivo',{recorte:'Silueta'});
+function vivoLayer(c,P,t,L){
+  const v=CAM.video;if(CAM.st!=='on'||!v||!v.videoWidth)return;
+  const cut=camCut(P);const pl=camPlace(P,t,L);
+  if(cut){c.save();c.translate(pl.cx,pl.cy);c.rotate(pl.rot);jitter(c,P,t,L.id);
+    sticker(c,cut,-pl.vw*pl.k/2,-pl.vh*pl.k/2,pl.vw*pl.k,pl.vh*pl.k,pv(P,'sticker',t),pv(P,'sombra',t));c.restore();}
+  if(P.manos.v==='Sí, con esqueleto'&&CAM.hands.length){c.save();c.lineCap='round';c.lineJoin='round';const M=Math.min(W,H)/1080;
+    for(const h of CAM.hands){const pts=h.lm.map(p=>camToCanvas(P,pl,p.x,p.y));c.strokeStyle='rgba(244,241,236,.85)';c.lineWidth=5*M;c.beginPath();for(const [a,b] of HAND_LINKS){c.moveTo(...pts[a]);c.lineTo(...pts[b]);}c.stroke();
+      c.fillStyle='#FF3DA8';for(const i of [4,8,12,16,20]){c.beginPath();c.arc(pts[i][0],pts[i][1],9*M,0,TAU);c.fill();}}c.restore();}}
+/* stop-motion wobble: a small jump of position and angle 12 times a second */
+function jitter(c,P,t,seed){const tm=P.temblor?pv(P,'temblor',t):0;if(tm<=0)return;const f=SIMFIX||S.playing?Math.floor(t*12):Math.floor(performance.now()/83);let s=0;for(const ch of String(seed))s=(s*31+ch.charCodeAt(0))%997;const M=Math.min(W,H)/1080;
+  c.translate((hash(f,s)-.5)*tm*14*M,(hash(f,s+1)-.5)*tm*14*M);c.rotate((hash(f,s+2)-.5)*tm*.07);}
+/* draws an image with a paper border around its shape and a soft drop shadow */
+const STK={sil:mkCv(),all:mkCv()};
+function sticker(c,img,x,y,w,h,border,shadow){
+  const M=Math.min(W,H)/1080,k=c.getTransform().a?Math.hypot(c.getTransform().a,c.getTransform().b):1;
+  if(border<=.5&&shadow<=.01){c.drawImage(img,x,y,w,h);return;}
+  /* work in device pixels so the edge stays crisp */
+  const sc=Math.min(1,Math.max(.1,k*w/img.width)),iw=img.width*sc,ih=img.height*sc,bw=border*M*iw/w,pad=Math.ceil(bw)+3;
+  const ga=sizeCv(STK.all,iw+pad*2,ih+pad*2);
+  if(bw>.5){const gs=sizeCv(STK.sil,iw+pad*2,ih+pad*2);gs.drawImage(img,pad,pad,iw,ih);gs.globalCompositeOperation='source-in';gs.fillStyle='#fbf8f1';gs.fillRect(0,0,STK.sil.width,STK.sil.height);gs.globalCompositeOperation='source-over';
+    const n=Math.min(24,Math.max(10,Math.round(bw*1.4)));for(let i=0;i<n;i++){const a=i/n*TAU;ga.drawImage(STK.sil,Math.cos(a)*bw,Math.sin(a)*bw);}ga.drawImage(STK.sil,0,0);}
+  ga.drawImage(img,pad,pad,iw,ih);
+  const fx=w/iw;c.save();if(shadow>.01){c.shadowColor=`rgba(8,6,12,${(.25+shadow*.45).toFixed(2)})`;c.shadowBlur=shadow*28*M*k;c.shadowOffsetX=shadow*10*M*k;c.shadowOffsetY=shadow*16*M*k;}
+  c.drawImage(STK.all,x-pad*fx,y-pad*fx,STK.all.width*fx,STK.all.height*fx);c.restore();}
+
+/* --- hands as knobs: every hand gives four controls that can be learned like a MIDI knob --- */
+const HANDK=[['alto','altura'],['lado','lado'],['pinza','pinza'],['abre','apertura']];
+const HV={},HVS={};let HLEARN=null;
+function handLabel(key){const [,side,k]=key.split(':');const n=HANDK.find(h=>h[0]===k);return `Mano ${side==='izq'?'izquierda':'derecha'}, ${n?n[1]:k}`;}
+function handsToKnobs(){
+  if(OUT)return;const L=camLayers().find(l=>l.p.manos.v!=='No');if(!L)return;const mir=L.p.espejo.v==='Sí';
+  for(const h of CAM.hands){const lm=h.lm,d=(a,b)=>Math.hypot(lm[a].x-lm[b].x,lm[a].y-lm[b].y),size=Math.max(.02,d(0,9));
+    /* the detector names hands as seen in a mirror; on screen we want the side the person sees */
+    const side=h.side==='Left'?'der':'izq';
+    const cx=(lm[0].x+lm[9].x)/2,cy=(lm[0].y+lm[9].y)/2;
+    const vals={alto:clamp(1-(cy-.1)/.8),lado:clamp(((mir?1-cx:cx)-.1)/.8),pinza:clamp((d(4,8)/size-.15)/1.1),abre:clamp(([8,12,16,20].reduce((s,i)=>s+d(0,i),0)/4/size-.9)/1.2)};
+    for(const k in vals){const key=`mano:${side}:${k}`,prev=HVS[key];const v=prev==null?vals[k]:prev+(vals[k]-prev)*.45;HVS[key]=v;handSignal(key,v);}}}
+function handSignal(key,v){
+  if(LEARN.on&&LEARN.target){if(LEARN.target.kind!=='param')return;
+    if(!HLEARN||HLEARN.tg!==LEARN.target)HLEARN={tg:LEARN.target,base:{}};const b=HLEARN.base;if(b[key]==null){b[key]=v;return;}
+    if(Math.abs(v-b[key])>.3){const tg={...LEARN.target,key};for(const k in MIDIMAP)if(MIDIMAP[k].key===key)delete MIDIMAP[k];MIDIMAP[idOf(tg)]=tg;saveMidi();
+      LEARN.el?.classList.remove('wait');LEARN.el?.closest('.kn')?.classList.add('mapped');LEARN.el=null;LEARN.target=null;HLEARN=null;toast(`${handLabel(key)} controla: ${targetLabel(tg)}.`);}
+    return;}
+  const last=HV[key];HV[key]=v;if(last!=null&&Math.abs(last-v)<.004)return;
+  for(const tg of Object.values(MIDIMAP))if(tg.key===key){if(tg.kind==='param')applyTarget(tg,v*127,false);else if(last!=null&&last<.5&&v>=.5)applyTarget(tg,127,false);}}
+
+/* --- inspector parts --- */
+function camHTML(){
+  const st=CAM.st,busy=visionBusy();
+  const msg={off:'La cámara está apagada.',asking:'Pidiendo permiso para usar la cámara…',on:busy?'Cámara encendida. Preparando la detección, la primera vez tarda unos segundos…':'Cámara encendida. La imagen no sale de tu compu.',
+    blocked:IN_ARTIFACT?'Dentro de Claude el navegador no deja usar la cámara. Abrí xekuoia.com/app en Chrome.':'El navegador no dio permiso. Tocá el ícono a la izquierda de la dirección, permití la cámara y volvé a intentar.',
+    nodev:'No encontré ninguna cámara. Conectá una y volvé a intentar.',unsupported:'Este navegador no puede usar la cámara.',ended:'La cámara se desconectó.',error:'No se pudo abrir la cámara. Puede que otra app la esté usando.'}[st]||'';
+  const opts=CAM.devs.map((d,i)=>`<option value="${esc(d.deviceId)}"${d.deviceId===CAM.dev?' selected':''}>${esc(d.label||'Cámara '+(i+1))}</option>`).join('');
+  return `<div class="fld camui" style="flex-basis:100%" data-camui="1"><span>Cámara</span><p class="note" style="margin:0 0 8px" id="camMsg">${esc(msg)}</p>
+    <div class="acts2" style="margin:0">${st==='on'?'<button class="btn" data-cam="off">Apagar cámara</button>':'<button class="btn solid" data-cam="on">Encender cámara</button>'}
+    ${CAM.devs.length>1?`<select class="camsel" data-cam="dev" aria-label="Elegir cámara">${opts}</select>`:''}</div>
+    ${selLayer().p.manos?.v!=='No'?'<p class="note" style="margin:8px 0 0">Para que una mano mueva una perilla: abrí MIDI, tocá <b>Aprender un control</b>, hacé clic en la perilla y mové la mano (subila, llevala a un costado, abrila o juntá índice y pulgar).</p>':''}</div>`;}
+function camStatus(){if(OUT)return;const L=selLayer();if(L&&L.type==='vivo'&&S.tab==='fuente'){const box=document.querySelector('#insp [data-camui]');if(box){const tmp=document.createElement('div');tmp.innerHTML=camHTML();box.replaceWith(tmp.firstElementChild);}}}
+function layerAdded(L){if(['vivo','chispas','fluido','crece','relieve'].includes(L.type)&&needCam()&&CAM.st!=='on')camStart();liveKick();
+  if(L.type==='chispas'&&!S.layers.some(l=>l.type==='vivo'||l.type==='recorte'))toast('Partículas toma la forma de una capa de Cámara en vivo o de un Recorte. Sumá una de esas también.');}
+if(!OUT){
+  const box=$('#insp');
+  box.addEventListener('click',e=>{const b=e.target.closest('[data-cam]');if(!b||b.tagName==='SELECT')return;e.stopImmediatePropagation();if(b.dataset.cam==='on')camStart();else camStop();});
+  box.addEventListener('change',e=>{const s=e.target.closest('select[data-cam]');if(s)camSwitch(s.value);});
+  navigator.mediaDevices?.addEventListener?.('devicechange',async()=>{try{CAM.devs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');camStatus();}catch(e){}});}
+
+/* ================= Recorte: cut an object out of a photo or a video with a click ================= */
+function cleanPick(v){if(!Array.isArray(v))return [];return v.slice(0,8).filter(p=>Array.isArray(p)&&p.length===2&&p.every(n=>Number.isFinite(+n))).map(p=>[clamp(+p[0]),clamp(+p[1])]);}
+function cleanPin(v,def){if(!Array.isArray(v)||v.length!==8)return def;const o=v.map(Number);return o.every(Number.isFinite)?o.map(n=>clamp(n,-1,2)):def;}
+const CUTS=new Map();/* layer id -> {key, cv (cut image), mask, busy, at} */
+function pickHTML(L){const n=L.p.pts.v.length;return `<div class="fld" style="flex-basis:100%"><span>Recorte</span><p class="note" style="margin:0">${n?`Recortado con ${n===1?'un toque':n+' toques'}. Mientras está en pausa se ve la imagen entera, apenas marcada: tocá otra parte para recortar otra cosa, o con <kbd>Shift</kbd> para sumarla.`:'Tocá en el monitor el objeto o la persona que querés recortar. Con <kbd>Shift</kbd> sumás otra parte.'}</p>
+  ${n?'<div class="acts2" style="margin:8px 0 0"><button class="btn" data-pick="clear">Ver la imagen entera</button></div>':''}</div>`;}
+function clipSize(it){const el=it.el;return it.kind==='video'?[el.videoWidth,el.videoHeight]:[el.naturalWidth,el.naturalHeight];}
+/* with a cut, the object (not the whole photo) is centered and sized to the canvas */
+function clipPlace(P,t,w,h,L){const st=L&&P.pts.v.length?CUTS.get(L.id):null,bb=st&&st.bb;let k=Math.min(W/w,H/h)*.92,ox=0,oy=0;
+  if(bb){const bw=Math.max(.02,bb[2]-bb[0])*w,bh=Math.max(.02,bb[3]-bb[1])*h;k=Math.min(W*.72/bw,H*.62/bh);ox=((bb[0]+bb[2])/2-.5)*w;oy=((bb[1]+bb[3])/2-.5)*h;}
+  k*=pv(P,'esc',t);return {cx:W/2+pv(P,'x',t)*W/2,cy:H/2+pv(P,'y',t)*H/2,k,rot:pv(P,'rot',t)*Math.PI/180,ox,oy};}
+function runCut(L,it){
+  const P=L.p,pts=P.pts.v,key=it.id+':'+JSON.stringify(pts),st=CUTS.get(L.id)||{};CUTS.set(L.id,st);
+  const fresh=st.key===key&&(it.kind!=='video'||performance.now()-st.at<120||st.vt===it.el.currentTime);
+  if(fresh||st.busy||!pts.length)return st;
+  const task=vtask('touch');if(!task)return st;st.busy=true;
+  const [w,h]=clipSize(it);let src=it.el;
+  if(it.kind==='video'){st.frame=st.frame||mkCv();sizeCv(st.frame,w,h).drawImage(it.el,0,0);src=st.frame;}
+  try{const mw=Math.min(w,1024),mh=Math.round(h*mw/w),m=sizeCv(st.mask=st.mask||mkCv(),mw,mh),acc=new Float32Array(mw*mh);let mwr=0,mhr=0;
+    for(const p of pts)task.segment(src,{keypoint:{x:p[0],y:p[1]}},r=>{const cm=r.confidenceMasks&&r.confidenceMasks[0];if(!cm)return;const f=cm.getAsFloat32Array();mwr=cm.width;mhr=cm.height;
+      for(let y=0;y<mh;y++){const sy=Math.min(mhr-1,Math.floor(y*mhr/mh));for(let x=0;x<mw;x++){const v=f[sy*mwr+Math.min(mwr-1,Math.floor(x*mwr/mw))];if(v>acc[y*mw+x])acc[y*mw+x]=v;}}});
+    const id=m.createImageData(mw,mh);let x0=mw,y0=mh,x1=0,y1=0;for(let i=0;i<acc.length;i++){const a=acc[i],x=a<=.35?0:a>=.65?1:(a-.35)/.3;id.data[i*4]=id.data[i*4+1]=id.data[i*4+2]=255;id.data[i*4+3]=x*255;if(a>.5){const px=i%mw,py=(i/mw)|0;if(px<x0)x0=px;if(px>x1)x1=px;if(py<y0)y0=py;if(py>y1)y1=py;}}m.putImageData(id,0,0);
+    if(x1>=x0&&it.kind!=='video'||!st.bb)st.bb=x1>=x0?[x0/mw,y0/mh,(x1+1)/mw,(y1+1)/mh]:null;
+    st.key=key;st.at=performance.now();st.vt=it.kind==='video'?it.el.currentTime:0;}
+  catch(e){console.warn('recorte',e);}
+  st.busy=false;return st;}
+function recorteLayer(c,P,t,L){
+  const it=clipOf(L);if(!it)return;const [w,h]=clipSize(it);if(!w||!h)return;
+  const pts=P.pts.v,st=pts.length?runCut(L,it):null,pl=clipPlace(P,t,w,h,L);
+  let img=it.el;
+  if(pts.length){if(!st||!st.mask||!st.key)return;const cv=st.cv=st.cv||mkCv(),g=sizeCv(cv,w,h),soft=pv(P,'borde',t);g.drawImage(it.el,0,0,w,h);g.globalCompositeOperation='destination-in';
+      if(soft>.01)g.filter=`blur(${(soft*Math.min(w,h)*.012).toFixed(1)}px)`;g.drawImage(st.mask,0,0,w,h);g.filter='none';g.globalCompositeOperation='source-over';img=cv;}
+  else if(L.id===S.selL&&!OUT&&!SIMFIX){c.save();c.globalAlpha=.55;}
+  if(pts.length&&L.id===S.selL&&!OUT&&!SIMFIX&&!S.playing){c.save();c.globalAlpha=.2;c.translate(pl.cx,pl.cy);c.rotate(pl.rot);c.drawImage(it.el,-w*pl.k/2-pl.ox*pl.k,-h*pl.k/2-pl.oy*pl.k,w*pl.k,h*pl.k);c.restore();}
+  const n=pts.length?Math.round(pv(P,'copias',t)):1,disp=pv(P,'disp',t),bd=pts.length?pv(P,'sticker',t):0,sh=pts.length?pv(P,'sombra',t):0;
+  for(let i=0;i<n;i++){c.save();const sx=i?(hash(i,3.1)-.5)*W*.9*disp:0,sy=i?(hash(i,7.7)-.5)*H*.9*disp:0,sk=i?.55+hash(i,1.3)*.6:1,sr=i?(hash(i,5.2)-.5)*1.4*disp:0;
+    c.translate(pl.cx+sx,pl.cy+sy);c.rotate(pl.rot+sr);c.scale(sk,sk);if(pts.length)jitter(c,P,t,L.id+i);sticker(c,img,-w*pl.k/2-pl.ox*pl.k,-h*pl.k/2-pl.oy*pl.k,w*pl.k,h*pl.k,bd,sh);c.restore();}
+  if(!pts.length&&L.id===S.selL&&!OUT&&!SIMFIX)c.restore();}
+/* the part of the monitor where the picture is drawn (the canvas keeps its proportions inside its box) */
+function outRect(){const cv=$('#out'),r=cv.getBoundingClientRect(),sc=Math.min(r.width/cv.width,r.height/cv.height),w=cv.width*sc,h=cv.height*sc;return {left:r.left+(r.width-w)/2,top:r.top+(r.height-h)/2,width:w,height:h};}
+/* click on the monitor: canvas point -> point in the photo */
+function pickAt(e,L){const it=clipOf(L);if(!it)return null;const [w,h]=clipSize(it);if(!w)return null;const r=outRect(),sx=W/r.width,sy=H/r.height;
+  const X=(e.clientX-r.left)*sx,Y=(e.clientY-r.top)*sy,pl=clipPlace(L.p,S.t,w,h,L),dx=X-pl.cx,dy=Y-pl.cy,c=Math.cos(-pl.rot),s=Math.sin(-pl.rot);
+  const u=((dx*c-dy*s)/pl.k+pl.ox)/w+.5,v=((dx*s+dy*c)/pl.k+pl.oy)/h+.5;return u>=0&&u<=1&&v>=0&&v<=1?[u,v]:null;}
+
+/* ================= Partículas: a figure that comes apart ================= */
+const PSYS=new Map();
+const FIG={cv:mkCv(),sm:mkCv(),mk:mkCv()};
+function figureSource(L){const want=L.p.origen.v==='Recorte'?'recorte':'vivo',i=S.layers.indexOf(L);
+  let best=null;for(let j=i-1;j>=0;j--)if(S.layers[j].type===want){best=S.layers[j];break;}return best||S.layers.find(l=>l.type===want)||null;}
+const isSource=L=>S.layers.some(o=>o.type==='chispas'&&o.vis&&figureSource(o)===L);
+/* the source layer is drawn by the particles layer while it comes apart, so it is not drawn twice */
+const consumed=L=>(L.type==='vivo'||L.type==='recorte')&&S.layers.some(o=>o.type==='chispas'&&o.vis&&o.p.figura.v==='Se deshace'&&figureSource(o)===L);
+function simDt(st){const now=performance.now();let dt=SIMFIX?1/FPS:(now-(st.last||now))/1000;st.last=now;return clamp(dt,0,1/15);}
+let SIMFIX=false;
+function chispasLayer(c,P,t,L){
+  const src=figureSource(L);const st=PSYS.get(L.id)||{ps:[],acc:0};PSYS.set(L.id,st);const dt=simDt(st);
+  const k=comp.width/W,fw=comp.width,fh=comp.height;
+  if(src){const g=sizeCv(FIG.cv,fw,fh);g.setTransform(k,0,0,k,0,0);DRAW[src.type](g,src.p,t,src);g.setTransform(1,0,0,1,0,0);}
+  const GW=96,GH=Math.round(96*H/W),sm=sizeCv(FIG.sm,GW,GH);if(src)sm.drawImage(FIG.cv,0,0,GW,GH);
+  const data=src?sm.getImageData(0,0,GW,GH).data:null,des=pv(P,'deshace',t),dir=P.dir.v,whole=P.figura.v==='Solo partículas';
+  const nz=(x,y)=>{const n=hash(x*.37|0,y*.37|0)*.35+hash(x,y)*.15+.25*(Math.sin(x*.21+y*.17)*.5+.5);
+    return dir==='Arriba'?(y/GH)*.8+n*.2:dir==='Abajo'?(1-y/GH)*.8+n*.2:dir==='El centro'?(1-Math.hypot(x/GW-.5,(y/GH-.5)*H/W)*1.6)*.8+n*.2:n/.75;};
+  /* the figure, minus the part that already came apart */
+  if(src&&!whole){const mk=sizeCv(FIG.mk,GW,GH),id=mk.createImageData(GW,GH);for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const v=nz(x,y)-des,a=v<=0?0:v>=.04?1:v/.04;id.data[(y*GW+x)*4+3]=a*255;}mk.putImageData(id,0,0);
+    const g=FIG.cv.getContext('2d');g.globalCompositeOperation='destination-in';g.imageSmoothingEnabled=true;g.drawImage(FIG.mk,0,0,fw,fh);g.globalCompositeOperation='source-over';
+    c.save();c.setTransform(1,0,0,1,0,0);c.drawImage(FIG.cv,0,0);c.restore();}
+  /* new particles: from the edge that is coming apart, or from the whole shape */
+  const lvl=envAt(t,'all')*pv(P,'reacc',t),rate=pv(P,'cant',t)*(1+lvl*3)*(SIMFIX?1:1);const ps=st.ps,MAX=7000;
+  if(data){const cand=[];for(let y=0;y<GH;y+=1)for(let x=0;x<GW;x+=1){const i=(y*GW+x)*4;if(data[i+3]<128)continue;const v=nz(x,y)-des;if(whole||(v>-.03&&v<.05)||(des<=0&&false))cand.push(x,y,i);}
+    st.acc+=cand.length/3*rate*dt*(whole?.6:6);let n=Math.min(Math.floor(st.acc),2000);st.acc-=n;if(st.acc>50)st.acc=50;
+    const mode=P.color.v,c1=hex3(P.c1.v),c2=hex3(P.c2.v);
+    for(let j=0;j<n&&cand.length&&ps.length<MAX;j++){const q=(Math.random()*cand.length/3|0)*3,x=cand[q],y=cand[q+1],i=cand[q+2];let r=data[i],gg=data[i+1],b=data[i+2];
+      if(mode!=='Del original'){const m=mode==='Un color'?0:Math.random();r=(c1[0]+(c2[0]-c1[0])*m)*255;gg=(c1[1]+(c2[1]-c1[1])*m)*255;b=(c1[2]+(c2[2]-c1[2])*m)*255;}
+      ps.push({x:(x+Math.random())*W/GW,y:(y+Math.random())*H/GH,vx:(Math.random()-.5)*40,vy:(Math.random()-.5)*40,life:0,max:pv(P,'vida',t)*(.6+Math.random()*.8),col:`rgb(${r|0},${gg|0},${b|0})`,s:.6+Math.random()*.8});}}
+  const M=Math.min(W,H)/1080,wind=pv(P,'viento',t)*420*M,wa=pv(P,'ang',t)*Math.PI/180,turb=pv(P,'turb',t)*900*M,grav=pv(P,'grav',t)*600*M,tam=pv(P,'tam',t)*M,tt=performance.now()/1000;
+  c.save();if(pv(P,'brillo',t)>.02)c.globalCompositeOperation='lighter';const br=pv(P,'brillo',t);
+  let w2=0;for(let i=0;i<ps.length;i++){const p=ps[i];p.life+=dt;if(p.life>=p.max)continue;
+    const a1=Math.sin(p.y*.011+tt*1.3)+Math.cos(p.x*.013-tt*.9),a2=Math.cos(p.y*.009-tt*1.1)-Math.sin(p.x*.012+tt*.7);
+    p.vx+=(Math.cos(wa)*wind+a1*turb*.5)*dt;p.vy+=(Math.sin(wa)*wind+a2*turb*.5+grav)*dt;p.vx*=.985;p.vy*=.985;p.x+=p.vx*dt;p.y+=p.vy*dt;
+    const u=p.life/p.max,s=tam*p.s*(1-u*.6);c.globalAlpha=(1-u)*(1-u)*(br>.02?.5+br*.5:1);c.fillStyle=p.col;c.fillRect(p.x-s/2,p.y-s/2,s,s);ps[w2++]=p;}
+  ps.length=w2;c.restore();}
+
+/* ================= aux WebGL: ink (stable fluids), growth (reaction-diffusion) and 2.5D photos ================= */
+let AUX=null;
+function aux(){if(AUX!==null)return AUX||null;const cv=mkCv();const g=cv.getContext('webgl2',{premultipliedAlpha:true,alpha:true,preserveDrawingBuffer:true,antialias:false});
+  if(!g||!g.getExtension('EXT_color_buffer_float')){AUX=false;return null;}g.getExtension('OES_texture_float_linear');
+  const b=g.createBuffer();g.bindBuffer(g.ARRAY_BUFFER,b);g.bufferData(g.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),g.STATIC_DRAW);g.enableVertexAttribArray(0);g.vertexAttribPointer(0,2,g.FLOAT,false,0,0);
+  AUX={g,cv,progs:{}};return AUX;}
+function auxProg(name,fs){const A=AUX,g=A.g;if(A.progs[name])return A.progs[name];const sh=(t,s)=>{const x=g.createShader(t);g.shaderSource(x,s);g.compileShader(x);if(!g.getShaderParameter(x,g.COMPILE_STATUS))console.error(name,g.getShaderInfoLog(x));return x;};
+  const p=g.createProgram();g.attachShader(p,sh(g.VERTEX_SHADER,VS));g.attachShader(p,sh(g.FRAGMENT_SHADER,'#version 300 es\nprecision highp float; in vec2 uv; out vec4 o;\n'+fs));g.bindAttribLocation(p,0,'p');g.linkProgram(p);
+  const u={};const n=g.getProgramParameter(p,g.ACTIVE_UNIFORMS);for(let i=0;i<n;i++){const a=g.getActiveUniform(p,i);u[a.name]=g.getUniformLocation(p,a.name);}return A.progs[name]={p,u};}
+function auxTarget(w,h,lin=true){const g=AUX.g,tex=g.createTexture();g.bindTexture(g.TEXTURE_2D,tex);g.texImage2D(g.TEXTURE_2D,0,g.RGBA16F,w,h,0,g.RGBA,g.HALF_FLOAT,null);
+  const f=lin?g.LINEAR:g.NEAREST;g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MIN_FILTER,f);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MAG_FILTER,f);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_S,g.CLAMP_TO_EDGE);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_T,g.CLAMP_TO_EDGE);
+  const fb=g.createFramebuffer();g.bindFramebuffer(g.FRAMEBUFFER,fb);g.framebufferTexture2D(g.FRAMEBUFFER,g.COLOR_ATTACHMENT0,g.TEXTURE_2D,tex,0);g.clearColor(0,0,0,0);g.clear(g.COLOR_BUFFER_BIT);return {tex,fb,w,h};}
+const auxDbl=(w,h,lin)=>{const a=auxTarget(w,h,lin),b=auxTarget(w,h,lin);return {r:a,w:b,swap(){const t=this.r;this.r=this.w;this.w=t;}};};
+function auxFree(o){const g=AUX&&AUX.g;if(!g||!o)return;for(const t of [o.r,o.w,o].filter(x=>x&&x.tex)){g.deleteTexture(t.tex);g.deleteFramebuffer(t.fb);}}
+function auxRun(pr,target,uni,tex){const g=AUX.g;g.useProgram(pr.p);let unit=0;
+  for(const k in tex){g.activeTexture(g.TEXTURE0+unit);g.bindTexture(g.TEXTURE_2D,tex[k]);g.uniform1i(pr.u[k],unit++);}
+  for(const k in uni){const v=uni[k],l=pr.u[k];if(l==null)continue;if(typeof v==='number')g.uniform1f(l,v);else if(v.length===2)g.uniform2fv(l,v);else if(v.length===3)g.uniform3fv(l,v);else g.uniform4fv(l,v);}
+  if(target){g.bindFramebuffer(g.FRAMEBUFFER,target.fb);g.viewport(0,0,target.w,target.h);}else{g.bindFramebuffer(g.FRAMEBUFFER,null);g.viewport(0,0,AUX.cv.width,AUX.cv.height);}
+  g.drawArrays(g.TRIANGLES,0,3);}
+function auxUpload(src,tex){const g=AUX.g;tex=tex||g.createTexture();g.bindTexture(g.TEXTURE_2D,tex);g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL,true);g.texImage2D(g.TEXTURE_2D,0,g.RGBA,g.RGBA,g.UNSIGNED_BYTE,src);g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL,false);
+  g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MIN_FILTER,g.LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MAG_FILTER,g.LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_S,g.CLAMP_TO_EDGE);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_T,g.CLAMP_TO_EDGE);return tex;}
+function auxShow(c,pr,uni,tex){const A=AUX;if(A.cv.width!==comp.width||A.cv.height!==comp.height){A.cv.width=comp.width;A.cv.height=comp.height;}
+  A.g.clearColor(0,0,0,0);A.g.bindFramebuffer(A.g.FRAMEBUFFER,null);A.g.clear(A.g.COLOR_BUFFER_BIT);auxRun(pr,null,uni,tex);
+  c.save();c.setTransform(1,0,0,1,0,0);c.drawImage(A.cv,0,0);c.restore();}
+const AUXST=new Map();
+function auxState(L,w,h,make){let st=AUXST.get(L.id);if(st&&(st.w!==w||st.h!==h)){for(const k in st)if(st[k]&&st[k].tex||st[k]&&st[k].r)auxFree(st[k]);st=null;}if(!st){st={w,h,...make()};AUXST.set(L.id,st);}return st;}
+const noAux=c=>{if(!noAux.said&&!OUT){noAux.said=1;toast('Este navegador no puede calcular la tinta ni el crecimiento. Usá Chrome o Edge en la compu.');}};
+
+/* --- Tinta: stable fluids --- */
+const FL={
+ splat:`uniform sampler2D T; uniform vec2 pt; uniform vec3 col; uniform float r,asp; void main(){ vec2 d=uv-pt; d.x*=asp; vec3 s=exp(-dot(d,d)/r)*col; o=vec4(texture(T,uv).xyz+s,1.); }`,
+ adv:`uniform sampler2D V,X; uniform vec2 px; uniform float dt,dis; void main(){ vec2 c=uv-dt*texture(V,uv).xy*px; o=texture(X,c)/(1.+dis*dt); }`,
+ curl:`uniform sampler2D V; uniform vec2 px; void main(){ float L=texture(V,uv-vec2(px.x,0)).y,R=texture(V,uv+vec2(px.x,0)).y,B=texture(V,uv-vec2(0,px.y)).x,T=texture(V,uv+vec2(0,px.y)).x; o=vec4(.5*(R-L-T+B),0,0,1); }`,
+ vort:`uniform sampler2D V,C; uniform vec2 px; uniform float k,dt; void main(){ float L=texture(C,uv-vec2(px.x,0)).x,R=texture(C,uv+vec2(px.x,0)).x,B=texture(C,uv-vec2(0,px.y)).x,T=texture(C,uv+vec2(0,px.y)).x,c=texture(C,uv).x;
+   vec2 f=.5*vec2(abs(T)-abs(B),abs(R)-abs(L)); f/=length(f)+1e-4; f*=k*c; f.y*=-1.; o=vec4(texture(V,uv).xy+f*dt,0,1); }`,
+ div:`uniform sampler2D V; uniform vec2 px; void main(){ float L=texture(V,uv-vec2(px.x,0)).x,R=texture(V,uv+vec2(px.x,0)).x,B=texture(V,uv-vec2(0,px.y)).y,T=texture(V,uv+vec2(0,px.y)).y; o=vec4(.5*(R-L+T-B),0,0,1); }`,
+ pres:`uniform sampler2D Pp,D; uniform vec2 px; void main(){ float L=texture(Pp,uv-vec2(px.x,0)).x,R=texture(Pp,uv+vec2(px.x,0)).x,B=texture(Pp,uv-vec2(0,px.y)).x,T=texture(Pp,uv+vec2(0,px.y)).x; o=vec4((L+R+B+T-texture(D,uv).x)*.25,0,0,1); }`,
+ grad:`uniform sampler2D Pp,V; uniform vec2 px; void main(){ float L=texture(Pp,uv-vec2(px.x,0)).x,R=texture(Pp,uv+vec2(px.x,0)).x,B=texture(Pp,uv-vec2(0,px.y)).x,T=texture(Pp,uv+vec2(0,px.y)).x; o=vec4(texture(V,uv).xy-.5*vec2(R-L,T-B),0,1); }`,
+ mul:`uniform sampler2D X; uniform float k; void main(){ o=texture(X,uv)*k; }`,
+ show:`uniform sampler2D X; uniform float b; void main(){ vec3 c=texture(X,uv).rgb*b; c=c/(1.+max(max(c.r,c.g),c.b)*.2); float a=clamp(max(max(c.r,c.g),c.b)*2.5,0.,1.); o=vec4(min(c,vec3(a)),a); }`};
+const FLP=new Map();/* pointer splats waiting per layer */
+function fluidoLayer(c,P,t,L){
+  if(!aux()){noAux();return;}
+  const asp=W/H,sw=asp<1?Math.round(128*asp):128,sh=asp<1?128:Math.round(128/asp),dw=asp<1?Math.round(512*asp):512,dh=asp<1?512:Math.round(512/asp);
+  const st=auxState(L,sw,sh,()=>({vel:auxDbl(sw,sh),dye:auxDbl(dw,dh),prs:auxDbl(sw,sh,false),dv:auxTarget(sw,sh,false),cu:auxTarget(sw,sh,false),beat:-1,hx:{},mask:null}));
+  const dt=simDt(st),pr=n=>auxProg('fl'+n,FL[n]),px=[1/sw,1/sh],dpx=[1/dw,1/dh],tam=pv(P,'tam',t),force=pv(P,'fuerza',t),lvl=envAt(t,'all')*pv(P,'reacc',t);
+  const pal=(i)=>{const m=P.paleta.v;if(m==='Un color')return hex3(P.c1.v);if(m==='Dos colores')return hex3(i%2?P.c2.v:P.c1.v);const h=(i*.137+performance.now()/9000)%1;return [.5+.5*Math.cos(TAU*h),.5+.5*Math.cos(TAU*(h+.33)),.5+.5*Math.cos(TAU*(h+.67))];};
+  const splats=[];let ci=st.ci||0;
+  const q=FLP.get(L.id)||[];FLP.set(L.id,[]);for(const s of q)splats.push({...s,c:pal(ci++)});
+  const emp=P.empuje.v;
+  if(emp==='Las manos'){const cl=camLayers()[0],cp=cl?cl.p:defCamP();if(CAM.st==='on'&&CAM.video?.videoWidth){const pl=camPlace(cp,t,cl||{});
+    CAM.hands.forEach((h,hi)=>{for(const fi of [8,4]){const [X,Y]=camToCanvas(cp,pl,h.lm[fi].x,h.lm[fi].y),x=X/W,y=1-Y/H,key=hi+':'+fi,p0=st.hx[key];st.hx[key]=[x,y];
+      if(p0){const dx=(x-p0[0]),dy=(y-p0[1]);if(Math.hypot(dx,dy)>.002)splats.push({x,y,dx:dx*6000,dy:dy*6000,c:pal(hi*2+(fi===8?0:1)+ci)});}}});}}
+  else if(emp==='La silueta'&&CAM.mask){const GW=32,GH=Math.round(32*H/W),g=sizeCv(st.sm=st.sm||mkCv(),GW,GH);const cl=camLayers()[0],cp=cl?cl.p:defCamP();
+    if(CAM.video?.videoWidth){const pl=camPlace(cp,t,cl||{});g.save();g.scale(GW/W,GH/H);g.translate(pl.cx,pl.cy);g.rotate(pl.rot);if(cp.espejo.v==='Sí')g.scale(-1,1);g.drawImage(CAM.mask,-pl.vw*pl.k/2,-pl.vh*pl.k/2,pl.vw*pl.k,pl.vh*pl.k);g.restore();
+      const d=g.getImageData(0,0,GW,GH).data,cur=new Float32Array(GW*GH);for(let i=0;i<cur.length;i++)cur[i]=d[i*4+3]/255;
+      if(st.mask){let n=0;for(let y=1;y<GH-1&&n<60;y++)for(let x=1;x<GW-1&&n<60;x++){const i=y*GW+x,df=cur[i]-st.mask[i];if(Math.abs(df)<.35)continue;
+        const gx=cur[i+1]-cur[i-1],gy=cur[i+GW]-cur[i-GW];splats.push({x:(x+.5)/GW,y:1-(y+.5)/GH,dx:-gx*df*900,dy:gy*df*900,c:pal(ci+n),r:.6});n++;}}st.mask=cur;}}
+  else if(emp==='El ritmo'){const b=Math.floor(t*S.bpm/60);if(b!==st.beat){st.beat=b;for(let i=0;i<2;i++){const a=hash(b,i)*TAU;splats.push({x:.2+hash(b,i+3)*.6,y:.2+hash(b,i+5)*.6,dx:Math.cos(a)*900,dy:Math.sin(a)*900,c:pal(b*2+i)});}}}
+  if(lvl>.15&&Math.random()<lvl*.5){const a=Math.random()*TAU;splats.push({x:.25+Math.random()*.5,y:.25+Math.random()*.5,dx:Math.cos(a)*700*lvl,dy:Math.sin(a)*700*lvl,c:pal(ci++)});}
+  st.ci=ci;
+  for(const s of splats.slice(0,80)){const r=tam*.0022*(s.r||1);
+    auxRun(pr('splat'),st.vel.w,{pt:[s.x,s.y],col:[s.dx*force,s.dy*force,0],r,asp},{T:st.vel.r.tex});st.vel.swap();
+    auxRun(pr('splat'),st.dye.w,{pt:[s.x,s.y],col:s.c.map(v=>v*4),r:r*1.4,asp},{T:st.dye.r.tex});st.dye.swap();}
+  if(dt>0){
+    auxRun(pr('curl'),st.cu,{px},{V:st.vel.r.tex});
+    auxRun(pr('vort'),st.vel.w,{px,k:pv(P,'remolino',t)*40,dt},{V:st.vel.r.tex,C:st.cu.tex});st.vel.swap();
+    auxRun(pr('div'),st.dv,{px},{V:st.vel.r.tex});
+    auxRun(pr('mul'),st.prs.w,{k:.8},{X:st.prs.r.tex});st.prs.swap();
+    for(let i=0;i<20;i++){auxRun(pr('pres'),st.prs.w,{px},{Pp:st.prs.r.tex,D:st.dv.tex});st.prs.swap();}
+    auxRun(pr('grad'),st.vel.w,{px},{Pp:st.prs.r.tex,V:st.vel.r.tex});st.vel.swap();
+    auxRun(pr('adv'),st.vel.w,{px,dt,dis:.1+pv(P,'visc',t)*3},{V:st.vel.r.tex,X:st.vel.r.tex});st.vel.swap();
+    auxRun(pr('adv'),st.dye.w,{px,dt,dis:.02+pv(P,'disipa',t)*1.5},{V:st.vel.r.tex,X:st.dye.r.tex});st.dye.swap();}
+  auxShow(c,pr('show'),{b:pv(P,'brillo',t)*(1+lvl*.5)},{X:st.dye.r.tex});}
+
+/* --- Crecimiento: Gray-Scott reaction-diffusion seeded with a shape --- */
+const RD={
+ step:`uniform sampler2D X,Sd; uniform vec2 px; uniform float F,K,seed,tm; float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} void main(){ vec2 c=texture(X,uv).xy;
+   vec2 l=texture(X,uv+vec2(px.x,0)).xy+texture(X,uv-vec2(px.x,0)).xy+texture(X,uv+vec2(0,px.y)).xy+texture(X,uv-vec2(0,px.y)).xy;
+   vec2 d=texture(X,uv+px).xy+texture(X,uv-px).xy+texture(X,uv+vec2(px.x,-px.y)).xy+texture(X,uv-vec2(px.x,-px.y)).xy;
+   vec2 lap=l*.2+d*.05-c; float r=c.x*c.y*c.y; vec2 n=c+vec2(1.*lap.x-r+F*(1.-c.x),.5*lap.y+r-(F+K)*c.y);
+   float s=texture(Sd,uv).a*seed*step(.985,h(floor(uv/px)+fract(tm)*91.7)); n.y=max(n.y,s*.9); n.x=min(n.x,1.-s*.5); o=vec4(clamp(n,0.,1.),0,1); }`,
+ init:`uniform sampler2D Sd; uniform vec2 px; float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} void main(){ float s=texture(Sd,uv).a; float e=s*(1.-texture(Sd,uv+vec2(px.x*2.,0)).a*texture(Sd,uv-vec2(px.x*2.,0)).a*texture(Sd,uv+vec2(0,px.y*2.)).a*texture(Sd,uv-vec2(0,px.y*2.)).a);
+   float b=max(e,s*step(.8,h(floor(uv/px)))); o=vec4(1.-b*.5,b*.9,0,1); }`,
+ show:`uniform sampler2D X; uniform vec3 c1,c2; uniform float bg,ct; void main(){ float v=texture(X,uv).y; float e=mix(.12,.02,ct); float a=smoothstep(.2-e,.2+e,v);
+   vec3 c=mix(c2,c1,a); float A=max(a,bg); o=vec4(c*A,A); }`};
+const RDPAT={Coral:[.0545,.062],Laberinto:[.029,.057],'Células':[.0367,.0649],Huellas:[.037,.06],Ondas:[.025,.05]};
+function creceSeed(P,t,w,h,st){
+  const g=sizeCv(st.seedCv=st.seedCv||mkCv(),w,h),mode=P.semilla.v;g.fillStyle='#fff';
+  if(mode==='Texto'){const txt=String(P.txt.v||'').trim()||'xekuoia';const lines=txt.split('\n').slice(0,6);let size=w*.9/Math.max(...lines.map(l=>l.length||1))*1.6;size=Math.min(size,h*.7/lines.length);
+    g.font=`400 ${size}px "Anton"`;g.textAlign='center';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,w/2,h/2+(i-(lines.length-1)/2)*size*1.05));}
+  else if(mode==='Imagen'){const it=BIN.find(b=>b.id===P.img.v&&b.kind!=='model');if(it){const [iw,ih]=clipSize(it);if(iw){const k=Math.min(w/iw,h/ih)*.85;g.drawImage(it.el,(w-iw*k)/2,(h-ih*k)/2,iw*k,ih*k);
+      const d=g.getImageData(0,0,w,h),a=d.data;let opaque=true;for(const i of [0,(w-1)*4,(w*(h-1))*4,(w*h-1)*4])if(a[i+3]<250)opaque=false;
+      if(opaque){for(let i=0;i<a.length;i+=4){const l=(a[i]*.3+a[i+1]*.59+a[i+2]*.11)/255;a[i+3]=l<.5?255:0;}g.putImageData(d,0,0);}}}}
+  else if(CAM.mask&&CAM.video?.videoWidth){const cl=camLayers()[0],cp=cl?cl.p:defCamP(),pl=camPlace(cp,t,cl||{});g.save();g.scale(w/W,h/H);g.translate(pl.cx,pl.cy);g.rotate(pl.rot);if(cp.espejo.v==='Sí')g.scale(-1,1);g.drawImage(CAM.mask,-pl.vw*pl.k/2,-pl.vh*pl.k/2,pl.vw*pl.k,pl.vh*pl.k);g.restore();}
+  return st.seedCv;}
+function creceLayer(c,P,t,L){
+  if(!aux()){noAux();return;}
+  const sc=pv(P,'escala',t),base=Math.round(clamp(300/sc,90,640)),asp=W/H,w=asp<1?Math.round(base*asp):base,h=asp<1?base:Math.round(base/asp);
+  const st=auxState(L,w,h,()=>({x:auxDbl(w,h),seedTex:null,lastT:-1,init:false}));
+  const always=P.sembrar.v==='Siempre',live=P.semilla.v==='Silueta de la cámara';
+  const loop=st.lastT>=0&&t+1e-4<st.lastT-S.dur*.5;
+  const sig=P.semilla.v+'|'+P.txt.v+'|'+P.img.v+'|'+w;
+  if(!st.init||loop||sig!==st.sig||always||live){st.seedTex=auxUpload(creceSeed(P,t,w,h,st),st.seedTex);}
+  if(!st.init||(loop&&!always)||sig!==st.sig){auxRun(auxProg('rdinit',RD.init),st.x.r,{px:[1/w,1/h]},{Sd:st.seedTex});st.init=true;st.sig=sig;}
+  st.lastT=t;
+  const [F,K]=RDPAT[P.patron.v]||RDPAT.Coral,lvl=envAt(t,'all')*pv(P,'reacc',t),steps=SIMFIX?Math.round(pv(P,'vel',t)):Math.round(pv(P,'vel',t)*clamp(simDt(st)*FPS,0,2));
+  const pr=auxProg('rdstep',RD.step);for(let i=0;i<steps+Math.round(lvl*8);i++){auxRun(pr,st.x.w,{px:[1/w,1/h],F,K,seed:always||live?1:0,tm:(i*.137+performance.now()*.001)%1},{X:st.x.r.tex,Sd:st.seedTex});st.x.swap();}
+  auxShow(c,auxProg('rdshow',RD.show),{c1:hex3(P.color.v),c2:hex3(P.color2.v),bg:P.fondo.v==='Color'?1:0,ct:pv(P,'contraste',t)},{X:st.x.r.tex});}
+
+/* --- Foto 2.5D: depth computed on this computer (Depth Anything V2, ONNX) or from the light --- */
+const ORTV='https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
+const DFILES={ort:[ORTV+'ort.wasm.min.mjs','sha384-VT0YG/w40lWW6NPfj12FiBqBeiYi16Ojt1UZQxirRuO7oDyhsb+C7fgxJ9XD7Qja'],glue:[ORTV+'ort-wasm-simd-threaded.mjs','sha384-SyfqCcawqO3udRV2twBwYuuR4Wh7Nj/yfAxyfN6UltDOh5VTrJH4aT9HfEvthS02'],
+  wasm:[ORTV+'ort-wasm-simd-threaded.wasm','sha384-t24pimTffN4djMKJaYLDupLzilNBHTgwqbjacQNJObCC4RrMH4UjfZgDkwHEU04k'],
+  model:['https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model_quantized.onnx','sha256-/PUfGyMDYrKGkLudGAm/BDHynK0gU04/WJvXKFVH8g0=']};
+let DEPTHP=null;
+function loadDepth(){return DEPTHP||=(async()=>{const [code,glue,wasm,model]=await Promise.all([vfetch(DFILES.ort,'text'),vfetch(DFILES.glue,'text'),vfetch(DFILES.wasm),vfetch(DFILES.model)]);
+  const ort=await import(blobUrl(code,'text/javascript'));ort.env.wasm.numThreads=1;ort.env.wasm.proxy=false;ort.env.wasm.wasmPaths={mjs:blobUrl(glue,'text/javascript')};ort.env.wasm.wasmBinary=wasm.buffer;
+  const ses=await ort.InferenceSession.create(model,{executionProviders:['wasm']});return {ort,ses};})().catch(e=>{DEPTHP=null;throw e;});}
+function lumDepth(src,w,h,out){const g=sizeCv(out,w,h);g.filter='blur(3px) grayscale(1)';g.drawImage(src,0,0,w,h);g.filter='none';return out;}
+async function aiDepth(it){if(it.depthJob)return;it.depthJob=1;if(!OUT)toast('Calculando la profundidad de la foto en tu compu…');
+  try{const {ort,ses}=await loadDepth();const N2=392,[w,h]=clipSize(it),g=sizeCv(mkCv(),N2,N2);g.drawImage(it.el,0,0,N2,N2);const d=g.getImageData(0,0,N2,N2).data,inp=new Float32Array(3*N2*N2),mean=[.485,.456,.406],sd=[.229,.224,.225];
+    for(let i=0;i<N2*N2;i++)for(let ch=0;ch<3;ch++)inp[ch*N2*N2+i]=(d[i*4+ch]/255-mean[ch])/sd[ch];
+    const res=await ses.run({[ses.inputNames[0]]:new ort.Tensor('float32',inp,[1,3,N2,N2])}),o=res[ses.outputNames[0]],od=o.data,ow=o.dims[o.dims.length-1],oh=o.dims[o.dims.length-2];
+    let mn=Infinity,mx=-Infinity;for(const v of od){if(v<mn)mn=v;if(v>mx)mx=v;}const cv=mkCv(),cg=sizeCv(cv,ow,oh),id=cg.createImageData(ow,oh);
+    for(let i=0;i<ow*oh;i++){const v=(od[i]-mn)/(mx-mn||1)*255;id.data[i*4]=id.data[i*4+1]=id.data[i*4+2]=v;id.data[i*4+3]=255;}cg.putImageData(id,0,0);
+    const fin=mkCv(),fg=sizeCv(fin,Math.min(w,1024),Math.round(Math.min(w,1024)*h/w));fg.filter='blur(1.5px)';fg.drawImage(cv,0,0,fin.width,fin.height);fg.filter='none';it.depth=fin;it.depthVer=(it.depthVer||0)+1;
+    if(!OUT)toast('Profundidad lista.');refresh();}
+  catch(e){console.warn('depth',e);it.depthErr=1;if(!OUT)toast(navigator.onLine?'No se pudo calcular la profundidad: uso la luz de la foto.':'Para calcular la profundidad hace falta internet la primera vez. Mientras, uso la luz de la foto.');}
+  it.depthJob=0;}
+const RLF=`uniform sampler2D I,D; uniform vec2 off,res; uniform float foco,zoom,suave; uniform vec4 box;
+ void main(){ vec2 p=(uv-box.xy)/box.zw; if(any(lessThan(p,vec2(0.)))||any(greaterThan(p,vec2(1.)))){o=vec4(0.);return;}
+   p=(p-.5)/zoom+.5; vec2 q=p; float best=0.; for(int i=0;i<12;i++){ float d=texture(D,q).r; d=mix(d,smoothstep(.1,.9,d),suave); vec2 nq=p+off*(d-foco); q=mix(q,nq,.6); }
+   vec4 c=texture(I,clamp(q,0.,1.)); o=vec4(c.rgb*c.a,c.a); }`;
+const MOUSE={x:.5,y:.5};
+if(!OUT)$('#out').addEventListener('pointermove',e=>{const r=outRect();MOUSE.x=clamp((e.clientX-r.left)/r.width);MOUSE.y=clamp((e.clientY-r.top)/r.height);});
+function relieveLayer(c,P,t,L){
+  const it=clipOf(L);if(!it)return;const [w,h]=clipSize(it);if(!w)return;if(!aux()){DRAW.media(c,{...P,ajuste:{v:'Cubrir'},rot:{v:0}},t,L);return;}
+  const st=auxState(L,1,1,()=>({img:null,dep:null,dk:'',lc:mkCv()}));
+  const ai=P.prof.v==='Calculada en tu compu'&&it.kind==='image';if(ai&&!it.depth&&!it.depthErr)aiDepth(it);
+  const dk=(ai&&it.depth?'ai'+it.depthVer:'lum')+':'+it.id+(it.kind==='video'?':'+it.el.currentTime:'');
+  if(it.kind==='video'||st.imgId!==it.id){st.img=auxUpload(it.el,st.img);st.imgId=it.id;}if(st.dk!==dk){st.dep=auxUpload(ai&&it.depth?it.depth:lumDepth(it.el,Math.min(w,512),Math.round(Math.min(w,512)*h/w),st.lc),st.dep);st.dk=dk;}
+  const u=t/S.dur,n=Math.round(pv(P,'vueltas',t)),a=pv(P,'cant',t)*.07,m=P.mov.v;let ox=0,oy=0,zoom=pv(P,'zoom',t);
+  if(m==='Vaivén')ox=Math.sin(TAU*n*u)*a;else if(m==='Órbita'){ox=Math.cos(TAU*n*u)*a;oy=Math.sin(TAU*n*u)*a*.6;}else if(m==='Acercarse'){zoom*=1+.12*(.5-.5*Math.cos(TAU*n*u));oy=a*.3*(.5-.5*Math.cos(TAU*n*u));}
+  else if(m==='Con el mouse'){ox=(MOUSE.x-.5)*2*a;oy=(MOUSE.y-.5)*2*a;}
+  else if(m==='Con la cara'&&CAM.face.length){const lm=CAM.face[0][1];const s=st.fc||(st.fc=[lm.x,lm.y]);s[0]+=(lm.x-s[0])*.3;s[1]+=(lm.y-s[1])*.3;ox=-(s[0]-.5)*2.4*a;oy=(s[1]-.5)*2*a;}
+  const k=Math.max(W/w,H/h)*pv(P,'esc',t),bw=w*k/W,bh=h*k/H,cx=.5+pv(P,'x',t)/2,cy=.5-pv(P,'y',t)/2;
+  auxShow(c,auxProg('relieve',RLF),{off:[ox,-oy],foco:pv(P,'foco',t),zoom,suave:pv(P,'suave',t),box:[cx-bw/2,cy-bh/2,bw,bh]},{I:st.img,D:st.dep});}
+
+/* ================= Mapping de esquinas: corner pin, per layer or on the whole output ================= */
+/* homography that takes the unit square to the quad (TL, TR, BR, BL); the shader needs the inverse */
+function pinInverse(v){const [x0,y0,x1,y1,x2,y2,x3,y3]=v,dx1=x1-x2,dx2=x3-x2,dy1=y1-y2,dy2=y3-y2,sx=x0-x1+x2-x3,sy=y0-y1+y2-y3,den=dx1*dy2-dx2*dy1;if(Math.abs(den)<1e-9)return null;
+  const g=(sx*dy2-dx2*sy)/den,h=(dx1*sy-sx*dy1)/den,a=x1-x0+g*x1,b=x3-x0+h*x3,c=x0,d=y1-y0+g*y1,e=y3-y0+h*y3,f=y0;
+  /* forward M = [a b c; d e f; g h 1]; inverse by adjugate */
+  const A=e-f*h,B=c*h-b,C=b*f-c*e,D=f*g-d,E=a-c*g,F2=c*d-a*f,G=d*h-e*g,Hh=b*g-a*h,I=a*e-b*d;
+  return new Float32Array([A,D,G,B,E,Hh,C,F2,I]);/* column-major for uniformMatrix3fv */}
+function pinHTML(){return `<div class="fld" style="flex-basis:100%"><span>Esquinas</span><p class="note" style="margin:0">Arrastrá los cuatro puntos sobre el monitor hasta que la imagen calce con la pared, la tela o el objeto donde proyectás. Elegí <b>Solo en la salida en vivo</b> para que el monitor quede derecho.</p>
+  <div class="acts2" style="margin:8px 0 0"><button class="btn" data-pin="reset">Volver al rectángulo</button></div></div>`;}
+const pinTarget=()=>{if(OUT||S.tab==='fuente'||S.selU!=='esquinas')return null;const L=selLayer();return L&&L.fx.esquinas.on?L:null;};
+function pinHandles(){if(OUT)return;const mon=$('#monitor');let box=$('#pinBox');const L=pinTarget();
+  if(!L){if(box)box.hidden=true;return;}
+  if(!box){box=document.createElement('div');box.id='pinBox';box.innerHTML=[0,1,2,3].map(i=>`<button class="pinh" data-pi="${i}" aria-label="Esquina ${i+1}"></button>`).join('');mon.append(box);bindPin(box);}
+  box.hidden=false;const r=outRect(),mr=mon.getBoundingClientRect(),v=L.fx.esquinas.p.pin.v;
+  box.querySelectorAll('.pinh').forEach((b,i)=>{b.style.left=(r.left-mr.left+v[i*2]*r.width)+'px';b.style.top=(r.top-mr.top+v[i*2+1]*r.height)+'px';});}
+function bindPin(box){let d=null;
+  box.addEventListener('pointerdown',e=>{const b=e.target.closest('.pinh');if(!b)return;e.preventDefault();b.setPointerCapture(e.pointerId);d={i:+b.dataset.pi,id:e.pointerId};});
+  box.addEventListener('pointermove',e=>{if(!d||e.pointerId!==d.id)return;const L=pinTarget();if(!L)return;const r=outRect(),v=L.fx.esquinas.p.pin.v.slice();L.fx.esquinas.p.pin.v=v;
+    v[d.i*2]=+clamp((e.clientX-r.left)/r.width,-.5,1.5).toFixed(4);v[d.i*2+1]=+clamp((e.clientY-r.top)/r.height,-.5,1.5).toFixed(4);pinHandles();custom();refresh();});
+  const end=()=>{d=null;};box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end);
+  addEventListener('resize',pinHandles);}
+
+/* --- pointer on the monitor: cut with a click, push the ink --- */
+const touchTarget=()=>{const L=selLayer();return !OUT&&L&&L.vis&&(L.type==='recorte'&&clipOf(L)||L.type==='fluido')?L:null;};
+if(!OUT){const cv=$('#out');let fd=null;
+  cv.addEventListener('pointerdown',e=>{const L=touchTarget();if(!L||e.button!==0)return;e.preventDefault();
+    if(L.type==='recorte'){const p=pickAt(e,L);if(!p){toast('Tocá dentro de la imagen.');return;}const pts=L.p.pts.v;if(e.shiftKey&&pts.length<8)pts.push(p.map(n=>+n.toFixed(4)));else L.p.pts.v=[p.map(n=>+n.toFixed(4))];
+      if(!VT.touch||!VT.touch.task)toast('Preparando el recorte, la primera vez tarda unos segundos…');buildInsp();custom();refresh();liveKick();return;}
+    cv.setPointerCapture(e.pointerId);const r=outRect();fd={L,id:e.pointerId,x:(e.clientX-r.left)/r.width,y:1-(e.clientY-r.top)/r.height};});
+  cv.addEventListener('pointermove',e=>{if(!fd||e.pointerId!==fd.id)return;const r=outRect(),x=(e.clientX-r.left)/r.width,y=1-(e.clientY-r.top)/r.height,dx=x-fd.x,dy=y-fd.y;fd.x=x;fd.y=y;
+    if(Math.hypot(dx,dy)<.001)return;const q=FLP.get(fd.L.id)||[];const pr=e.pointerType==='mouse'?1:(e.pressure>0?e.pressure*1.6:1);if(q.length<40)q.push({x,y,dx:dx*3500,dy:dy*3500,r:pr});FLP.set(fd.L.id,q);liveKick();});
+  const end=e=>{if(fd&&e.pointerId===fd.id)fd=null;};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+  $('#insp').addEventListener('click',e=>{const b=e.target.closest('[data-pick],[data-pin]');if(!b)return;e.stopImmediatePropagation();const L=selLayer();
+    if(b.dataset.pick==='clear'){L.p.pts.v=[];CUTS.delete(L.id);}else if(b.dataset.pin==='reset'){L.fx.esquinas.p.pin.v=[0,0,1,0,1,1,0,1];pinHandles();}
+    buildInsp();custom();refresh();});}
+
+/* --- layers that live in real time (camera, ink, particles, growth) keep drawing while paused --- */
+const liveLayer=L=>L.vis&&((L.type==='vivo'&&CAM.st==='on')||['chispas','fluido','crece'].includes(L.type)||(L.type==='relieve'&&['Con el mouse','Con la cara'].includes(L.p.mov.v)));
+let vivoRaf=0;
+function liveKick(){if(OUT||vivoRaf)return;vivoRaf=requestAnimationFrame(liveStep);}
+function liveStep(){vivoRaf=0;if(S.playing||$('#veil')?.classList.contains('open'))return;const any=S.layers.some(liveLayer)||visionBusy()||[...CUTS.values()].some(s=>s.busy);
+  if(!any)return;render(S.t);vivoRaf=requestAnimationFrame(liveStep);}
+if(!OUT){setInterval(()=>{if(!S.playing&&S.layers.some(liveLayer))liveKick();},500);}
+
 /* ================= how to use xekuoia (help window, both languages) ================= */
 const HELP={
 es:{title:'Cómo usar xekuoia',nav:[['h-que','Qué es'],['h-pantalla','La pantalla'],['h-primero','Tu primer loop'],['h-capas','Capas'],['h-efectos','Efectos y movimiento'],['h-sonido','Sonido'],['h-vivo','Tocar en vivo'],['h-guardar','Exportar y guardar'],['h-atajos','Atajos'],['h-seguridad','Seguridad y privacidad'],['h-acerca','Acerca de']],
@@ -2217,10 +2710,16 @@ body:`
 <dt>Objeto 3D</dt><dd>Modelos OBJ, GLB o STL, y logos SVG que se extruyen solos. Se mueven arrastrando en el monitor; con <kbd>Shift</kbd> giran, con <kbd>Alt</kbd> rotan de costado y con la rueda se acercan. En Rotación automática elegís si gira o queda quieto.</dd>
 <dt>Dibujo</dt><dd>Pintá sobre el monitor con pincel, marcador, lápiz, aerosol o borrador. Con tableta, la presión cambia el grosor. Puede dibujarse solo durante el loop.</dd>
 <dt>Nodos</dt><dd>Redes de líneas y puntos, como un logo en línea y punto. Trazá con el mouse o el lápiz de la tableta: las esquinas se vuelven nodos y los toques los suman de a uno. Elegís el tipo de trazo (curva, circuito, rayo, punteado), la forma de los nodos, la paleta y efectos como neón, plexo, chispas, explosión, copias y simetría de caleidoscopio. La presión del lápiz cambia el tamaño de cada nodo.</dd>
+<dt>Cámara en vivo</dt><dd>Tu cámara como una capa más: el cuadro entero, solo tu cara con su contorno, tu silueta o el fondo sin vos. Con <b>Seguir la cara</b>, la cara queda centrada aunque te muevas. Sirve de máscara para la capa de arriba (Máscara: Alfa de la capa de abajo). Con <b>Manos como perillas</b>, cada mano mueve una perilla: se aprende igual que un control MIDI. Todo se calcula en tu compu y la imagen no sale de ahí; la primera vez hace falta internet para bajar los modelos.</dd>
+<dt>Recorte</dt><dd>Tocá un objeto o una persona en una foto o un video y queda recortado. Con <kbd>Shift</kbd> sumás otra parte. Con borde de papel, sombra, temblor y copias armás un collage de stickers.</dd>
+<dt>Partículas</dt><dd>La figura de la capa de cámara o de un recorte se deshace en partículas, desde el ruido, desde arriba, desde abajo o desde el centro. Animá <b>Cuánto se deshace</b> con el sonido o con una rampa.</dd>
+<dt>Tinta</dt><dd>Tinta líquida que empujás arrastrando el mouse o el lápiz sobre el monitor, con las manos frente a la cámara, con tu silueta o al ritmo.</dd>
+<dt>Crecimiento</dt><dd>Formas orgánicas, como coral o laberinto, que crecen desde un texto, un logo o tu silueta.</dd>
+<dt>Foto 2.5D</dt><dd>Una foto que se mueve con profundidad. La profundidad se calcula en tu compu (la primera vez baja un modelo de unos 27 MB) o se toma de la luz de la foto. Con <b>Con la cara</b>, la foto se mueve cuando movés la cabeza.</dd>
 <dt>Trama</dt><dd>Un patrón repetido de formas o de tu propio logo.</dd>
 <dt>Texto</dt><dd>Tipografía cinética al ritmo, con fuentes incluidas o de Google Fonts.</dd>
 <dt>Visualizador</dt><dd>Barras u ondas que dibujan el sonido.</dd>
-</dl></section>
+</dl><p><b>Mapping de esquinas</b> (en la familia Distorsión) deforma una capa o toda la salida moviendo sus cuatro esquinas sobre el monitor, para calzar la imagen en una pared, una tela o un objeto. Con <b>Solo en la salida en vivo</b>, el monitor queda derecho y solo se deforma lo que va al proyector.</p></section>
 
 <section id="h-efectos"><h3>Efectos y movimiento</h3>
 <p>Cada capa tiene sus propios efectos, y la <b>Salida general</b> aplica efectos sobre todo junto. Están en cinco familias: Tiempo, Movimiento, Distorsión, Color y Textura. Un efecto se prende con el punto de su esquina y se ajusta con sus perillas.</p>
@@ -2324,10 +2823,16 @@ body:`
 <dt>3D object</dt><dd>OBJ, GLB or STL models, and SVG logos that extrude on their own. Move them by dragging on the monitor; with <kbd>Shift</kbd> they turn, with <kbd>Alt</kbd> they roll and the wheel brings them closer. Auto rotation sets whether it spins or stays still.</dd>
 <dt>Drawing</dt><dd>Paint on the monitor with brush, marker, pencil, spray or eraser. With a tablet, pressure changes the thickness. It can draw itself over the loop.</dd>
 <dt>Nodes</dt><dd>Line-and-dot networks, like a line-and-dot logo. Draw with the mouse or the tablet pen: corners become nodes and taps add them one at a time. Pick the stroke (curve, circuit, lightning, dotted), the node shape, the palette and effects like neon, plexus, sparks, explosion, copies and kaleidoscope symmetry. Pen pressure changes the size of each node.</dd>
+<dt>Live camera</dt><dd>Your camera as one more layer: the whole frame, just your face with its real outline, your silhouette or the background without you. With <b>Follow the face</b>, your face stays centered while you move. It works as a mask for the layer above (Mask: Alpha of the layer below). With <b>Hands as knobs</b>, each hand moves a knob: you learn it just like a MIDI control. Everything is computed on your computer and the image never leaves it; the first time it needs internet to download the models.</dd>
+<dt>Cutout</dt><dd>Click an object or a person in a photo or a video and it gets cut out. With <kbd>Shift</kbd> you add another part. With paper edge, shadow, wobble and copies you build a sticker collage.</dd>
+<dt>Particles</dt><dd>The shape of the camera layer or of a cutout comes apart into particles, from noise, from the top, the bottom or the center. Animate <b>How much comes apart</b> with the sound or a ramp.</dd>
+<dt>Ink</dt><dd>Liquid ink you push by dragging the mouse or the pen on the monitor, with your hands in front of the camera, with your silhouette or to the beat.</dd>
+<dt>Growth</dt><dd>Organic shapes, like coral or a maze, that grow from a text, a logo or your silhouette.</dd>
+<dt>2.5D photo</dt><dd>A photo that moves with depth. Depth is computed on your computer (the first time it downloads a model of about 27 MB) or taken from the photo’s light. With <b>With your face</b>, the photo moves when you move your head.</dd>
 <dt>Pattern</dt><dd>A repeating pattern of shapes or of your own logo.</dd>
 <dt>Text</dt><dd>Kinetic type on the beat, with built-in fonts or Google Fonts.</dd>
 <dt>Visualizer</dt><dd>Bars or waves that draw the sound.</dd>
-</dl></section>
+</dl><p><b>Corner mapping</b> (in the Distortion family) warps a layer or the whole output by moving its four corners on the monitor, to fit the image on a wall, a cloth or an object. With <b>Only on the live output</b>, the monitor stays straight and only what goes to the projector is warped.</p></section>
 
 <section id="h-efectos"><h3>Effects and motion</h3>
 <p>Each layer has its own effects, and the <b>Main output</b> applies effects over everything. They come in five families: Time, Motion, Distortion, Color and Texture. Turn an effect on with the dot in its corner and adjust it with its knobs.</p>
@@ -2571,6 +3076,119 @@ async function restoreSession(){const man=readBin();if(!man)return;const missing
 
 /* ================= i18n: Spanish source → English ================= */
 const DICT={
+'Cámara en vivo':'Live camera',
+'Tu cámara, entera o con la cara o el cuerpo recortados':'Your camera, whole or with your face or body cut out',
+'Recorte':'Cutout',
+'Cuadro entero':'Whole frame',
+'Cara':'Face',
+'Silueta':'Silhouette',
+'Fondo sin vos':'Background without you',
+'Encuadre':'Framing',
+'Seguir la cara':'Follow the face',
+'Manos como perillas':'Hands as knobs',
+'Sí, con esqueleto':'Yes, with skeleton',
+'Borde suave':'Soft edge',
+'Margen de la cara':'Face margin',
+'Borde de papel':'Paper edge',
+'Un objeto de una foto o un video, recortado con un clic: sticker o collage':'An object from a photo or a video, cut out with one click: sticker or collage',
+'Dispersión':'Spread',
+'Partículas':'Particles',
+'La cara, el cuerpo o un recorte que se deshacen en partículas':'The face, the body or a cutout coming apart into particles',
+'Sale de':'Comes from',
+'Capa de cámara':'Camera layer',
+'Figura':'Shape',
+'Se deshace':'Comes apart',
+'Solo partículas':'Particles only',
+'Se deshace desde':'Comes apart from',
+'Ruido':'Noise',
+'Arriba':'Top',
+'Abajo':'Bottom',
+'El centro':'The center',
+'Del original':'From the original',
+'Color 1':'Color 1',
+'Cuánto se deshace':'How much comes apart',
+'Vida':'Life',
+'Viento':'Wind',
+'Dirección del viento':'Wind direction',
+'Gravedad':'Gravity',
+'Brillo':'Glow',
+'Tinta':'Ink',
+'Tinta y fluido que se empujan con el mouse, el lápiz, las manos o el cuerpo':'Ink and fluid pushed with the mouse, the pen, your hands or your body',
+'La empujan':'Pushed by',
+'Mouse y lápiz':'Mouse and pen',
+'Las manos':'The hands',
+'La silueta':'The silhouette',
+'El ritmo':'The beat',
+'Arcoíris':'Rainbow',
+'Tamaño de la gota':'Drop size',
+'Fuerza':'Force',
+'Se apaga':'Fades',
+'Remolinos':'Swirls',
+'Espesor':'Thickness',
+'Crecimiento':'Growth',
+'Formas orgánicas que crecen desde un texto, un logo o tu silueta':'Organic shapes that grow from a text, a logo or your silhouette',
+'Crece desde':'Grows from',
+'Silueta de la cámara':'Camera silhouette',
+'Patrón':'Pattern',
+'Coral':'Coral',
+'Laberinto':'Maze',
+'Células':'Cells',
+'Huellas':'Fingerprints',
+'Ondas':'Ripples',
+'Sembrar':'Seed',
+'Al empezar el loop':'When the loop starts',
+'Siempre':'Always',
+'Transparente':'Transparent',
+'Escala del patrón':'Pattern scale',
+'Contraste':'Contrast',
+'Foto 2.5D':'2.5D photo',
+'Una foto con profundidad que se mueve como si fuera 3D':'A photo with depth that moves as if it were 3D',
+'Calculada en tu compu':'Computed on your computer',
+'Por luz':'From the light',
+'Vaivén':'Sway',
+'Órbita':'Orbit',
+'Acercarse':'Push in',
+'Con el mouse':'With the mouse',
+'Con la cara':'With your face',
+'Foco':'Focus',
+'Suavizado':'Smoothing',
+'Mapping de esquinas':'Corner mapping',
+'Mové las cuatro esquinas para calzar la imagen en el escenario':'Move the four corners to fit the image on stage',
+'Esquinas':'Corners',
+'Dónde':'Where',
+'Monitor y salida':'Monitor and output',
+'Solo en la salida en vivo':'Only on the live output',
+'La cámara está apagada.':'The camera is off.',
+'Pidiendo permiso para usar la cámara…':'Asking permission to use the camera…',
+'Cámara encendida. Preparando la detección, la primera vez tarda unos segundos…':'Camera on. Getting detection ready, the first time takes a few seconds…',
+'Cámara encendida. La imagen no sale de tu compu.':'Camera on. The image never leaves your computer.',
+'Dentro de Claude el navegador no deja usar la cámara. Abrí xekuoia.com/app en Chrome.':'Inside Claude the browser doesn’t allow the camera. Open xekuoia.com/app in Chrome.',
+'El navegador no dio permiso. Tocá el ícono a la izquierda de la dirección, permití la cámara y volvé a intentar.':'The browser didn’t give permission. Click the icon left of the address, allow the camera and try again.',
+'No encontré ninguna cámara. Conectá una y volvé a intentar.':'I couldn’t find a camera. Connect one and try again.',
+'Este navegador no puede usar la cámara.':'This browser can’t use the camera.',
+'La cámara se desconectó.':'The camera was disconnected.',
+'No se pudo abrir la cámara. Puede que otra app la esté usando.':'Couldn’t open the camera. Another app may be using it.',
+'Encender cámara':'Turn on camera',
+'Apagar cámara':'Turn off camera',
+'Elegir cámara':'Choose camera',
+'Para que una mano mueva una perilla: abrí MIDI, tocá':'To make a hand move a knob: open MIDI, click',
+', hacé clic en la perilla y mové la mano (subila, llevala a un costado, abrila o juntá índice y pulgar).':', click the knob and move your hand (raise it, move it sideways, open it or pinch index and thumb).',
+'Partículas toma la forma de una capa de Cámara en vivo o de un Recorte. Sumá una de esas también.':'Particles take their shape from a Live camera or a Cutout layer. Add one of those too.',
+'Tocá en el monitor el objeto o la persona que querés recortar. Con':'Click on the monitor the object or person you want to cut out. With',
+'sumás otra parte.':'you add another part.',
+'Ver la imagen entera':'Show the whole image',
+'Tocá dentro de la imagen.':'Click inside the image.',
+'Preparando el recorte, la primera vez tarda unos segundos…':'Getting the cutout ready, the first time takes a few seconds…',
+'Este navegador no puede calcular la tinta ni el crecimiento. Usá Chrome o Edge en la compu.':'This browser can’t compute ink or growth. Use Chrome or Edge on a computer.',
+'Calculando la profundidad de la foto en tu compu…':'Computing the photo’s depth on your computer…',
+'Profundidad lista.':'Depth ready.',
+'No se pudo calcular la profundidad: uso la luz de la foto.':'Couldn’t compute the depth: using the photo’s light.',
+'Para calcular la profundidad hace falta internet la primera vez. Mientras, uso la luz de la foto.':'Computing depth needs internet the first time. Meanwhile I use the photo’s light.',
+'Arrastrá los cuatro puntos sobre el monitor hasta que la imagen calce con la pared, la tela o el objeto donde proyectás. Elegí':'Drag the four dots on the monitor until the image fits the wall, cloth or object you project on. Choose',
+'para que el monitor quede derecho.':'to keep the monitor straight.',
+'Volver al rectángulo':'Back to rectangle',
+'Mientras está en pausa se ve la imagen entera, apenas marcada: tocá otra parte para recortar otra cosa, o con':'While paused the whole image shows faintly: click another part to cut out something else, or with',
+'para sumarla.':'to add it.',
 'Nodos':'Nodes','Paleta':'Palette','Redes de líneas y puntos dibujadas con el lápiz':'Line-and-dot networks drawn with the pen','Red':'Network','Trazo':'Stroke','Línea':'Line','Circuito':'Circuit','Rayo':'Lightning','Punteada':'Dotted','Guiones':'Dashed','Doble':'Double','Nodo':'Node','Anillo':'Ring','Diamante':'Diamond','Cruz':'Cross','Ninguno':'None','Un color':'One color','Dos colores':'Two colors','Simetría':'Symmetry','Se arma en el loop':'Builds over the loop','Se arma y se desarma':'Builds and comes apart','Destellos':'Flashes','Tamaño de nodo':'Node size','Neón':'Neon','Plexo':'Plexus','Chispas':'Sparks','Vibración':'Vibration','Explosión':'Explosion','Copias':'Copies','Reacción al sonido':'Sound reaction','Herramienta':'Tool','Trazar':'Draw','Mover nodos':'Move nodes','Borrar nodos':'Erase nodes','Red al azar':'Random network','Red borrada.':'Network cleared.','Red neón':'Neon network','Trazá una línea sobre el monitor y sus esquinas se vuelven nodos. Tocá para sumar nodos uno a uno, encadenados; tocá el último otra vez o apretá':'Draw a line on the monitor and its corners become nodes. Tap to add nodes one by one, chained; tap the last one again or press','para cortar la cadena. Con tableta, la presión cambia el tamaño del nodo y la punta de atrás borra.':'to end the chain. With a tablet, pressure changes the node size and the back of the pen erases.',
 'Entendido':'Got it','xekuoia está pensada para la compu: en el celular la pantalla queda chica y no hay MIDI. Para usarla de verdad, abrila en Chrome o Edge desde una computadora.':'xekuoia is made for computers: on a phone the screen is too small and there’s no MIDI. To really use it, open it in Chrome or Edge on a computer.',
 'Este navegador no puede dibujar los efectos. Abrí xekuoia en Chrome o Edge desde la compu.':'This browser can’t draw the effects. Open xekuoia in Chrome or Edge on a computer.',
@@ -2720,6 +3338,11 @@ const DICT={
 };
 const T_=x=>{const r=trCore(x);return r==null?x:r;};
 const PATS=[
+ [/^Mano (izquierda|derecha), (altura|lado|pinza|apertura)$/,m=>`${m[1]==='izquierda'?'Left':'Right'} hand, ${{altura:'height',lado:'side',pinza:'pinch',apertura:'openness'}[m[2]]}`],
+ [/^Recortado con (un toque|\d+ toques)\.$/,m=>`Cut out with ${m[1]==='un toque'?'one click':m[1].replace(' toques',' clicks')}.`],
+ [/^No se pudo cargar (.+)\. Probá de nuevo en un rato\.$/,m=>`Couldn’t load ${({'la detección de caras':'face detection','la silueta':'the silhouette','las manos':'hand tracking','el recorte':'the cutout'})[m[1]]||m[1]}. Try again in a while.`],
+ [/^Para (.+) hace falta internet la primera vez\.$/,m=>`${({'la detección de caras':'Face detection','la silueta':'The silhouette','las manos':'Hand tracking','el recorte':'The cutout'})[m[1]]||m[1]} needs internet the first time.`],
+ [/^Cámara (\d+)$/,m=>`Camera ${m[1]}`],[/^Esquina (\d)$/,m=>`Corner ${m[1]}`],
  [/^(\d+) nodos? y (\d+) líneas?\.$/,m=>`${m[1]} node${m[1]==='1'?'':'s'} and ${m[2]} line${m[2]==='1'?'':'s'}.`],
  [/^Usar el color (#[0-9a-f]+)$/i,m=>`Use color ${m[1]}`],
  [/^(\d+) objetos 3D nuevos\.$/,m=>`${m[1]} new 3D objects.`],
