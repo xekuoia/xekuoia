@@ -2599,7 +2599,7 @@ const DFILES={ort:[ORTV+'ort.wasm.min.mjs','sha384-VT0YG/w40lWW6NPfj12FiBqBeiYi1
   model:['https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model_quantized.onnx','sha256-/PUfGyMDYrKGkLudGAm/BDHynK0gU04/WJvXKFVH8g0=']};
 let DEPTHP=null;
 function loadDepth(){return DEPTHP||=(async()=>{const [code,glue,wasm,model]=await Promise.all([vfetch(DFILES.ort,'text'),vfetch(DFILES.glue,'text'),vfetch(DFILES.wasm),vfetch(DFILES.model)]);
-  const ort=await import(blobUrl(code,'text/javascript'));ort.env.wasm.numThreads=1;ort.env.wasm.proxy=false;ort.env.wasm.wasmPaths={mjs:blobUrl(glue,'text/javascript')};ort.env.wasm.wasmBinary=wasm.buffer;
+  const ort=await import(blobUrl(code,'text/javascript'));ort.env.wasm.numThreads=1;ort.env.wasm.proxy=false;ort.env.wasm.wasmPaths={mjs:blobUrl(glue,'text/javascript'),wasm:blobUrl(wasm,'application/wasm')};
   const ses=await ort.InferenceSession.create(model,{executionProviders:['wasm']});return {ort,ses};})().catch(e=>{DEPTHP=null;throw e;});}
 function lumDepth(src,w,h,out){const g=sizeCv(out,w,h);g.filter='blur(3px) grayscale(1)';g.drawImage(src,0,0,w,h);g.filter='none';return out;}
 async function aiDepth(it){if(it.depthJob)return;it.depthJob=1;if(!OUT)toast('Calculando la profundidad de la foto en tu compu…');
